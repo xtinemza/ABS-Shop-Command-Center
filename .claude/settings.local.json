@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python \"C:\\\\Users\\\\chris\\\\Downloads\\\\Claude Shop Command Center\\\\tools\\\\shared\\\\load_profile.py\")",
+      "Bash(python tools/shared/load_profile.py --check)",
+      "Bash(python tools/shared/setup_wizard.py --help)",
+      "Bash(wc -l \"C:\\\\Users\\\\chris\\\\Downloads\\\\Claude Shop Command Center\\\\workflows\"/*.md)",
+      "Bash(python tools/appointments/generate_reminders.py --help)",
+      "Bash(python tools/welcome_kit/generate_kit.py --help)",
+      "Bash(python tools/shared/setup_wizard.py --name 'Peak Auto Repair' --owner 'Jason Mercer' --phone '\\(720\\) 555-0192' --address '4821 Tennyson St, Denver, CO 80212' --hours 'Mon-Fri 7:30am-5:30pm, Sat 8am-1pm' --services 'Oil changes, brakes, tires, diagnostics, AC service, alignments, transmission, engine repair' --type 'Independent auto repair' --website https://peakautorepair.com --tagline 'Honest work. Fair prices. Every time.' --google-review https://g.page/r/peakautorepair/review --tone 'Professional and friendly')",
+      "Bash(python -c \"import sys; print\\(sys.stdout.encoding\\)\")",
+      "Bash(python tools/appointments/generate_reminders.py --touchpoint booking_confirmation --service_type 'Brake Service' --channels sms,email,phone_script)",
+      "Bash(python tools/seasonal/generate_campaign.py --season summer --discount '15% off AC service' --expiry 'August 31, 2026')",
+      "Bash(python tools/sop/generate_sop.py --procedure vehicle_intake)",
+      "Bash(python tools/welcome_kit/generate_kit.py --component all)",
+      "Bash(python -c \"import main; print\\('Backend imports OK'\\)\")",
+      "Bash(python -m uvicorn main:app --port 8000)",
+      "Bash(curl -s http://localhost:8000/api/health)",
+      "Bash(npm install:*)",
+      "Bash(where node:*)",
+      "Bash(where npm:*)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(cmd /c \"node --version 2>&1\")",
+      "Bash(cmd /c \"npm --version 2>&1\")",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}

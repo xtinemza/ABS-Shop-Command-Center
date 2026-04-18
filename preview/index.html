@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Shop Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700;1,800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0B0B0D;font-family:'Barlow',sans-serif;color:#AAA}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:#222;border-radius:3px}
+::-webkit-scrollbar-track{background:transparent}
+@keyframes cardIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes drawerIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+select,input,textarea{background:#111113;border:1px solid #222;border-radius:3px;color:#CCC;padding:10px 12px;font-size:13px;font-family:'Barlow',sans-serif;outline:none;width:100%;transition:border-color .2s}
+select:focus,input:focus,textarea:focus{border-color:#D4A017}
+select option{background:#111113}
+textarea{resize:vertical;min-height:80px}
+button{cursor:pointer;font-family:'Barlow',sans-serif}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+import{useState,useEffect,useCallback}from'https://esm.sh/react@18';
+import{createRoot}from'https://esm.sh/react-dom@18/client';
+import htm from'https://esm.sh/htm@3';
+const html=htm.bind(React.createElement);
+import React from'https://esm.sh/react@18';
+
+const G='#D4A017';
+const API = window.location.hostname === 'localhost'
+  ? 'http://localhost:8000'
+  : 'https://YOUR-RENDER-URL.onrender.com';
+
+/* ── DATA ── */
+const MODULES=[
+  {id:'appointments',   title:'Appointment Reminders',    sub:'& Follow-Up Sequences',    icon:'📅',cat:'communication',status:'core',     tag:'HIGH IMPACT', impact:'Reduces no-shows up to 30%',        desc:'Confirmations, day-before reminders, post-service thank-yous, 30-day check-ins, 6-month maintenance nudges. SMS, email & phone scripts.'},
+  {id:'welcome-kit',    title:'New Customer Welcome Kit', sub:'Generator',                icon:'🎁',cat:'communication',status:'core',     tag:'RETENTION',   impact:'Boosts 2nd visit rate',             desc:'Thank-you letter, shop overview, vehicle-specific maintenance schedule, discount coupons, referral cards, and digital email version.'},
+  {id:'wait-time',      title:'Wait Time Comms',          sub:'Template Library',         icon:'⏱',cat:'communication',status:'core',     tag:'EXPERIENCE',  impact:'#1 satisfaction driver',            desc:'Check-in confirmations, tech-assigned alerts, mid-service updates, parts delay notices, completion alerts, pickup-ready messages.'},
+  {id:'declined',       title:'Declined Services',        sub:'Follow-Up Campaigns',      icon:'🔄',cat:'communication',status:'core',     tag:'REVENUE',     impact:'Recovers 40-60% lost revenue',      desc:'Multi-touch sequences for unapproved work. Educational content, seasonal urgency triggers, re-engagement offers by service type.'},
+  {id:'service-history',title:'Vehicle Service History',  sub:'Report Generator',         icon:'📊',cat:'trust',        status:'core',     tag:'TRUST',       impact:'Builds lifetime loyalty',           desc:'Branded report: complete maintenance history, upcoming recommendations, vehicle health summary and color-coded status.'},
+  {id:'estimates',      title:'Repair Estimate',          sub:'Narrator',                 icon:'💬',cat:'trust',        status:'core',     tag:'TRUST',       impact:'Increases approval rates',          desc:'Translates technical repair descriptions into plain language. Explains the why, deferral risk, and pricing context.'},
+  {id:'inspection',     title:'Vehicle Intake &',         sub:'Inspection Forms',         icon:'🔍',cat:'trust',        status:'core',     tag:'OPERATIONS',  impact:'Foundation of trust selling',       desc:'Digital multi-point inspections — checkboxes, condition ratings, photo placeholders, notes. Customer-facing urgency reports.'},
+  {id:'recall',         title:'Vehicle Recall',           sub:'Notification Service',     icon:'🚨',cat:'safety',       status:'core',     tag:'SAFETY',      impact:'Positions shop as safety advocate', desc:'Cross-references VINs against recall databases. Personalized safety notifications explaining implications.'},
+  {id:'equipment',      title:'Equipment Maintenance',    sub:'& Calibration Logger',     icon:'🔧',cat:'safety',       status:'core',     tag:'COMPLIANCE',  impact:'Prevents costly downtime',          desc:'Tracks lifts, alignment machines, scanners, tire machines. Maintenance schedules, calibration dates, service history.'},
+  {id:'sop',            title:'SOP Library',              sub:'Builder',                  icon:'📋',cat:'operations',   status:'core',     tag:'SCALE',       impact:'Enables scaling & consistency',     desc:'SOPs for check-in, inspection, estimates, parts ordering, QC, test drives, delivery, warranty claims, complaints.'},
+  {id:'parts',          title:'Parts Inventory',          sub:'& Reorder Alerts',         icon:'📦',cat:'operations',   status:'core',     tag:'OPERATIONS',  impact:'Eliminates stockouts',              desc:'Stock levels, minimum thresholds, preferred vendors, cost data. Auto-generated POs and reorder alerts when stock drops.'},
+  {id:'warranty',       title:'Warranty Claims',          sub:'Tracker & Docs',           icon:'🛡',cat:'operations',   status:'core',     tag:'REVENUE',     impact:'Recovers thousands annually',       desc:'Claim forms, documentation checklists, vendor contacts, status tracking, reimbursement reconciliation, recovery reports.'},
+  {id:'expenses',       title:'Shop Expenses',            sub:'Categorization & Reports', icon:'💰',cat:'financial',    status:'core',     tag:'FINANCIAL',   impact:'Reveals hidden waste',              desc:'Categorizes all expenses — parts, labor, rent, utilities, insurance, marketing, tools, training. Trends & budget variance.'},
+  {id:'seasonal',       title:'Seasonal Campaign',        sub:'Builder',                  icon:'🗓',cat:'communication',status:'suggested',tag:'MARKETING',   impact:'Low-effort recurring revenue',      desc:'Calendar-driven marketing — winterization, AC checks, tire rotation reminders. Pre-built templates for SMS, email & social.'},
+  {id:'referrals',      title:'Referral Tracking',        sub:'& Reward System',          icon:'🤝',cat:'communication',status:'suggested',tag:'GROWTH',      impact:'Highest-trust lead channel',        desc:'Tracks referrer-to-referee chains, automated thank-yous, reward notifications, referral analytics, custom reward tiers.'},
+  {id:'tech',           title:'Tech Productivity',        sub:'& Labor Summary',          icon:'👨‍🔧',cat:'financial', status:'suggested',tag:'FINANCIAL',   impact:'Protects profit margins',           desc:'Weekly per-tech summaries — efficiency rates, over-estimate flagging, revenue per tech breakdown. Stops margin leaks.'},
+  {id:'milestones',     title:'Customer Milestone',       sub:'Outreach',                 icon:'🎉',cat:'communication',status:'suggested',tag:'RETENTION',   impact:'Retention on autopilot',            desc:'Auto-generated messages for 1-year anniversary, 5th visit, 100k mile milestones. Simple touchpoints, strong retention signal.'},
+];
+
+const FEATURES={
+  'appointments':   ['Booking confirmation (SMS + email + phone script)','Day-before reminder with prep instructions','Day-of notification with arrival details','Post-service thank-you message','30-day follow-up health check','6-month maintenance reminder','Phone script versions for staff','Customizable by service type'],
+  'welcome-kit':    ['Personalized thank-you letter from the owner','Shop overview & what makes you different','Vehicle-specific maintenance schedule','New customer discount offer with terms','Referral card with tracking details','Complete welcome email ready to send'],
+  'wait-time':      ['Drop-off confirmation message','Inspection update with approval request','Repair in-progress status update','Ready for pickup notification','Parts delay / time extension notice'],
+  'declined':       ['Same-day follow-up (touch 1)','3-day educational follow-up (touch 2)','2-week re-engagement with discount (touch 3)','30-day final touchpoint (touch 4)','4 urgency tiers including safety-critical','SMS, email, and phone script per touch'],
+  'service-history':['Complete chronological service timeline','Upcoming service recommendations','Vehicle health summary scorecard','Total spend and visit stats','Branded shop header and footer'],
+  'estimates':      ['Plain-English explanation per repair item','Why-this-repair-matters context','Risk-of-deferral warnings by urgency','Part + labor cost breakdown','"What if I wait?" section for urgent items'],
+  'inspection':     ['Blank multi-point inspection form (52 items)','Pre-purchase inspection form','Seasonal inspection form','Completed customer-facing report','Color-coded status: Good/Fair/Attention/Urgent'],
+  'recall':         ['NHTSA lookup guidance with exact URLs','Formatted recall record','Customer SMS alert under 160 chars','Full customer email explanation','Phone script with voicemail variant'],
+  'equipment':      ['Add and track all shop equipment','Log maintenance events per unit','List by status: overdue/due soon/current','Full compliance-ready status report','Signature and sign-off block'],
+  'sop':            ['17 built-in SOPs across 3 categories','Vehicle intake, oil change, tire rotation','Customer complaints, phone greeting','Parts ordering, end-of-day closing','Numbered steps with Why explanations'],
+  'parts':          ['Add and update parts inventory','Reorder check — out-of-stock and low-stock','Auto-generate purchase orders by vendor','PO with line items, totals, authorization block','Full inventory report by category'],
+  'warranty':       ['Log warranty claims with full details','Track status through resolution','Vendor breakdown and recovery rates','Claims aged at 30/60/90 days','Monthly, quarterly, or annual reports'],
+  'expenses':       ['Log expenses by category','14 categories: parts, rent, utilities, marketing','Monthly and annual expense reports','Month-over-month trend analysis','Bookkeeper-ready summary'],
+  'seasonal':       ['Winter, spring, summer, fall campaigns','SMS blast under 160 chars','Full email with service checklist','Social media caption with hashtags','Staff briefing with talking points'],
+  'referrals':      ['Log referrer-to-referee relationships','Check pending unredeemed rewards','Generate referrer thank-you SMS + email','Generate referee welcome SMS + email','Referral program performance report'],
+  'tech':           ['Per-tech efficiency % (billed vs clocked)','Revenue per billed hour','Jobs per day and comeback rate','Flags techs below 80% efficiency','Shop-wide totals and averages'],
+  'milestones':     ['1-year anniversary message','5-year VIP anniversary message','Visit milestone (5th, 10th, 25th visit)','Mileage milestone (50k, 100k, 200k miles)','SMS, email, and phone script per milestone'],
+};
+
+const CATS={all:'ALL MODULES',communication:'COMMUNICATION',trust:'TRUST',safety:'SAFETY',operations:'OPERATIONS',financial:'FINANCIAL'};
+
+/* ── HELPERS ── */
+const post=(url,data)=>fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r=>r.json());
+
+const endpointFor=(id,data)=>{
+  const m={
+    'appointments':   `${API}/api/appointments/generate`,
+    'welcome-kit':    `${API}/api/welcome-kit/generate`,
+    'wait-time':      `${API}/api/wait-time/generate`,
+    'declined':       `${API}/api/declined/generate`,
+    'service-history':`${API}/api/service-history/generate`,
+    'estimates':      `${API}/api/estimates/generate`,
+    'inspection':     `${API}/api/inspection/generate`,
+    'recall':         data._tab==='lookup'?`${API}/api/recall/check`:`${API}/api/recall/notify`,
+    'equipment':      `${API}/api/equipment/action`,
+    'sop':            `${API}/api/sop/generate`,
+    'parts':          data._tab==='po'?`${API}/api/parts/po`:`${API}/api/parts/inventory`,
+    'warranty':       data._tab==='report'?`${API}/api/warranty/report`:`${API}/api/warranty/claims`,
+    'expenses':       data._tab==='report'?`${API}/api/expenses/report`:`${API}/api/expenses/log`,
+    'seasonal':       `${API}/api/seasonal/generate`,
+    'referrals':      data._tab==='reward'?`${API}/api/referrals/rewards`:`${API}/api/referrals/track`,
+    'tech':           `${API}/api/tech/summary`,
+    'milestones':     `${API}/api/milestones/generate`,
+  };
+  return m[id];
+};
+
+/* ── SMALL UI PIECES ── */
+function Label({children}){
+  return html`<div style=${{fontSize:10,fontWeight:700,color:'#555',letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:6}}>${children}</div>`;
+}
+function Field({label,children}){
+  return html`<div style=${{marginBottom:16}}><${Label}>${label}</${Label}>${children}</div>`;
+}
+function GenBtn({loading}){
+  return html`<button type="submit" style=${{marginTop:20,padding:'14px 0',borderRadius:3,border:`1px solid ${G}66`,background:loading?'#333':`linear-gradient(135deg,${G},${G}CC)`,color:loading?'#888':'#0B0B0D',fontSize:13,fontWeight:800,fontFamily:"'Barlow Condensed',sans-serif",letterSpacing:'0.12em',textTransform:'uppercase',fontStyle:'italic',width:'100%'}}>${loading?'Generating...':'Generate →'}</button>`;
+}
+function TabBar({tabs,active,onChange}){
+  return html`<div style=${{display:'flex',gap:8,marginBottom:20}}>
+    ${tabs.map(t=>html`<button key=${t.id} type="button" onClick=${()=>onChange(t.id)} style=${{flex:1,padding:'8px 0',borderRadius:3,border:`1px solid ${active===t.id?G:'#222'}`,background:active===t.id?`${G}15`:'transparent',color:active===t.id?G:'#555',fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase'}}>${t.label}</button>`)}
+  </div>`;
+}
+
+/* ── FORMS ── */
+function AppointmentsForm({onSubmit,loading}){
+  const[f,sF]=useState({touchpoint:'all',service_type:'Oil Change',channels:'sms,email,phone_script'});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',display:'flex',flexDirection:'column',flex:1}}>
+    <${Field} label="Touchpoint"><select value=${f.touchpoint} onChange=${e=>sF({...f,touchpoint:e.target.value})}>
+      <option value="all">All Touchpoints</option><option value="booking_confirmation">Booking Confirmation</option>
+      <option value="day_before_reminder">Day Before Reminder</option><option value="day_of_notification">Day-Of Notification</option>
+      <option value="post_service_thankyou">Post-Service Thank-You</option><option value="thirty_day_followup">30-Day Follow-Up</option>
+      <option value="six_month_maintenance">6-Month Maintenance</option>
+    </select></${Field}>
+    <${Field} label="Service Type"><input value=${f.service_type} onChange=${e=>sF({...f,service_type:e.target.value})} placeholder="e.g. Brake Service"/></${Field}>
+    <${Field} label="Channels"><select value=${f.channels} onChange=${e=>sF({...f,channels:e.target.value})}>
+      <option value="sms,email,phone_script">All Channels</option><option value="sms">SMS Only</option>
+      <option value="email">Email Only</option><option value="phone_script">Phone Script Only</option>
+    </select></${Field}>
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function WelcomeKitForm({onSubmit,loading}){
+  const[f,sF]=useState({component:'all',discount:'10% off your next service — up to $50',referral_offer:'$25 off for you and your referral'});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
+    <${Field} label="Component"><select value=${f.component} onChange=${e=>sF({...f,component:e.target.value})}>
+      <option value="all">All Components</option><option value="thank_you_letter">Thank-You Letter</option>
+      <option value="shop_overview">Shop Overview</option><option value="maintenance_guide">Maintenance Guide</option>
+      <option value="new_customer_offer">New Customer Offer</option><option value="referral_card">Referral Card</option>
+      <option value="welcome_email">Welcome Email</option>
+    </select></${Field}>
+    <${Field} label="Discount Offer"><input value=${f.discount} onChange=${e=>sF({...f,discount:e.target.value})}/></${Field}>
+    <${Field} label="Referral Offer"><input value=${f.referral_offer} onChange=${e=>sF({...f,referral_offer:e.target.value})}/></${Field}>
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function WaitTimeForm({onSubmit,loading}){
+  const[f,sF]=useState({status:'all',service_type:'General Repair'});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
+    <${Field} label="Status"><select value=${f.status} onChange=${e=>sF({...f,status:e.target.value})}>
+      <option value="all">All Status Types</option><option value="drop_off_confirmation">Drop-Off Confirmation</option>
+      <option value="inspection_update">Inspection Update</option><option value="repair_in_progress">Repair In Progress</option>
+      <option value="ready_for_pickup">Ready for Pickup</option><option value="delayed_notification">Delayed Notification</option>
+    </select></${Field}>
+    <${Field} label="Service Type"><input value=${f.service_type} onChange=${e=>sF({...f,service_type:e.target.value})} placeholder="e.g. Brake Service"/></${Field}>
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function DeclinedForm({onSubmit,loading}){
+  const[f,sF]=useState({service:'Brake Pad Replacement',urgency:'high',touches:'1,2,3,4'});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
+    <${Field} label="Declined Service"><input value=${f.service} onChange=${e=>sF({...f,service:e.target.value})}/></${Field}>
+    <${Field} label="Urgency"><select value=${f.urgency} onChange=${e=>sF({...f,urgency:e.target.value})}>
+      <option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="safety-critical">Safety Critical</option>
+    </select></${Field}>
+    <${Field} label="Touches to Generate"><input value=${f.touches} onChange=${e=>sF({...f,touches:e.target.value})} placeholder="1,2,3,4"/></${Field}>
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function ServiceHistoryForm({onSubmit,loading}){
+  const[f,sF]=useState({customer:'',vehicle:'',vin:'',mileage:'',records:''});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
+    <${Field} label="Customer Name"><input value=${f.customer} onChange=${e=>sF({...f,customer:e.target.value})} placeholder="e.g. Sarah Mitchell"/></${Field}>
+    <${Field} label="Vehicle"><input value=${f.vehicle} onChange=${e=>sF({...f,vehicle:e.target.value})} placeholder="e.g. 2019 Toyota Camry SE"/></${Field}>
+    <${Field} label="Current Mileage"><input type="number" value=${f.mileage} onChange=${e=>sF({...f,mileage:e.target.value})} placeholder="e.g. 67000"/></${Field}>
+    <${Field} label="VIN (optional)"><input value=${f.vin} onChange=${e=>sF({...f,vin:e.target.value})}/></${Field}>
+    <${Field} label="Service Records (JSON or date|mileage|service|tech|cost|notes per line)">
+      <textarea rows="5" value=${f.records} onChange=${e=>sF({...f,records:e.target.value})} placeholder='[{"date":"01/15/2024","mileage":62000,"service":"Oil Change","tech":"Mike","cost":45,"notes":""}]'/>
+    </${Field}>
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function EstimatesForm({onSubmit,loading}){
+  const[f,sF]=useState({customer:'',vehicle:'',items:''});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
+    <${Field} label="Customer Name"><input value=${f.customer} onChange=${e=>sF({...f,customer:e.target.value})} placeholder="e.g. David Chen"/></${Field}>
+    <${Field} label="Vehicle"><input value=${f.vehicle} onChange=${e=>sF({...f,vehicle:e.target.value})} placeholder="e.g. 2017 Honda CR-V"/></${Field}>
+    <${Field} label="Line Items (JSON)">
+      <textarea rows="6" value=${f.items} onChange=${e=>sF({...f,items:e.target.value})} placeholder='[{"part":"Front Brake Pads","part_cost":120,"labor_hours":1.5,"labor_cost":135,"urgency":"high","notes":"2mm remaining"}]'/>
+    </${Field}>
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function InspectionForm({onSubmit,loading}){
+  const[f,sF]=useState({mode:'form',type:'multi_point',customer:'',vehicle:'',mileage:'',results:''});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
+    <${Field} label="Mode"><select value=${f.mode} onChange=${e=>sF({...f,mode:e.target.value})}>
+      <option value="form">Blank Inspection Form</option><option value="report">Completed Report</option>
+    </select></${Field}>
+    ${f.mode==='form'&&html`<${Field} label="Form Type"><select value=${f.type} onChange=${e=>sF({...f,type:e.target.value})}>
+      <option value="multi_point">Multi-Point (52 items)</option><option value="pre_purchase">Pre-Purchase</option><option value="seasonal">Seasonal</option>
+    </select></${Field}>`}
+    <${Field} label="Customer"><input value=${f.customer} onChange=${e=>sF({...f,customer:e.target.value})}/></${Field}>
+    <${Field} label="Vehicle"><input value=${f.vehicle} onChange=${e=>sF({...f,vehicle:e.target.value})} placeholder="e.g. 2019 Toyota Camry"/></${Field}>
+    <${Field} label="Mileage"><input type="number" value=${f.mileage} onChange=${e=>sF({...f,mileage:e.target.value})}/></${Field}>
+    ${f.mode==='report'&&html`<${Field} label="Results (JSON)">
+      <textarea rows="5" value=${f.results} onChange=${e=>sF({...f,results:e.target.value})} placeholder='[{"category":"Brakes","item":"Front pads","status":"urgent","notes":"2mm"}]'/>
+    </${Field}>`}
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function RecallForm({onSubmit,loading}){
+  const[tab,sTab]=useState('lookup');
+  const[f,sF]=useState({make:'',model:'',year:'',vin:'',customer:'',vehicle:'',recall_campaign:'',component:'',description:'',remedy:'',urgency:'high'});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit({...f,_tab:tab})}} style=${{padding:'24px 28px',flex:1}}>
+    <${TabBar} tabs=${[{id:'lookup',label:'Look Up'},{id:'notify',label:'Generate Notice'}]} active=${tab} onChange=${sTab}/>
+    ${tab==='lookup'?html`
+      <${Field} label="Make"><input value=${f.make} onChange=${e=>sF({...f,make:e.target.value})} placeholder="e.g. Ford"/></${Field}>
+      <${Field} label="Model"><input value=${f.model} onChange=${e=>sF({...f,model:e.target.value})} placeholder="e.g. F-150"/></${Field}>
+      <${Field} label="Year"><input value=${f.year} onChange=${e=>sF({...f,year:e.target.value})} placeholder="e.g. 2019"/></${Field}>
+      <${Field} label="VIN (optional)"><input value=${f.vin} onChange=${e=>sF({...f,vin:e.target.value})}/></${Field}>
+    `:html`
+      <${Field} label="Customer"><input value=${f.customer} onChange=${e=>sF({...f,customer:e.target.value})}/></${Field}>
+      <${Field} label="Vehicle"><input value=${f.vehicle} onChange=${e=>sF({...f,vehicle:e.target.value})}/></${Field}>
+      <${Field} label="Recall Campaign #"><input value=${f.recall_campaign} onChange=${e=>sF({...f,recall_campaign:e.target.value})}/></${Field}>
+      <${Field} label="Component"><input value=${f.component} onChange=${e=>sF({...f,component:e.target.value})}/></${Field}>
+      <${Field} label="Description"><textarea rows="2" value=${f.description} onChange=${e=>sF({...f,description:e.target.value})}/></${Field}>
+      <${Field} label="Remedy"><textarea rows="2" value=${f.remedy} onChange=${e=>sF({...f,remedy:e.target.value})}/></${Field}>
+      <${Field} label="Urgency"><select value=${f.urgency} onChange=${e=>sF({...f,urgency:e.target.value})}>
+        <option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="safety-critical">Safety Critical</option>
+      </select></${Field}>
+    `}
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function EquipmentForm({onSubmit,loading}){
+  const[f,sF]=useState({action:'list',equipment_id:'',name:'',type:'',purchase_date:'',last_service:'',next_service:'',notes:''});
+  const detail=['add','update','log_maintenance'].includes(f.action);
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
+    <${Field} label="Action"><select value=${f.action} onChange=${e=>sF({...f,action:e.target.value})}>
+      <option value="add">Add Equipment</option><option value="update">Update Equipment</option>
+      <option value="log_maintenance">Log Maintenance</option><option value="list">List All</option>
+      <option value="generate_report">Generate Report</option>
+    </select></${Field}>
+    ${detail&&html`
+      <${Field} label="Equipment ID"><input value=${f.equipment_id} onChange=${e=>sF({...f,equipment_id:e.target.value})} placeholder="e.g. LIFT-001"/></${Field}>
+      <${Field} label="Name"><input value=${f.name} onChange=${e=>sF({...f,name:e.target.value})} placeholder="e.g. 2-Post Lift Bay 1"/></${Field}>
+      <${Field} label="Type"><input value=${f.type} onChange=${e=>sF({...f,type:e.target.value})} placeholder="e.g. Vehicle Lift"/></${Field}>
+      <${Field} label="Last Service"><input value=${f.last_service} onChange=${e=>sF({...f,last_service:e.target.value})} placeholder="MM/DD/YYYY"/></${Field}>
+      <${Field} label="Next Service"><input value=${f.next_service} onChange=${e=>sF({...f,next_service:e.target.value})} placeholder="MM/DD/YYYY"/></${Field}>
+      <${Field} label="Notes"><textarea rows="2" value=${f.notes} onChange=${e=>sF({...f,notes:e.target.value})}/></${Field}>
+    `}
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function SopForm({onSubmit,loading}){
+  const[mode,sMode]=useState('builtin');
+  const[f,sF]=useState({procedure:'vehicle_intake',title:'',custom:''});
+  const builtins=['vehicle_intake','oil_change','tire_rotation','vehicle_inspection','test_drive','quality_control','vehicle_delivery','phone_greeting','customer_checkin','estimate_approval','customer_complaints','parts_ordering','end_of_day','warranty_claims','cash_handling','hazmat_disposal'];
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit({...f,_mode:mode})}} style=${{padding:'24px 28px',flex:1}}>
+    <${TabBar} tabs=${[{id:'builtin',label:'Built-In SOP'},{id:'custom',label:'Custom SOP'}]} active=${mode} onChange=${sMode}/>
+    ${mode==='builtin'?html`<${Field} label="Procedure"><select value=${f.procedure} onChange=${e=>sF({...f,procedure:e.target.value})}>
+      ${builtins.map(b=>html`<option key=${b} value=${b}>${b.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</option>`)}
+    </select></${Field}>`
+    :html`
+      <${Field} label="SOP Title"><input value=${f.title} onChange=${e=>sF({...f,title:e.target.value})} placeholder="e.g. Fleet Vehicle Check-In"/></${Field}>
+      <${Field} label="Describe the procedure"><textarea rows="4" value=${f.custom} onChange=${e=>sF({...f,custom:e.target.value})} placeholder="Describe what this SOP should cover..."/></${Field}>
+    `}
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function PartsForm({onSubmit,loading}){
+  const[tab,sTab]=useState('inventory');
+  const[f,sF]=useState({action:'reorder_check',part_number:'',part_name:'',quantity:'',reorder_point:'',preferred_vendor:'',cost:'',vendor:'',items:'',notes:''});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit({...f,_tab:tab})}} style=${{padding:'24px 28px',flex:1}}>
+    <${TabBar} tabs=${[{id:'inventory',label:'Inventory'},{id:'po',label:'Purchase Order'}]} active=${tab} onChange=${sTab}/>
+    ${tab==='inventory'?html`
+      <${Field} label="Action"><select value=${f.action} onChange=${e=>sF({...f,action:e.target.value})}>
+        <option value="reorder_check">Reorder Check</option><option value="list">List All</option>
+        <option value="add">Add Part</option><option value="update">Update Part</option><option value="report">Full Report</option>
+      </select></${Field}>
+      ${['add','update'].includes(f.action)&&html`
+        <${Field} label="Part Number"><input value=${f.part_number} onChange=${e=>sF({...f,part_number:e.target.value})}/></${Field}>
+        <${Field} label="Part Name"><input value=${f.part_name} onChange=${e=>sF({...f,part_name:e.target.value})}/></${Field}>
+        <${Field} label="Quantity"><input type="number" value=${f.quantity} onChange=${e=>sF({...f,quantity:e.target.value})}/></${Field}>
+        <${Field} label="Reorder Point"><input type="number" value=${f.reorder_point} onChange=${e=>sF({...f,reorder_point:e.target.value})}/></${Field}>
+        <${Field} label="Preferred Vendor"><input value=${f.preferred_vendor} onChange=${e=>sF({...f,preferred_vendor:e.target.value})}/></${Field}>
+      `}
+    `:html`
+      <${Field} label="Vendor"><input value=${f.vendor} onChange=${e=>sF({...f,vendor:e.target.value})} placeholder="e.g. AutoZone Pro"/></${Field}>
+      <${Field} label="Line Items (JSON)"><textarea rows="4" value=${f.items} onChange=${e=>sF({...f,items:e.target.value})} placeholder='[{"part_number":"BP-4412","part_name":"Brake Pads","quantity":4,"unit_cost":28.50}]'/></${Field}>
+      <${Field} label="Notes"><textarea rows="2" value=${f.notes} onChange=${e=>sF({...f,notes:e.target.value})}/></${Field}>
+    `}
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function WarrantyForm({onSubmit,loading}){
+  const[tab,sTab]=useState('claims');
+  const[f,sF]=useState({action:'list',customer:'',vehicle:'',service:'',part_name:'',vendor:'',warranty_period_days:'365',status:'open',notes:'',period:'month'});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit({...f,_tab:tab})}} style=${{padding:'24px 28px',flex:1}}>
+    <${TabBar} tabs=${[{id:'claims',label:'Claims'},{id:'report',label:'Report'}]} active=${tab} onChange=${sTab}/>
+    ${tab==='claims'?html`
+      <${Field} label="Action"><select value=${f.action} onChange=${e=>sF({...f,action:e.target.value})}>
+        <option value="list">List Claims</option><option value="add">Add Claim</option><option value="update">Update Claim</option>
+      </select></${Field}>
+      ${f.action==='add'&&html`
+        <${Field} label="Customer"><input value=${f.customer} onChange=${e=>sF({...f,customer:e.target.value})}/></${Field}>
+        <${Field} label="Vehicle"><input value=${f.vehicle} onChange=${e=>sF({...f,vehicle:e.target.value})}/></${Field}>
+        <${Field} label="Service"><input value=${f.service} onChange=${e=>sF({...f,service:e.target.value})}/></${Field}>
+        <${Field} label="Part Name"><input value=${f.part_name} onChange=${e=>sF({...f,part_name:e.target.value})}/></${Field}>
+        <${Field} label="Vendor"><input value=${f.vendor} onChange=${e=>sF({...f,vendor:e.target.value})}/></${Field}>
+        <${Field} label="Warranty Period (days)"><input type="number" value=${f.warranty_period_days} onChange=${e=>sF({...f,warranty_period_days:e.target.value})}/></${Field}>
+      `}
+    `:html`
+      <${Field} label="Period"><select value=${f.period} onChange=${e=>sF({...f,period:e.target.value})}>
+        <option value="month">This Month</option><option value="quarter">This Quarter</option>
+        <option value="year">This Year</option><option value="all">All Time</option>
+      </select></${Field}>
+    `}
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function ExpensesForm({onSubmit,loading}){
+  const[tab,sTab]=useState('log');
+  const[f,sF]=useState({action:'add',date:'',amount:'',vendor:'',description:'',category:'parts',payment_method:'card',period:'month',year:new Date().getFullYear().toString(),format:'summary'});
+  const cats=['parts','tools_equipment','utilities','insurance','rent','marketing','payroll','supplies','training','software','fuel','repairs','taxes','other'];
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit({...f,_tab:tab})}} style=${{padding:'24px 28px',flex:1}}>
+    <${TabBar} tabs=${[{id:'log',label:'Log Expense'},{id:'report',label:'Report'}]} active=${tab} onChange=${sTab}/>
+    ${tab==='log'?html`
+      <${Field} label="Date"><input type="date" value=${f.date} onChange=${e=>sF({...f,date:e.target.value})}/></${Field}>
+      <${Field} label="Amount ($)"><input type="number" step="0.01" value=${f.amount} onChange=${e=>sF({...f,amount:e.target.value})} placeholder="0.00"/></${Field}>
+      <${Field} label="Vendor"><input value=${f.vendor} onChange=${e=>sF({...f,vendor:e.target.value})}/></${Field}>
+      <${Field} label="Description"><input value=${f.description} onChange=${e=>sF({...f,description:e.target.value})}/></${Field}>
+      <${Field} label="Category"><select value=${f.category} onChange=${e=>sF({...f,category:e.target.value})}>
+        ${cats.map(c=>html`<option key=${c} value=${c}>${c.replace(/_/g,' ').replace(/\b\w/g,x=>x.toUpperCase())}</option>`)}
+      </select></${Field}>
+      <${Field} label="Payment Method"><select value=${f.payment_method} onChange=${e=>sF({...f,payment_method:e.target.value})}>
+        <option value="card">Card</option><option value="cash">Cash</option><option value="check">Check</option><option value="ach">ACH</option>
+      </select></${Field}>
+    `:html`
+      <${Field} label="Period"><select value=${f.period} onChange=${e=>sF({...f,period:e.target.value})}>
+        <option value="month">Month</option><option value="quarter">Quarter</option><option value="year">Year</option>
+      </select></${Field}>
+      <${Field} label="Year"><input value=${f.year} onChange=${e=>sF({...f,year:e.target.value})}/></${Field}>
+      <${Field} label="Format"><select value=${f.format} onChange=${e=>sF({...f,format:e.target.value})}>
+        <option value="summary">Summary</option><option value="detailed">Detailed</option>
+      </select></${Field}>
+    `}
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function SeasonalForm({onSubmit,loading}){
+  const[f,sF]=useState({season:'summer',discount:'15% off',expiry:''});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
+    <${Field} label="Season"><select value=${f.season} onChange=${e=>sF({...f,season:e.target.value})}>
+      <option value="winter">Winter</option><option value="spring">Spring</option>
+      <option value="summer">Summer</option><option value="fall">Fall</option>
+    </select></${Field}>
+    <${Field} label="Discount Offer"><input value=${f.discount} onChange=${e=>sF({...f,discount:e.target.value})} placeholder="e.g. 15% off AC service"/></${Field}>
+    <${Field} label="Expiry Date"><input type="date" value=${f.expiry} onChange=${e=>sF({...f,expiry:e.target.value})}/></${Field}>
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function ReferralsForm({onSubmit,loading}){
+  const[tab,sTab]=useState('track');
+  const[f,sF]=useState({action:'check_rewards',referrer_name:'',referrer_phone:'',referred_name:'',referred_phone:'',service_date:'',reward_type:'discount',reward_value:'$25 off',referred_by:''});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit({...f,_tab:tab})}} style=${{padding:'24px 28px',flex:1}}>
+    <${TabBar} tabs=${[{id:'track',label:'Track Referral'},{id:'reward',label:'Generate Reward'}]} active=${tab} onChange=${sTab}/>
+    ${tab==='track'?html`
+      <${Field} label="Action"><select value=${f.action} onChange=${e=>sF({...f,action:e.target.value})}>
+        <option value="check_rewards">Check Pending Rewards</option><option value="list">List All</option>
+        <option value="add">Add Referral</option><option value="report">Program Report</option>
+      </select></${Field}>
+      ${f.action==='add'&&html`
+        <${Field} label="Referrer Name"><input value=${f.referrer_name} onChange=${e=>sF({...f,referrer_name:e.target.value})}/></${Field}>
+        <${Field} label="Referrer Phone"><input value=${f.referrer_phone} onChange=${e=>sF({...f,referrer_phone:e.target.value})}/></${Field}>
+        <${Field} label="Referred Customer Name"><input value=${f.referred_name} onChange=${e=>sF({...f,referred_name:e.target.value})}/></${Field}>
+        <${Field} label="Service Date"><input type="date" value=${f.service_date} onChange=${e=>sF({...f,service_date:e.target.value})}/></${Field}>
+      `}
+    `:html`
+      <${Field} label="Referrer Name"><input value=${f.referrer_name} onChange=${e=>sF({...f,referrer_name:e.target.value})}/></${Field}>
+      <${Field} label="Referrer Phone"><input value=${f.referrer_phone} onChange=${e=>sF({...f,referrer_phone:e.target.value})}/></${Field}>
+      <${Field} label="Referred By"><input value=${f.referred_by} onChange=${e=>sF({...f,referred_by:e.target.value})}/></${Field}>
+      <${Field} label="Reward Type"><select value=${f.reward_type} onChange=${e=>sF({...f,reward_type:e.target.value})}>
+        <option value="discount">Discount</option><option value="free_service">Free Service</option><option value="gift_card">Gift Card</option>
+      </select></${Field}>
+      <${Field} label="Reward Value"><input value=${f.reward_value} onChange=${e=>sF({...f,reward_value:e.target.value})} placeholder="e.g. $25 off"/></${Field}>
+    `}
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function TechForm({onSubmit,loading}){
+  const[f,sF]=useState({period:'week',date:'',technicians:''});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
+    <${Field} label="Period"><select value=${f.period} onChange=${e=>sF({...f,period:e.target.value})}>
+      <option value="day">Day</option><option value="week">Week</option><option value="month">Month</option>
+    </select></${Field}>
+    <${Field} label="Period Date"><input type="date" value=${f.date} onChange=${e=>sF({...f,date:e.target.value})}/></${Field}>
+    <${Field} label="Technicians (JSON)">
+      <textarea rows="5" value=${f.technicians} onChange=${e=>sF({...f,technicians:e.target.value})} placeholder='[{"name":"Mike T.","hours_clocked":40,"hours_billed":36,"jobs_completed":18,"revenue_generated":4200,"comebacks":1}]'/>
+    </${Field}>
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+function MilestonesForm({onSubmit,loading}){
+  const[f,sF]=useState({milestone_type:'anniversary',customer_name:'',customer_phone:'',milestone_value:'1 year',vehicle:'',last_service:''});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
+    <${Field} label="Milestone Type"><select value=${f.milestone_type} onChange=${e=>sF({...f,milestone_type:e.target.value})}>
+      <option value="anniversary">Anniversary</option><option value="visit_count">Visit Count</option><option value="mileage">Mileage</option>
+    </select></${Field}>
+    <${Field} label="Milestone Value"><input value=${f.milestone_value} onChange=${e=>sF({...f,milestone_value:e.target.value})} placeholder="e.g. 1 year / 10th visit / 100,000 miles"/></${Field}>
+    <${Field} label="Customer Name"><input value=${f.customer_name} onChange=${e=>sF({...f,customer_name:e.target.value})}/></${Field}>
+    <${Field} label="Customer Phone"><input value=${f.customer_phone} onChange=${e=>sF({...f,customer_phone:e.target.value})}/></${Field}>
+    <${Field} label="Vehicle"><input value=${f.vehicle} onChange=${e=>sF({...f,vehicle:e.target.value})} placeholder="e.g. 2019 Toyota Camry"/></${Field}>
+    <${Field} label="Last Service"><input value=${f.last_service} onChange=${e=>sF({...f,last_service:e.target.value})} placeholder="e.g. Oil Change — Jan 2024"/></${Field}>
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
+const FORM_MAP={
+  'appointments':AppointmentsForm,'welcome-kit':WelcomeKitForm,'wait-time':WaitTimeForm,
+  'declined':DeclinedForm,'service-history':ServiceHistoryForm,'estimates':EstimatesForm,
+  'inspection':InspectionForm,'recall':RecallForm,'equipment':EquipmentForm,'sop':SopForm,
+  'parts':PartsForm,'warranty':WarrantyForm,'expenses':ExpensesForm,'seasonal':SeasonalForm,
+  'referrals':ReferralsForm,'tech':TechForm,'milestones':MilestonesForm,
+};
+
+/* ── OUTPUT PANEL ── */
+function CopyBtn({label,text,dim}){
+  const[ok,sOk]=useState(false);
+  const click=()=>{navigator.clipboard.writeText(text).catch(()=>{});sOk(true);setTimeout(()=>sOk(false),1500)};
+  return html`<button onClick=${click} style=${{padding:'6px 14px',borderRadius:3,border:`1px solid ${dim?'#222':G+'66'}`,background:dim?'#111':`${G}15`,color:dim?'#555':G,fontSize:10,fontWeight:800,letterSpacing:'0.1em',textTransform:'uppercase'}}>${ok?'✓ Copied':label}</button>`;
+}
+function DlBtn({text}){
+  const click=()=>{const b=new Blob([text],{type:'text/plain'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='output.txt';a.click();URL.revokeObjectURL(u)};
+  return html`<button onClick=${click} style=${{padding:'6px 14px',borderRadius:3,border:'1px solid #222',background:'#111',color:'#555',fontSize:10,fontWeight:800,letterSpacing:'0.1em',textTransform:'uppercase'}}>Download .txt</button>`;
+}
+
+function OutputPanel({output,loading,error,files}){
+  if(loading) return html`<div style=${{flex:1,display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:16}}>
+    <div style=${{display:'flex',gap:8}}>
+      ${[0,1,2].map(i=>html`<div key=${i} style=${{width:10,height:10,borderRadius:'50%',background:G,animation:`pulse 1.2s ease ${i*0.2}s infinite`}}/>`)}
+    </div>
+    <div style=${{fontSize:12,color:'#555',fontWeight:700,letterSpacing:'0.1em'}}>GENERATING...</div>
+  </div>`;
+
+  if(error) return html`<div style=${{flex:1,display:'flex',alignItems:'center',justifyContent:'center',padding:32}}>
+    <div style=${{background:'#1A0A0A',border:'1px solid #5A1A1A',borderRadius:4,padding:'20px 24px',maxWidth:400}}>
+      <div style=${{fontSize:10,fontWeight:800,color:'#E05',letterSpacing:'0.1em',marginBottom:8}}>ERROR</div>
+      <div style=${{fontSize:13,color:'#AAA',lineHeight:1.6}}>${error}</div>
+      <div style=${{fontSize:11,color:'#555',marginTop:12}}>Make sure the backend is running on port 8000.</div>
+    </div>
+  </div>`;
+
+  if(!output) return html`<div style=${{flex:1,display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:12}}>
+    <div style=${{fontSize:32,opacity:.3}}>⚡</div>
+    <div style=${{fontSize:11,color:'#333',fontWeight:700,letterSpacing:'0.1em',textAlign:'center'}}>FILL IN THE FORM${'\n'}AND CLICK GENERATE</div>
+  </div>`;
+
+  const hasSMS=output.includes('SMS')||output.includes('[SMS]');
+  const hasEmail=output.includes('Subject:');
+  const hasScript=output.includes('[GREET]');
+
+  return html`<div style=${{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+    <div style=${{padding:'14px 20px',borderBottom:'1px solid #1A1A1E',display:'flex',gap:8,flexWrap:'wrap'}}>
+      <${CopyBtn} label="Copy All" text=${output}/>
+      <${DlBtn} text=${output}/>
+      ${hasSMS&&html`<${CopyBtn} label="Copy SMS" text=${output} dim/>`}
+      ${hasEmail&&html`<${CopyBtn} label="Copy Email" text=${output} dim/>`}
+      ${hasScript&&html`<${CopyBtn} label="Copy Script" text=${output} dim/>`}
+    </div>
+    <div style=${{flex:1,overflowY:'auto',padding:'20px 24px'}}>
+      <pre style=${{fontFamily:"'Barlow',monospace",fontSize:12.5,color:'#CCC',lineHeight:1.8,whiteSpace:'pre-wrap',wordBreak:'break-word'}}>${output}</pre>
+      ${files&&files.length>0&&html`<div style=${{marginTop:24,paddingTop:16,borderTop:'1px solid #1A1A1E'}}>
+        <div style=${{fontSize:9,fontWeight:800,color:'#444',letterSpacing:'0.1em',marginBottom:8}}>SAVED FILES</div>
+        ${files.map((f,i)=>html`<div key=${i} style=${{fontSize:11,color:'#555',padding:'4px 0',fontFamily:'monospace'}}>📄 ${f}</div>`)}
+      </div>`}
+    </div>
+  </div>`;
+}
+
+/* ── MODULE PANEL ── */
+function ModulePanel({mod,onClose}){
+  const[output,sOut]=useState('');
+  const[loading,sLoad]=useState(false);
+  const[error,sErr]=useState(null);
+  const[files,sFiles]=useState([]);
+  const Form=FORM_MAP[mod.id];
+
+  const handleSubmit=async(data)=>{
+    sLoad(true);sErr(null);sOut('');sFiles([]);
+    try{
+      const url=endpointFor(mod.id,data);
+      if(!url)throw new Error('No endpoint for '+mod.id);
+      const res=await post(url,data);
+      if(res.success===false&&res.error)sErr(res.error);
+      else{sOut(res.output||JSON.stringify(res,null,2));sFiles(res.files||[]);}
+    }catch(e){sErr(e.message||'Could not reach backend on port 8000');}
+    finally{sLoad(false);}
+  };
+
+  return html`<div style=${{position:'fixed',inset:0,zIndex:200,background:'#0B0B0D',display:'flex',flexDirection:'column',animation:'fadeIn .2s ease'}}>
+    <div style=${{height:3,background:`linear-gradient(90deg,${G},#F5C542,${G})`}}/>
+    <div style=${{padding:'12px 24px',borderBottom:'1px solid #1A1A1E',display:'flex',alignItems:'center',gap:16,background:'#0D0D0F'}}>
+      <button onClick=${onClose} style=${{padding:'6px 14px',borderRadius:3,border:'1px solid #222',background:'#111',color:'#555',fontSize:11,fontWeight:800,letterSpacing:'0.08em'}}>← Back</button>
+      <span style=${{fontSize:20}}>${mod.icon}</span>
+      <div>
+        <span style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:18,color:'#F0F0F2',textTransform:'uppercase'}}>${mod.title}</span>
+        <span style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:600,fontSize:14,color:'#444',textTransform:'uppercase',marginLeft:8}}>${mod.sub}</span>
+      </div>
+      <div style=${{marginLeft:'auto',display:'flex',alignItems:'center',gap:8}}>
+        <div style=${{width:6,height:6,borderRadius:1,background:G}}/>
+        <span style=${{fontSize:11,color:G,fontWeight:700}}>${mod.impact}</span>
+      </div>
+    </div>
+    <div style=${{flex:1,display:'flex',overflow:'hidden'}}>
+      <div style=${{width:420,borderRight:'1px solid #1A1A1E',background:'#0D0D0F',display:'flex',flexDirection:'column',overflowY:'auto'}}>
+        <div style=${{padding:'18px 28px 0'}}>
+          <div style=${{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
+            <div style=${{width:3,height:14,background:G,borderRadius:1}}/>
+            <span style=${{fontSize:9,fontWeight:800,color:'#555',letterSpacing:'0.14em'}}>INPUT</span>
+          </div>
+        </div>
+        ${Form?html`<${Form} onSubmit=${handleSubmit} loading=${loading}/>`:html`<div style=${{padding:24,color:'#444',fontSize:12}}>Form coming soon.</div>`}
+      </div>
+      <div style=${{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+        <div style=${{padding:'18px 24px 0'}}>
+          <div style=${{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
+            <div style=${{width:3,height:14,background:G,borderRadius:1}}/>
+            <span style=${{fontSize:9,fontWeight:800,color:'#555',letterSpacing:'0.14em'}}>OUTPUT</span>
+          </div>
+        </div>
+        <${OutputPanel} output=${output} loading=${loading} error=${error} files=${files}/>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── DRAWER ── */
+function Drawer({mod,onClose,onLaunch}){
+  const fl=FEATURES[mod.id]||[];
+  return html`<div style=${{position:'fixed',inset:0,zIndex:100,display:'flex',justifyContent:'flex-end'}}>
+    <div onClick=${onClose} style=${{position:'absolute',inset:0,background:'rgba(0,0,0,.75)',backdropFilter:'blur(8px)'}}/>
+    <div style=${{position:'relative',width:'100%',maxWidth:460,background:'#0D0D0F',borderLeft:'1px solid #1A1A1E',overflowY:'auto',animation:'drawerIn .25s ease'}}>
+      <div style=${{height:3,background:`linear-gradient(90deg,${G},#F5C542,${G})`}}/>
+      <div style=${{padding:'26px 28px 22px',borderBottom:'1px solid #1A1A1E',background:'linear-gradient(180deg,#12110D,#0D0D0F)'}}>
+        <div style=${{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+          <div style=${{display:'flex',gap:14,alignItems:'center'}}>
+            <div style=${{width:54,height:54,borderRadius:4,background:'#0B0B0D',border:`1px solid ${G}30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:28}}>${mod.icon}</div>
+            <div>
+              <h2 style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:23,color:'#F0F0F2',textTransform:'uppercase',lineHeight:1.05,margin:0}}>${mod.title}</h2>
+              <p style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:600,fontSize:15,color:'#666',textTransform:'uppercase',margin:'3px 0 0'}}>${mod.sub}</p>
+            </div>
+          </div>
+          <button onClick=${onClose} style=${{width:30,height:30,borderRadius:3,border:'1px solid #222',background:'#111',color:'#555',fontSize:13,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+        </div>
+      </div>
+      <div style=${{padding:'24px 28px'}}>
+        <div style=${{padding:'16px 18px',borderRadius:3,background:'linear-gradient(135deg,#16140D,#11100C)',border:`1px solid ${G}25`,marginBottom:24,display:'flex',alignItems:'center',gap:14}}>
+          <div style=${{width:10,height:10,borderRadius:2,background:G,boxShadow:`0 0 12px ${G}55`}}/>
+          <div>
+            <div style=${{fontSize:8,color:'#777',fontWeight:800,letterSpacing:'0.14em',marginBottom:4}}>BUSINESS IMPACT</div>
+            <div style=${{fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,color:G,fontWeight:800,fontStyle:'italic',textTransform:'uppercase'}}>${mod.impact}</div>
+          </div>
+        </div>
+        <p style=${{fontSize:13.5,color:'#888',lineHeight:1.7,marginBottom:28}}>${mod.desc}</p>
+        <div style=${{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
+          <div style=${{width:3,height:14,background:G,borderRadius:1}}/>
+          <span style=${{fontSize:9,fontWeight:800,color:'#777',letterSpacing:'0.14em'}}>WHAT'S INSIDE</span>
+        </div>
+        <div style=${{display:'flex',flexDirection:'column',gap:5,marginBottom:28}}>
+          ${fl.map((f,i)=>html`<div key=${i} style=${{display:'flex',alignItems:'center',gap:12,padding:'11px 14px',borderRadius:2,background:'#111113',border:'1px solid #18181C'}}>
+            <span style=${{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,fontWeight:800,color:G,width:22,textAlign:'center',flexShrink:0}}>${String(i+1).padStart(2,'0')}</span>
+            <span style=${{fontSize:13,color:'#999',lineHeight:1.3}}>${f}</span>
+          </div>`)}
+        </div>
+        <div style=${{paddingTop:18,borderTop:'1px solid #18181C',display:'flex',gap:8,marginBottom:20}}>
+          <span style=${{fontSize:8,fontWeight:800,color:'#555',padding:'4px 10px',borderRadius:2,background:'#111',border:'1px solid #1A1A1E',letterSpacing:'0.1em'}}>${mod.tag}</span>
+          <span style=${{fontSize:8,fontWeight:800,color:mod.status==='core'?'#4ADE80':G,padding:'4px 10px',borderRadius:2,background:mod.status==='core'?'#4ADE8008':`${G}08`,border:`1px solid ${mod.status==='core'?'#4ADE8020':`${G}20`}`,letterSpacing:'0.1em'}}>
+            ${mod.status==='core'?'● CORE':'◐ SUGGESTED'}
+          </span>
+        </div>
+        <button onClick=${onLaunch} style=${{width:'100%',padding:'16px 0',borderRadius:3,border:`1px solid ${G}66`,background:`linear-gradient(135deg,${G},${G}CC)`,color:'#0B0B0D',fontSize:13,fontWeight:800,fontFamily:"'Barlow Condensed',sans-serif",letterSpacing:'0.12em',textTransform:'uppercase',fontStyle:'italic'}}>
+          Launch Module →
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── CARD ── */
+function Card({mod,idx,ready,active,onClick}){
+  const[hov,sHov]=useState(false);
+  return html`<div onClick=${onClick} onMouseEnter=${()=>sHov(true)} onMouseLeave=${()=>sHov(false)}
+    style=${{background:active?'#13120E':hov?'#111113':'#0E0E10',border:active?`1px solid ${G}40`:hov?'1px solid #252528':'1px solid #18181C',borderRadius:3,cursor:'pointer',transition:'all .2s',position:'relative',overflow:'hidden',animation:ready?`cardIn .35s ease ${idx*.035}s both`:'none'}}>
+    <div style=${{height:2,background:hov||active?`linear-gradient(90deg,${G}AA,${G}22,transparent)`:'transparent',transition:'all .3s'}}/>
+    <div style=${{padding:'18px 20px 16px'}}>
+      <div style=${{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
+        <div style=${{width:42,height:42,borderRadius:3,background:'#0B0B0D',border:'1px solid #1A1A1E',display:'flex',alignItems:'center',justifyContent:'center',fontSize:21}}>${mod.icon}</div>
+        <span style=${{fontSize:8,fontWeight:800,letterSpacing:'0.14em',color:mod.status==='suggested'?G:'#4A4A50',padding:'3px 9px',borderRadius:2,background:mod.status==='suggested'?`${G}0F`:'#ffffff05',border:`1px solid ${mod.status==='suggested'?`${G}20`:'#ffffff08'}`}}>${mod.tag}</span>
+      </div>
+      <h3 style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:17,color:'#E6E6E8',textTransform:'uppercase',lineHeight:1.1,margin:'0 0 2px',letterSpacing:'0.015em'}}>${mod.title}</h3>
+      <p style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:600,fontSize:13.5,color:'#555',textTransform:'uppercase',lineHeight:1.2,margin:'0 0 12px'}}>${mod.sub}</p>
+      <p style=${{fontSize:12.5,color:'#777',lineHeight:1.6,margin:'0 0 14px'}}>${mod.desc}</p>
+      <div style=${{borderTop:'1px solid #1A1A1E',paddingTop:11,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div style=${{display:'flex',alignItems:'center',gap:7}}>
+          <div style=${{width:5,height:5,background:G,borderRadius:1,boxShadow:`0 0 8px ${G}44`}}/>
+          <span style=${{fontSize:11,color:G,fontWeight:700}}>${mod.impact}</span>
+        </div>
+        <span style=${{fontSize:12,color:'#333',transform:hov?'translateX(3px)':'none',transition:'transform .2s'}}>→</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── SECTION HEAD ── */
+function SHead({title,badge}){
+  return html`<div style=${{display:'flex',alignItems:'center',gap:12,marginBottom:18}}>
+    <div style=${{width:4,height:20,background:G,borderRadius:1}}/>
+    <h2 style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:17,color:'#E8E8EA',textTransform:'uppercase',letterSpacing:'0.04em',margin:0}}>${title}</h2>
+    ${badge&&html`<span style=${{fontSize:8,fontWeight:800,color:G,background:`${G}12`,padding:'4px 10px',borderRadius:2,border:`1px solid ${G}25`,letterSpacing:'0.12em'}}>${badge}</span>`}
+    <div style=${{flex:1,height:1,background:'linear-gradient(90deg,#222,transparent)'}}/>
+  </div>`;
+}
+
+/* ── SETUP WIZARD ── */
+function SetupWizard({onComplete}){
+  const[f,sF]=useState({name:'',owner:'',phone:'',address:'',hours:'',services:'',type:'Independent auto repair',website:'',tagline:'',tone:'Professional and friendly',google_review:''});
+  const[loading,sLoad]=useState(false);
+  const[error,sErr]=useState(null);
+  const u=(k,v)=>sF(p=>({...p,[k]:v}));
+  const fields=[['Shop Name *','name','Peak Auto Repair'],['Owner Name *','owner','Jason Mercer'],['Phone *','phone','(720) 555-0192'],['Full Address *','address','4821 Tennyson St, Denver, CO 80212'],['Business Hours','hours','Mon-Fri 7:30am-5:30pm, Sat 8am-1pm'],['Services (comma-separated)','services','Oil changes, brakes, tires, diagnostics'],['Business Type','type','Independent auto repair'],['Website','website','https://'],['Tagline','tagline',''],['Google Review Link','google_review','https://']];
+
+  const submit=async(e)=>{
+    e.preventDefault();sLoad(true);sErr(null);
+    try{const r=await post(`${API}/api/setup`,f);if(r.success!==false)onComplete();else sErr(r.error||'Setup failed');}
+    catch(e){sErr('Cannot reach backend. Start it on port 8000 first.');}
+    finally{sLoad(false);}
+  };
+
+  return html`<div style=${{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#0B0B0D',padding:24}}>
+    <div style=${{width:'100%',maxWidth:540}}>
+      <div style=${{height:3,background:`linear-gradient(90deg,transparent,${G},transparent)`,marginBottom:32}}/>
+      <h1 style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:28,color:'#F2F2F4',textTransform:'uppercase',margin:'0 0 8px'}}>Shop Command Center</h1>
+      <p style=${{fontSize:12,color:'#555',marginBottom:28}}>One-time setup — takes about 2 minutes.</p>
+      <form onSubmit=${submit} style=${{display:'flex',flexDirection:'column',gap:14}}>
+        ${fields.map(([label,key,ph])=>html`<div key=${key}>
+          <${Label}>${label}</${Label}>
+          <input value=${f[key]} onChange=${e=>u(key,e.target.value)} placeholder=${ph} required=${label.includes('*')}/>
+        </div>`)}
+        <div>
+          <${Label}>Communication Tone</${Label}>
+          <select value=${f.tone} onChange=${e=>u('tone',e.target.value)}>
+            <option>Professional</option><option>Friendly</option>
+            <option>Professional and friendly</option><option>Casual</option>
+          </select>
+        </div>
+        ${error&&html`<div style=${{fontSize:12,color:'#E05',padding:'10px 14px',background:'#1A0A0A',borderRadius:3,border:'1px solid #5A1A1A'}}>${error}</div>`}
+        <button type="submit" style=${{marginTop:8,padding:'16px 0',borderRadius:3,border:`1px solid ${G}66`,background:loading?'#333':`linear-gradient(135deg,${G},${G}CC)`,color:loading?'#888':'#0B0B0D',fontSize:13,fontWeight:800,fontFamily:"'Barlow Condensed',sans-serif",letterSpacing:'0.12em',textTransform:'uppercase',fontStyle:'italic'}}>
+          ${loading?'Saving...':'Complete Setup →'}
+        </button>
+      </form>
+    </div>
+  </div>`;
+}
+
+/* ── APP ── */
+function App(){
+  const[cat,sCat]=useState('all');
+  const[sel,sSel]=useState(null);
+  const[panel,sPanel]=useState(null);
+  const[ready,sReady]=useState(false);
+  const[setup,sSetup]=useState(false);
+
+  useEffect(()=>{
+    setTimeout(()=>sReady(true),50);
+    fetch(`${API}/api/health`).then(r=>r.json()).then(d=>{if(!d.setup_complete)sSetup(true);}).catch(()=>{});
+  },[]);
+
+  const list=MODULES.filter(m=>cat==='all'||m.cat===cat);
+  const core=list.filter(m=>m.status==='core');
+  const sugg=list.filter(m=>m.status==='suggested');
+
+  if(setup) return html`<${SetupWizard} onComplete=${()=>sSetup(false)}/>`;
+  if(panel) return html`<${ModulePanel} mod=${panel} onClose=${()=>sPanel(null)}/>`;
+
+  return html`<div style=${{minHeight:'100vh',background:'#0B0B0D'}}>
+    <div style=${{height:3,background:`linear-gradient(90deg,transparent,${G},transparent)`}}/>
+
+    <header style=${{position:'relative',overflow:'hidden',padding:'36px 32px 0',background:'linear-gradient(180deg,#111113 0%,#0B0B0D 100%)'}}>
+      <div style=${{position:'absolute',top:-40,right:-20,width:300,height:300,background:`linear-gradient(135deg,${G}08 0%,transparent 50%)`,transform:'rotate(15deg)',pointerEvents:'none'}}/>
+      <div style=${{position:'absolute',top:0,right:80,width:2,height:120,background:`linear-gradient(180deg,${G}33,transparent)`,transform:'rotate(25deg)',transformOrigin:'top',pointerEvents:'none'}}/>
+
+      <div style=${{display:'flex',alignItems:'flex-end',justifyContent:'space-between',flexWrap:'wrap',gap:20,position:'relative'}}>
+        <div style=${{display:'flex',alignItems:'center',gap:14}}>
+          <div style=${{width:50,height:50,borderRadius:4,background:'linear-gradient(135deg,#18180B,#0F0F0A)',border:`2px solid ${G}55`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:24}}>⚙️</div>
+          <div>
+            <h1 style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:30,color:'#F2F2F4',textTransform:'uppercase',letterSpacing:'0.03em',lineHeight:1,margin:0}}>Shop Command Center</h1>
+            <p style=${{fontSize:11,color:G,fontWeight:700,letterSpacing:'0.18em',textTransform:'uppercase',margin:'5px 0 0'}}>AI-Powered Operations Suite</p>
+          </div>
+        </div>
+        <div style=${{display:'flex',gap:16,marginBottom:4}}>
+          ${[{n:'13',l:'Core'},{n:'4',l:'Suggested'},{n:'5',l:'Categories'}].map((s,i)=>html`
+            <div key=${i} style=${{textAlign:'center',padding:'8px 18px',background:'#0E0E10',border:'1px solid #1C1C20',borderRadius:3}}>
+              <div style=${{fontFamily:"'Barlow Condensed',sans-serif",fontSize:26,fontWeight:800,color:G,lineHeight:1}}>${s.n}</div>
+              <div style=${{fontSize:9,color:'#555',fontWeight:700,letterSpacing:'0.1em',marginTop:3,textTransform:'uppercase'}}>${s.l}</div>
+            </div>
+          `)}
+        </div>
+      </div>
+
+      <nav style=${{display:'flex',marginTop:28,borderBottom:'2px solid #1A1A1E',overflow:'auto'}}>
+        ${Object.entries(CATS).map(([k,v])=>{
+          const count=k==='all'?MODULES.length:MODULES.filter(m=>m.cat===k).length;
+          const active=cat===k;
+          return html`<button key=${k} onClick=${()=>sCat(k)} style=${{padding:'14px 22px',border:'none',borderBottom:active?`3px solid ${G}`:'3px solid transparent',marginBottom:-2,background:'transparent',color:active?G:'#555',fontSize:11,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Barlow',sans-serif",transition:'all .2s',whiteSpace:'nowrap'}}>
+            ${v}<span style=${{marginLeft:6,opacity:.5,fontSize:10}}>${count}</span>
+          </button>`;
+        })}
+      </nav>
+    </header>
+
+    <main style=${{padding:'28px 32px 48px'}}>
+      ${core.length>0&&html`<${SHead} title="Core Modules"/>`}
+      <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(310px,1fr))',gap:12}}>
+        ${core.map((m,i)=>html`<${Card} key=${m.id} mod=${m} idx=${i} ready=${ready} active=${sel?.id===m.id} onClick=${()=>sSel(sel?.id===m.id?null:m)}/>`)}
+      </div>
+      ${sugg.length>0&&html`
+        <div style=${{marginTop:36}}><${SHead} title="Suggested Additions" badge="RECOMMENDED"/></div>
+        <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(310px,1fr))',gap:12}}>
+          ${sugg.map((m,i)=>html`<${Card} key=${m.id} mod=${m} idx=${i+core.length} ready=${ready} active=${sel?.id===m.id} onClick=${()=>sSel(sel?.id===m.id?null:m)}/>`)}
+        </div>
+      `}
+    </main>
+
+    <footer style=${{borderTop:'1px solid #151518',padding:'18px 32px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10}}>
+      <div style=${{display:'flex',alignItems:'center',gap:8}}>
+        <span style=${{fontSize:9,color:'#333',fontWeight:700,letterSpacing:'0.1em'}}>POWERED BY</span>
+        <span style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:13,color:G,textTransform:'uppercase'}}>AmericasBestShops.com</span>
+      </div>
+      <span style=${{fontSize:9,color:'#282828',fontWeight:600,letterSpacing:'0.08em'}}>WAT FRAMEWORK v1.0</span>
+    </footer>
+
+    ${sel&&html`<${Drawer} mod=${sel} onClose=${()=>sSel(null)} onLaunch=${()=>{sPanel(sel);sSel(null);}}/>`}
+  </div>`;
+}
+
+createRoot(document.getElementById('root')).render(html`<${App}/>`);
+</script>
+</body>
+</html>
