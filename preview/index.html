@@ -56,6 +56,18 @@ const MODULES=[
   {id:'referrals',      title:'Referral Tracking',        sub:'& Reward System',          icon:'🤝',cat:'communication',status:'suggested',tag:'GROWTH',      impact:'Highest-trust lead channel',        desc:'Tracks referrer-to-referee chains, automated thank-yous, reward notifications, referral analytics, custom reward tiers.'},
   {id:'tech',           title:'Tech Productivity',        sub:'& Labor Summary',          icon:'👨‍🔧',cat:'financial', status:'suggested',tag:'FINANCIAL',   impact:'Protects profit margins',           desc:'Weekly per-tech summaries — efficiency rates, over-estimate flagging, revenue per tech breakdown. Stops margin leaks.'},
   {id:'milestones',     title:'Customer Milestone',       sub:'Outreach',                 icon:'🎉',cat:'communication',status:'suggested',tag:'RETENTION',   impact:'Retention on autopilot',            desc:'Auto-generated messages for 1-year anniversary, 5th visit, 100k mile milestones. Simple touchpoints, strong retention signal.'},
+  // ── AI + Repair Intelligence ──
+  {id:'repair-auto',    title:'Repair Automation',        sub:'Assistant',                icon:'✏️',cat:'repair-intel', status:'core',     tag:'AI + VOICE',  impact:'Estimates in under 60 sec',         desc:'AI repair assistant for generating labor and parts estimates by make, model, and complaint. Voice-enabled — mechanics can speak their findings hands-free from the bay.'},
+  {id:'componentcare',  title:'ComponentCare',            sub:'AI Knowledge Base',        icon:'🧠',cat:'repair-intel', status:'core',     tag:'AI + VOICE',  impact:'Instant spec lookup',               desc:'Query your shop knowledge base for maintenance intervals, torque specs, fluid types, and procedures. Speak your question — get an answer in seconds.'},
+  {id:'fleetmaint',     title:'FleetMaintainer',          sub:'Predictive Maintenance',   icon:'🚛',cat:'repair-intel', status:'core',     tag:'AI + VOICE',  impact:'Prevents costly breakdowns',        desc:'Predictive maintenance advisor trained on vehicle history. Helps technicians plan ahead, catch patterns early, and recommend the right service at the right time.'},
+  {id:'prev-advisor',   title:'Preventive Advisor',       sub:'Maintenance Checklist',    icon:'🩺',cat:'repair-intel', status:'core',     tag:'AI + VOICE',  impact:'Stops problems before they start',  desc:'Tailored preventive maintenance actions and system check recommendations based on vehicle type, mileage, and last service date. Speak to the assistant — get a full checklist.'},
+  // ── Marketing ──
+  {id:'social-media',   title:'Social Media Posts',       sub:'Generator',                icon:'📱',cat:'marketing',    status:'core',     tag:'MARKETING',   impact:'Build daily presence',              desc:'AI-generated Facebook, Instagram, and Google Business posts tailored to your shop, active services, and current promotions. Ready to copy and post.'},
+  {id:'cta-copy',       title:'CTA Copy',                 sub:'Generator',                icon:'📣',cat:'marketing',    status:'core',     tag:'CONVERSIONS', impact:'Drives bookings',                   desc:'High-converting call-to-action copy for your website, emails, and social ads. Tuned by service type, urgency, and goal — book now, call us, get a quote.'},
+  {id:'promo-builder',  title:'Promotion Builder',        sub:'Offers & Deals',           icon:'🎯',cat:'marketing',    status:'core',     tag:'REVENUE',     impact:'Drives seasonal traffic',           desc:'Promotional offer content with urgency triggers, discount messaging, and expiry-driven CTAs — formatted for SMS, email, and social in one shot.'},
+  // ── New Suggested ──
+  {id:'enviromaint',    title:'EnviroMaintainer',         sub:'Climate-Aware Scheduling', icon:'🌡',cat:'repair-intel', status:'suggested',tag:'AI + VOICE',  impact:'Region-optimized service',          desc:'Maintenance schedules adjusted for driving environment — desert heat, coastal salt air, cold winters, dusty roads, and urban stop-and-go. Context-aware and OEM-aligned.'},
+  {id:'blog-post',      title:'Blog Post',                sub:'Writer',                   icon:'✍️',cat:'marketing',    status:'suggested',tag:'SEO',         impact:'Builds organic traffic',            desc:'Full blog post drafts on automotive topics — educational content that drives SEO rankings and positions your shop as the trusted local expert.'},
 ];
 
 const FEATURES={
@@ -76,9 +88,18 @@ const FEATURES={
   'referrals':      ['Log referrer-to-referee relationships','Check pending unredeemed rewards','Generate referrer thank-you SMS + email','Generate referee welcome SMS + email','Referral program performance report'],
   'tech':           ['Per-tech efficiency % (billed vs clocked)','Revenue per billed hour','Jobs per day and comeback rate','Flags techs below 80% efficiency','Shop-wide totals and averages'],
   'milestones':     ['1-year anniversary message','5-year VIP anniversary message','Visit milestone (5th, 10th, 25th visit)','Mileage milestone (50k, 100k, 200k miles)','SMS, email, and phone script per milestone'],
+  'repair-auto':    ['Labor estimate by complaint + vehicle','Parts list with OEM and aftermarket options','Estimate narrative in plain customer language','Voice input — speak findings from the bay','Under 60 seconds from complaint to estimate'],
+  'componentcare':  ['Vehicle make/model/year knowledge base','Torque specs, fluid types, maintenance intervals','Searchable by voice or text','Procedure guides and common failure patterns','Add custom vehicles and notes to your library'],
+  'fleetmaint':     ['Predictive alerts before failures occur','Per-vehicle service history pattern analysis','Recommended next service by mileage trend','Fleet-wide maintenance calendar view','Tech assignment suggestions by skill match'],
+  'prev-advisor':   ['Vehicle-type-specific checklist generation','Mileage and climate-adjusted recommendations','System-by-system check sequence','Voice-interactive advisor mode','Printable and SMS-shareable checklists'],
+  'social-media':   ['Facebook, Instagram, Google Business posts','Service-specific promotional captions','Seasonal and event-driven post templates','Hashtag sets by service and region','Batch-generate a full week of posts'],
+  'cta-copy':       ['Website hero and button copy','Email subject lines and preview text','Social ad headline + body variants','Call-us and book-now CTA formats','Urgency-tiered copy by service priority'],
+  'promo-builder':  ['Seasonal discount offer packages','SMS blast under 160 chars','Email with service detail and expiry','Social media caption with CTA','Staff talking points for offer period'],
+  'enviromaint':    ['Climate profile by zip code or region','OEM interval adjustments for environment','Seasonal service priority recommendations','Voice-queryable advisor mode','Desert, coastal, cold-weather, and urban modes'],
+  'blog-post':      ['Topic ideation by service and season','Full 800-1200 word draft','SEO keyword integration','Internal linking suggestions','Meta title and description included'],
 };
 
-const CATS={all:'ALL MODULES',communication:'COMMUNICATION',trust:'TRUST',safety:'SAFETY',operations:'OPERATIONS',financial:'FINANCIAL'};
+const CATS={all:'ALL MODULES',communication:'COMMUNICATION',trust:'TRUST',safety:'SAFETY',operations:'OPERATIONS',financial:'FINANCIAL','repair-intel':'REPAIR INTEL',marketing:'MARKETING'};
 
 /* ── HELPERS ── */
 const post=(url,data)=>fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r=>r.json());
@@ -102,6 +123,15 @@ const endpointFor=(id,data)=>{
     'referrals':      data._tab==='reward'?`${API}/api/referrals/rewards`:`${API}/api/referrals/track`,
     'tech':           `${API}/api/tech/summary`,
     'milestones':     `${API}/api/milestones/generate`,
+    'repair-auto':    `${API}/api/repair-auto/generate`,
+    'componentcare':  `${API}/api/componentcare/query`,
+    'fleetmaint':     `${API}/api/fleetmaint/generate`,
+    'prev-advisor':   `${API}/api/prev-advisor/generate`,
+    'enviromaint':    `${API}/api/enviromaint/generate`,
+    'social-media':   `${API}/api/social-media/generate`,
+    'cta-copy':       `${API}/api/cta-copy/generate`,
+    'promo-builder':  `${API}/api/promo-builder/generate`,
+    'blog-post':      `${API}/api/blog-post/generate`,
   };
   return m[id];
 };
@@ -443,12 +473,90 @@ function MilestonesForm({onSubmit,loading}){
   </form>`;
 }
 
+function AIVoiceForm({onSubmit,loading,placeholder}){
+  const[f,sF]=useState({query:''});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
+    <${Field} label="Ask a Question or Describe the Job">
+      <textarea rows="4" value=${f.query} onChange=${e=>sF({...f,query:e.target.value})} placeholder=${placeholder||'Describe the vehicle, complaint, or question...'}/>
+    </${Field}>
+    <div style=${{display:'flex',alignItems:'center',gap:8,padding:'10px 14px',background:'#111',borderRadius:3,border:'1px solid #222',marginBottom:16}}>
+      <span style=${{fontSize:16}}>🎙</span>
+      <span style=${{fontSize:11,color:'#555',fontWeight:600}}>Voice input coming soon</span>
+    </div>
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+function SocialMediaForm({onSubmit,loading}){
+  const[f,sF]=useState({platform:'all',service_type:'Oil Change',tone:'professional',promo:''});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
+    <${Field} label="Platform"><select value=${f.platform} onChange=${e=>sF({...f,platform:e.target.value})}>
+      <option value="all">All Platforms</option><option value="facebook">Facebook</option>
+      <option value="instagram">Instagram</option><option value="google">Google Business</option>
+    </select></${Field}>
+    <${Field} label="Service / Topic"><input value=${f.service_type} onChange=${e=>sF({...f,service_type:e.target.value})} placeholder="e.g. Brake Service"/></${Field}>
+    <${Field} label="Promotion (optional)"><input value=${f.promo} onChange=${e=>sF({...f,promo:e.target.value})} placeholder="e.g. $20 off oil change this week"/></${Field}>
+    <${Field} label="Tone"><select value=${f.tone} onChange=${e=>sF({...f,tone:e.target.value})}>
+      <option value="professional">Professional</option><option value="casual">Casual & Friendly</option><option value="urgent">Urgency</option>
+    </select></${Field}>
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+function CTACopyForm({onSubmit,loading}){
+  const[f,sF]=useState({goal:'book',service_type:'Oil Change',urgency:'medium',format:'all'});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
+    <${Field} label="Goal"><select value=${f.goal} onChange=${e=>sF({...f,goal:e.target.value})}>
+      <option value="book">Book an Appointment</option><option value="call">Call Us Now</option>
+      <option value="quote">Get a Quote</option><option value="visit">Visit the Shop</option>
+    </select></${Field}>
+    <${Field} label="Service"><input value=${f.service_type} onChange=${e=>sF({...f,service_type:e.target.value})}/></${Field}>
+    <${Field} label="Urgency"><select value=${f.urgency} onChange=${e=>sF({...f,urgency:e.target.value})}>
+      <option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option>
+    </select></${Field}>
+    <${Field} label="Format"><select value=${f.format} onChange=${e=>sF({...f,format:e.target.value})}>
+      <option value="all">All Formats</option><option value="button">Button/CTA</option>
+      <option value="headline">Headline</option><option value="email">Email</option><option value="sms">SMS</option>
+    </select></${Field}>
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+function PromoBuilderForm({onSubmit,loading}){
+  const[f,sF]=useState({offer:'',service_type:'',expiry:'',channels:'all'});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
+    <${Field} label="Offer"><input value=${f.offer} onChange=${e=>sF({...f,offer:e.target.value})} placeholder="e.g. $30 off any brake service"/></${Field}>
+    <${Field} label="Service Type"><input value=${f.service_type} onChange=${e=>sF({...f,service_type:e.target.value})} placeholder="e.g. Brake Pads & Rotors"/></${Field}>
+    <${Field} label="Expiry Date"><input value=${f.expiry} onChange=${e=>sF({...f,expiry:e.target.value})} placeholder="e.g. Dec 31, 2025"/></${Field}>
+    <${Field} label="Channels"><select value=${f.channels} onChange=${e=>sF({...f,channels:e.target.value})}>
+      <option value="all">All Channels</option><option value="sms">SMS</option>
+      <option value="email">Email</option><option value="social">Social Media</option>
+    </select></${Field}>
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+function BlogPostForm({onSubmit,loading}){
+  const[f,sF]=useState({topic:'',audience:'car owners',keywords:'',length:'1000'});
+  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
+    <${Field} label="Topic"><input value=${f.topic} onChange=${e=>sF({...f,topic:e.target.value})} placeholder="e.g. When to replace brake pads"/></${Field}>
+    <${Field} label="Target Audience"><input value=${f.audience} onChange=${e=>sF({...f,audience:e.target.value})}/></${Field}>
+    <${Field} label="SEO Keywords (optional)"><input value=${f.keywords} onChange=${e=>sF({...f,keywords:e.target.value})} placeholder="e.g. brake service, brake replacement"/></${Field}>
+    <${Field} label="Word Count Target"><select value=${f.length} onChange=${e=>sF({...f,length:e.target.value})}>
+      <option value="600">~600 words</option><option value="1000">~1000 words</option><option value="1500">~1500 words</option>
+    </select></${Field}>
+    <${GenBtn} loading=${loading}/>
+  </form>`;
+}
+
 const FORM_MAP={
   'appointments':AppointmentsForm,'welcome-kit':WelcomeKitForm,'wait-time':WaitTimeForm,
   'declined':DeclinedForm,'service-history':ServiceHistoryForm,'estimates':EstimatesForm,
   'inspection':InspectionForm,'recall':RecallForm,'equipment':EquipmentForm,'sop':SopForm,
   'parts':PartsForm,'warranty':WarrantyForm,'expenses':ExpensesForm,'seasonal':SeasonalForm,
   'referrals':ReferralsForm,'tech':TechForm,'milestones':MilestonesForm,
+  'repair-auto':(p)=>html`<${AIVoiceForm} ...${p} placeholder="Describe the make, model, year, mileage, and complaint — e.g. 2019 Toyota Camry 85k mi, shaking when braking"/>`,
+  'fleetmaint': (p)=>html`<${AIVoiceForm} ...${p} placeholder="Describe the fleet vehicle and symptoms — e.g. 2020 F-150 fleet unit, due for service, high highway miles"/>`,
+  'prev-advisor':(p)=>html`<${AIVoiceForm} ...${p} placeholder="e.g. 2018 Honda Accord, 72,000 miles, last oil change 3 months ago, no recent issues"/>`,
+  'enviromaint': (p)=>html`<${AIVoiceForm} ...${p} placeholder="e.g. Vehicle in Phoenix AZ, extreme heat, mostly highway driving, 2021 Silverado"/>`,
+  'social-media':SocialMediaForm,'cta-copy':CTACopyForm,'promo-builder':PromoBuilderForm,
+  'blog-post':BlogPostForm,
 };
 
 /* ── OUTPUT PANEL ── */
@@ -520,7 +628,15 @@ function ModulePanel({mod,onClose}){
       if(!url)throw new Error('No endpoint for '+mod.id);
       const res=await post(url,data);
       if(res.success===false&&res.error)sErr(res.error);
-      else{sOut(res.output||JSON.stringify(res,null,2));sFiles(res.files||[]);}
+      else{
+        // Prefer stdout output; fall back to file contents from res.content
+        let displayText=res.output||'';
+        if(!displayText&&res.content&&typeof res.content==='object'){
+          displayText=Object.entries(res.content).map(([fname,body])=>`── ${fname} ──\n\n${body}`).join('\n\n'+('─').repeat(40)+'\n\n');
+        }
+        sOut(displayText||JSON.stringify(res,null,2));
+        sFiles(res.files||[]);
+      }
     }catch(e){sErr(e.message||'Could not reach backend on port 8000');}
     finally{sLoad(false);}
   };
@@ -1323,6 +1439,148 @@ function SetupWizard({onComplete}){
   </div>`;
 }
 
+/* ── COMPONENTCARE KNOWLEDGE BASE ── */
+const KB_VEHICLES=[
+  {id:1,make:'Toyota',model:'Camry',years:'2018-2023',engines:['2.5L 4-cyl A25A-FKS','3.5L V6 2GR-FKS'],oil:'0W-20 Full Synthetic',oilCap:'4.8 qt (2.5L) / 6.4 qt (3.5L)',coolant:'Toyota Pink SLLC',sparkPlug:'NGK DILKAR6A11GS',torqueSpecs:[{item:'Lug Nuts','spec':'76 ft-lb'},{item:'Drain Plug',spec:'30 ft-lb'},{item:'Caliper Bolts',spec:'25 ft-lb'}],intervals:[{service:'Oil Change',interval:'10,000 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs (2.5L)',interval:'60,000 mi'},{service:'Transmission Fluid',interval:'60,000 mi'},{service:'Coolant Flush',interval:'100,000 mi'}],issues:['Oil consumption >1 qt/5k mi (2.5L pre-2021 build)','Sunroof drain clogs leading to interior leaks','Catalytic converter theft risk — high target vehicle']},
+  {id:2,make:'Honda',model:'Accord',years:'2018-2022',engines:['1.5L Turbo L15B7','2.0L Turbo K20C4'],oil:'0W-20 Full Synthetic',oilCap:'3.4 qt (1.5T) / 5.1 qt (2.0T)',coolant:'Honda Blue Type 2',sparkPlug:'NGK ILZKR7B11GS',torqueSpecs:[{item:'Lug Nuts',spec:'80 ft-lb'},{item:'Drain Plug',spec:'29 ft-lb'},{item:'Caliper Bolts (front)',spec:'37 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi (1.5T) / 5,000 mi (2.0T)'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'30,000 mi'},{service:'Coolant Flush',interval:'60,000 mi'}],issues:['1.5T oil dilution in cold climates — monitor closely','CVT judder at low speeds on some 2018-2019 units','Bluetooth connectivity drops after software updates']},
+  {id:3,make:'Ford',model:'F-150',years:'2018-2023',engines:['5.0L V8 Coyote','2.7L EcoBoost V6','3.5L EcoBoost V6'],oil:'5W-30 (5.0L) / 5W-30 (EcoBoost)',oilCap:'7.7 qt (5.0L) / 6.0 qt (2.7T)',coolant:'Ford Orange VC-3-B',sparkPlug:'Motorcraft SP-537 (5.0L)',torqueSpecs:[{item:'Lug Nuts',spec:'150 ft-lb'},{item:'Drain Plug',spec:'19 ft-lb'},{item:'Caliper Bolts',spec:'26 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi (dino) / 10,000 mi (syn)'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'60,000 mi'},{service:'Transmission Fluid',interval:'150,000 mi (normal) / 60,000 mi (towing)'},{service:'Transfer Case Fluid',interval:'150,000 mi'}],issues:['EcoBoost carbon buildup on intake valves (walnut blast at 60k)','Panoramic roof wind noise on 2019-2021','Tailgate latch sticking in cold weather']},
+  {id:4,make:'Chevrolet',model:'Silverado 1500',years:'2019-2023',engines:['5.3L V8 L84','6.2L V8 L87'],oil:'0W-20 Full Synthetic (AFM)',oilCap:'6.0 qt (5.3L) / 8.0 qt (6.2L)',coolant:'Dex-Cool Orange',sparkPlug:'ACDelco 41-164',torqueSpecs:[{item:'Lug Nuts',spec:'140 ft-lb'},{item:'Drain Plug',spec:'18 ft-lb'},{item:'Caliper Bolts',spec:'32 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'100,000 mi'},{service:'Transmission Fluid',interval:'45,000 mi (towing) / 100,000 mi (normal)'}],issues:['AFM/DFM lifter failures on 5.3L — watch for tick at startup','Oil consumption with active fuel management enabled','Trailer brake controller sensitivity complaints']},
+  {id:5,make:'Toyota',model:'Tacoma',years:'2016-2023',engines:['2.7L 4-cyl 2TR-FE','3.5L V6 2GR-FKS'],oil:'0W-20 Full Synthetic',oilCap:'5.5 qt (2.7L) / 6.2 qt (3.5L)',coolant:'Toyota Pink SLLC',sparkPlug:'NGK ILFR5E11 (3.5L)',torqueSpecs:[{item:'Lug Nuts',spec:'85 ft-lb'},{item:'Drain Plug',spec:'27 ft-lb'},{item:'Caliper Bolts',spec:'25 ft-lb'}],intervals:[{service:'Oil Change',interval:'5,000 mi (2.7L) / 10,000 mi (3.5L)'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'60,000 mi'},{service:'Differential Fluid',interval:'30,000 mi (4WD)'}],issues:['Frame rust concerns on older units in salt-belt states','Infotainment system slow response on early 2016-2018','Rear leaf spring squeaks common — lube or replace bushings']},
+  {id:6,make:'Honda',model:'Civic',years:'2016-2021',engines:['1.5L Turbo L15B7','2.0L NA R20C1'],oil:'0W-20 Full Synthetic',oilCap:'3.4 qt (1.5T) / 3.7 qt (2.0L)',coolant:'Honda Blue Type 2',sparkPlug:'NGK SILZKR7B11GS',torqueSpecs:[{item:'Lug Nuts',spec:'80 ft-lb'},{item:'Drain Plug',spec:'29 ft-lb'},{item:'Caliper Bolts (front)',spec:'25 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi (1.5T) / 5,000 mi (2.0L)'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Spark Plugs',interval:'30,000 mi'},{service:'Coolant Flush',interval:'60,000 mi'}],issues:['1.5T oil dilution — especially cold starts in northern climates','AC compressor failure on 2016-2018 1.5T','Adhesive-mounted trim panels separating in heat']},
+  {id:7,make:'Ram',model:'1500',years:'2019-2023',engines:['5.7L HEMI V8','3.6L Pentastar V6','3.0L EcoDiesel V6'],oil:'5W-20 (HEMI) / 5W-20 (V6)',oilCap:'7.0 qt (HEMI) / 5.9 qt (V6)',coolant:'HOAT Orange',sparkPlug:'Champion RC12ECC (HEMI)',torqueSpecs:[{item:'Lug Nuts',spec:'130 ft-lb'},{item:'Drain Plug',spec:'20 ft-lb'},{item:'Caliper Bolts',spec:'32 ft-lb'}],intervals:[{service:'Oil Change',interval:'8,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'30,000 mi (HEMI)'},{service:'Transmission Fluid',interval:'60,000 mi'},{service:'Transfer Case',interval:'60,000 mi'}],issues:['HEMI tick on startup — common MDS lifter wear','Uconnect system freezes requiring battery reset','EcoDiesel 3.0L NOx emission recall — verify completion']},
+  {id:8,make:'Toyota',model:'Corolla',years:'2020-2023',engines:['2.0L 4-cyl M20A-FKS','1.8L Hybrid 2ZR-FXE'],oil:'0W-16 Full Synthetic',oilCap:'4.4 qt (2.0L) / 3.9 qt (Hybrid)',coolant:'Toyota Pink SLLC',sparkPlug:'NGK ILKAR7L11',torqueSpecs:[{item:'Lug Nuts',spec:'76 ft-lb'},{item:'Drain Plug',spec:'27 ft-lb'},{item:'Caliper Bolts',spec:'25 ft-lb'}],intervals:[{service:'Oil Change',interval:'10,000 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'120,000 mi'},{service:'Hybrid Battery Check',interval:'Annual (Hybrid)'}],issues:['Rearview camera delay on cold starts','Road noise from rear wheel wells — install additional deadening','Hybrid battery warranty — 10 yr / 150k in ZEV states']},
+  {id:9,make:'Honda',model:'CR-V',years:'2017-2022',engines:['1.5L Turbo L15B7','2.4L NA K24W (2017)'],oil:'0W-20 Full Synthetic',oilCap:'3.4 qt',coolant:'Honda Blue Type 2',sparkPlug:'NGK ILZKR7B11GS',torqueSpecs:[{item:'Lug Nuts',spec:'80 ft-lb'},{item:'Drain Plug',spec:'29 ft-lb'},{item:'Caliper Bolts',spec:'37 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'AWD Fluid',interval:'30,000 mi'}],issues:['1.5T oil dilution — worst on 2017-2018 in cold climates','Infotainment screen delamination on 2017-2019','CVT shudder at highway merge speeds']},
+  {id:10,make:'Ford',model:'Escape',years:'2020-2023',engines:['1.5L EcoBoost 3-cyl','2.0L EcoBoost 4-cyl'],oil:'5W-30 Full Synthetic',oilCap:'4.4 qt (1.5L) / 5.7 qt (2.0L)',coolant:'Ford Orange VC-3-B',sparkPlug:'Motorcraft SP-534',torqueSpecs:[{item:'Lug Nuts',spec:'100 ft-lb'},{item:'Drain Plug',spec:'19 ft-lb'},{item:'Caliper Bolts',spec:'26 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'60,000 mi'}],issues:['1.5L 3-cyl coolant intrusion into cylinder — check TSB 21-2316','PHEV range degradation in cold weather','Reverse camera pixelation on 2020-2021']},
+];
+
+function ComponentCarePanel({onBack}){
+  const[search,sSearch]=useState('');
+  const[makeFilter,sMakeFilter]=useState('ALL');
+  const[selected,sSelected]=useState(null);
+  const[specTab,sSpecTab]=useState('intervals');
+
+  const makes=[...new Set(KB_VEHICLES.map(v=>v.make))];
+  const filtered=KB_VEHICLES.filter(v=>{
+    const matchMake=makeFilter==='ALL'||v.make===makeFilter;
+    const q=search.toLowerCase();
+    const matchSearch=!q||v.make.toLowerCase().includes(q)||v.model.toLowerCase().includes(q)||v.engines.some(e=>e.toLowerCase().includes(q));
+    return matchMake&&matchSearch;
+  });
+  const totalIssues=KB_VEHICLES.reduce((a,v)=>a+v.issues.length,0);
+  const totalProcs=KB_VEHICLES.reduce((a,v)=>a+v.intervals.length,0);
+
+  return html`<div style=${{position:'fixed',inset:0,zIndex:200,background:'#0B0B0D',display:'flex',flexDirection:'column',animation:'fadeIn .2s ease'}}>
+    <div style=${{height:3,background:`linear-gradient(90deg,${G},#F5C542,${G})`}}/>
+
+    <!-- Header -->
+    <div style=${{padding:'12px 24px',borderBottom:'1px solid #1A1A1E',display:'flex',alignItems:'center',gap:16,background:'#0D0D0F'}}>
+      <button onClick=${onBack} style=${{padding:'6px 14px',borderRadius:3,border:'1px solid #222',background:'#111',color:'#555',fontSize:11,fontWeight:800,letterSpacing:'0.08em'}}>← Back</button>
+      <span style=${{fontSize:20}}>🧠</span>
+      <div>
+        <span style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:18,color:'#F0F0F2',textTransform:'uppercase'}}>ComponentCare</span>
+        <span style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:600,fontSize:14,color:'#444',textTransform:'uppercase',marginLeft:8}}>Knowledge Base</span>
+      </div>
+      <div style=${{marginLeft:'auto',display:'flex',gap:16,alignItems:'center'}}>
+        ${[{n:KB_VEHICLES.length,l:'Vehicles'},{n:totalProcs,l:'Procedures'},{n:totalIssues,l:'Issues Documented'}].map((s,i)=>html`
+          <div key=${i} style=${{textAlign:'center'}}>
+            <div style=${{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:800,color:G,lineHeight:1}}>${s.n}</div>
+            <div style=${{fontSize:9,color:'#555',fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase'}}>${s.l}</div>
+          </div>
+        `)}
+        <button style=${{padding:'8px 16px',borderRadius:3,border:`1px solid ${G}66`,background:`linear-gradient(135deg,${G},${G}CC)`,color:'#0B0B0D',fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',fontFamily:"'Barlow',sans-serif"}}>+ ADD VEHICLE</button>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div style=${{flex:1,display:'flex',overflow:'hidden'}}>
+      <!-- Left sidebar -->
+      <div style=${{width:280,borderRight:'1px solid #1A1A1E',display:'flex',flexDirection:'column',background:'#0D0D0F'}}>
+        <div style=${{padding:'14px 16px',borderBottom:'1px solid #151518'}}>
+          <input value=${search} onChange=${e=>sSearch(e.target.value)} placeholder="Search make, model, engine..."
+            style=${{width:'100%',padding:'9px 12px',borderRadius:3,border:'1px solid #1A1A1E',background:'#111',color:'#CCC',fontSize:12,fontFamily:"'Barlow',sans-serif"}}/>
+        </div>
+        <div style=${{padding:'10px 16px',borderBottom:'1px solid #151518',display:'flex',flexWrap:'wrap',gap:6}}>
+          ${['ALL',...makes].map(m=>html`<button key=${m} onClick=${()=>sMakeFilter(m)} style=${{padding:'4px 10px',borderRadius:2,border:`1px solid ${makeFilter===m?G+'66':'#222'}`,background:makeFilter===m?`${G}15`:'transparent',color:makeFilter===m?G:'#666',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:"'Barlow',sans-serif",letterSpacing:'0.06em'}}>${m}</button>`)}
+        </div>
+        <div style=${{flex:1,overflowY:'auto'}}>
+          ${filtered.map(v=>html`<div key=${v.id} onClick=${()=>sSelected(v)}
+            style=${{padding:'14px 18px',borderBottom:'1px solid #111',cursor:'pointer',background:selected?.id===v.id?`${G}0A`:'transparent',transition:'background .15s'}}>
+            <div style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:15,color:selected?.id===v.id?G:'#E0E0E2',textTransform:'uppercase'}}>${v.make} ${v.model}</div>
+            <div style=${{fontSize:11,color:'#555',marginTop:2}}>${v.years}</div>
+            <div style=${{fontSize:10,color:'#444',marginTop:4,lineHeight:1.4}}>${v.engines.join(' / ')}</div>
+          </div>`)}
+        </div>
+      </div>
+
+      <!-- Right detail panel -->
+      <div style=${{flex:1,overflowY:'auto',background:'#0B0B0D'}}>
+        ${!selected?html`
+          <div style=${{height:'100%',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12,opacity:.35}}>
+            <div style=${{fontSize:56}}>🧠</div>
+            <div style=${{fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:800,color:'#AAA',letterSpacing:'0.1em',textTransform:'uppercase'}}>SELECT A VEHICLE TO VIEW SPECS</div>
+          </div>
+        `:html`
+          <div style=${{padding:'28px 32px'}}>
+            <!-- Vehicle title -->
+            <div style=${{marginBottom:24,paddingBottom:18,borderBottom:'1px solid #1A1A1E'}}>
+              <h2 style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:26,color:'#F0F0F2',textTransform:'uppercase',margin:'0 0 4px'}}>${selected.make} ${selected.model}</h2>
+              <div style=${{fontSize:13,color:'#555',marginBottom:12}}>${selected.years} · ${selected.engines.join(' / ')}</div>
+              <div style=${{display:'flex',gap:12,flexWrap:'wrap'}}>
+                <div style=${{padding:'8px 14px',borderRadius:3,background:'#111',border:'1px solid #1A1A1E'}}>
+                  <div style=${{fontSize:9,color:'#555',fontWeight:700,letterSpacing:'0.1em',marginBottom:3}}>OIL SPEC</div>
+                  <div style=${{fontSize:13,color:'#CCC',fontWeight:600}}>${selected.oil}</div>
+                </div>
+                <div style=${{padding:'8px 14px',borderRadius:3,background:'#111',border:'1px solid #1A1A1E'}}>
+                  <div style=${{fontSize:9,color:'#555',fontWeight:700,letterSpacing:'0.1em',marginBottom:3}}>OIL CAPACITY</div>
+                  <div style=${{fontSize:13,color:'#CCC',fontWeight:600}}>${selected.oilCap}</div>
+                </div>
+                <div style=${{padding:'8px 14px',borderRadius:3,background:'#111',border:'1px solid #1A1A1E'}}>
+                  <div style=${{fontSize:9,color:'#555',fontWeight:700,letterSpacing:'0.1em',marginBottom:3}}>COOLANT</div>
+                  <div style=${{fontSize:13,color:'#CCC',fontWeight:600}}>${selected.coolant}</div>
+                </div>
+                <div style=${{padding:'8px 14px',borderRadius:3,background:'#111',border:'1px solid #1A1A1E'}}>
+                  <div style=${{fontSize:9,color:'#555',fontWeight:700,letterSpacing:'0.1em',marginBottom:3}}>SPARK PLUG</div>
+                  <div style=${{fontSize:13,color:'#CCC',fontWeight:600}}>${selected.sparkPlug}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Spec tabs -->
+            <div style=${{display:'flex',gap:2,marginBottom:20,borderBottom:'2px solid #1A1A1E'}}>
+              ${[{id:'intervals',l:'Service Intervals'},{id:'torque',l:'Torque Specs'},{id:'issues',l:'Known Issues'}].map(t=>html`
+                <button key=${t.id} onClick=${()=>sSpecTab(t.id)} style=${{padding:'10px 18px',border:'none',borderBottom:specTab===t.id?`2px solid ${G}`:'2px solid transparent',marginBottom:-2,background:'transparent',color:specTab===t.id?G:'#555',fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Barlow',sans-serif"}}>
+                  ${t.l}
+                </button>
+              `)}
+            </div>
+
+            ${specTab==='intervals'&&html`<div style=${{display:'flex',flexDirection:'column',gap:4}}>
+              ${selected.intervals.map((s,i)=>html`<div key=${i} style=${{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'12px 16px',borderRadius:3,background:'#0E0E10',border:'1px solid #18181C'}}>
+                <span style=${{fontSize:13,color:'#CCC'}}>${s.service}</span>
+                <span style=${{fontSize:12,color:G,fontWeight:700,fontFamily:"'Barlow Condensed',sans-serif"}}>${s.interval}</span>
+              </div>`)}
+            </div>`}
+
+            ${specTab==='torque'&&html`<div style=${{display:'flex',flexDirection:'column',gap:4}}>
+              ${selected.torqueSpecs.map((t,i)=>html`<div key=${i} style=${{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'12px 16px',borderRadius:3,background:'#0E0E10',border:'1px solid #18181C'}}>
+                <span style=${{fontSize:13,color:'#CCC'}}>${t.item}</span>
+                <span style=${{fontSize:13,color:G,fontWeight:800,fontFamily:"'Barlow Condensed',sans-serif"}}>${t.spec}</span>
+              </div>`)}
+            </div>`}
+
+            ${specTab==='issues'&&html`<div style=${{display:'flex',flexDirection:'column',gap:8}}>
+              ${selected.issues.map((issue,i)=>html`<div key=${i} style=${{display:'flex',gap:12,padding:'14px 16px',borderRadius:3,background:'#13100A',border:`1px solid ${G}20`}}>
+                <div style=${{width:6,height:6,borderRadius:1,background:G,flexShrink:0,marginTop:4}}/>
+                <span style=${{fontSize:13,color:'#AAA',lineHeight:1.6}}>${issue}</span>
+              </div>`)}
+            </div>`}
+          </div>
+        `}
+      </div>
+    </div>
+  </div>`;
+}
+
 /* ── APP ── */
 function App(){
   const[cat,sCat]=useState('all');
@@ -1345,6 +1603,7 @@ function App(){
   if(panel) return html`<${ModulePanel} mod=${panel} onClose=${()=>sPanel(null)}/>`;
   if(view==='profile') return html`<${ShopProfile} onBack=${()=>sView('modules')}/>`;
   if(view==='operations') return html`<${OperationsHub} onBack=${()=>sView('modules')}/>`;
+  if(view==='knowledge-base') return html`<${ComponentCarePanel} onBack=${()=>sView('modules')}/>`;
 
   return html`<div style=${{minHeight:'100vh',background:'#0B0B0D'}}>
     <div style=${{height:3,background:`linear-gradient(90deg,transparent,${G},transparent)`}}/>
@@ -1362,7 +1621,7 @@ function App(){
           </div>
         </div>
         <div style=${{display:'flex',gap:16,marginBottom:4}}>
-          ${[{n:'13',l:'Core'},{n:'4',l:'Suggested'},{n:'5',l:'Categories'}].map((s,i)=>html`
+          ${[{n:'20',l:'Core'},{n:'6',l:'Suggested'},{n:'7',l:'Categories'}].map((s,i)=>html`
             <div key=${i} style=${{textAlign:'center',padding:'8px 18px',background:'#0E0E10',border:'1px solid #1C1C20',borderRadius:3}}>
               <div style=${{fontFamily:"'Barlow Condensed',sans-serif",fontSize:26,fontWeight:800,color:G,lineHeight:1}}>${s.n}</div>
               <div style=${{fontSize:9,color:'#555',fontWeight:700,letterSpacing:'0.1em',marginTop:3,textTransform:'uppercase'}}>${s.l}</div>
@@ -1379,6 +1638,10 @@ function App(){
         <!-- OPS HUB button -->
         <button onClick=${()=>sView('operations')} style=${{padding:'14px 22px',border:'none',borderBottom:'3px solid transparent',marginBottom:-2,background:'transparent',color:'#555',fontSize:11,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Barlow',sans-serif",transition:'all .2s',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:6}}>
           <span style=${{fontSize:13}}>⚙️</span> OPS HUB
+        </button>
+        <!-- KNOWLEDGE BASE button -->
+        <button onClick=${()=>sView('knowledge-base')} style=${{padding:'14px 22px',border:'none',borderBottom:'3px solid transparent',marginBottom:-2,background:'transparent',color:'#555',fontSize:11,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Barlow',sans-serif",transition:'all .2s',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:6}}>
+          <span style=${{fontSize:13,filter:'grayscale(0.2)'}}>🧠</span> KNOWLEDGE BASE
         </button>
         <div style=${{width:1,height:28,background:'#222',marginBottom:2,flexShrink:0}}/>
         ${Object.entries(CATS).map(([k,v])=>{
