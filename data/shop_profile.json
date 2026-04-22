@@ -1,10 +1,10 @@
 {
-  "shop_name": "Peak Auto Repair",
-  "owner_name": "Jason Mercer",
-  "location": "Denver, CO",
-  "address": "4821 Tennyson St, Denver, CO 80212",
-  "phone": "(720) 555-0192",
-  "hours": "Mon-Fri 7:30am-5:30pm, Sat 8am-1pm",
+  "shop_name": "",
+  "owner_name": "",
+  "location": "",
+  "address": "",
+  "phone": "",
+  "hours": "",
   "services": [
     "Oil changes",
     "brakes",
@@ -15,9 +15,9 @@
     "transmission",
     "engine repair"
   ],
-  "business_type": "Independent auto repair",
-  "website": "https://peakautorepair.com",
-  "tagline": "Honest work. Fair prices. Every time.",
+  "business_type": "",
+  "website": "",
+  "tagline": "",
   "brand_colors": {
     "primary": "#1A3A5C",
     "secondary": "#F5A623"

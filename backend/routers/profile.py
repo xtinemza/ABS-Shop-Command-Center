@@ -17,8 +17,12 @@ _TOOLS_ROOT = os.path.abspath(
 if _TOOLS_ROOT not in sys.path:
     sys.path.insert(0, _TOOLS_ROOT)
 
+# Use /data (Render persistent disk) in production, fall back to repo data/ locally
+_DATA_DIR = "/data" if os.path.isdir("/data") else os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "data")
+)
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-PROFILE_PATH = os.path.join(PROJECT_ROOT, "data", "shop_profile.json")
+PROFILE_PATH = os.path.join(_DATA_DIR, "shop_profile.json")
 
 from models.responses import ProfileResponse, HealthResponse
 from utils import capture_output
@@ -154,5 +158,5 @@ def setup(body: SetupRequest):
 @router.get("/health", response_model=HealthResponse)
 def health():
     profile = _load_profile()
-    setup_complete = bool(profile.get("setup_complete") and profile.get("shop_name"))
+    setup_complete = bool(profile.get("setup_complete"))
     return HealthResponse(status="ok", setup_complete=setup_complete)

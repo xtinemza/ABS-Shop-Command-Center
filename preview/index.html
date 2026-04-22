@@ -25,16 +25,17 @@ button{cursor:pointer;font-family:'Barlow',sans-serif}
 <body>
 <div id="root"></div>
 <script type="module">
-import{useState,useEffect,useCallback}from'https://esm.sh/react@18';
+import{useState,useEffect,useCallback,useRef}from'https://esm.sh/react@18';
 import{createRoot}from'https://esm.sh/react-dom@18/client';
 import htm from'https://esm.sh/htm@3';
 const html=htm.bind(React.createElement);
 import React from'https://esm.sh/react@18';
 
 const G='#D4A017';
-const API = window.location.hostname === 'localhost'
-  ? 'http://localhost:8000'
-  : 'https://YOUR-RENDER-URL.onrender.com';
+const API = window.__BACKEND_URL__
+  || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:8000'
+      : 'https://YOUR-RENDER-URL.onrender.com'); // ← replace with your Render URL after deploy
 
 /* ── DATA ── */
 const MODULES=[
@@ -648,6 +649,639 @@ function SHead({title,badge}){
   </div>`;
 }
 
+/* ── OPERATIONS HUB DATA ── */
+const OPS_PARTS=[
+  {id:1,part:'Brake Pads - Ceramic Front',partNum:'BP-CER-001',qty:3,min:4,cost:35.00,vendor:'AutoZone Commercial',vendorPhone:'(800) 288-6966',status:'low'},
+  {id:2,part:'Oil Filter - Standard',partNum:'OF-STD-010',qty:24,min:8,cost:6.50,vendor:"O'Reilly Auto Parts",vendorPhone:'(800) 755-6759',status:'ok'},
+  {id:3,part:'Brake Rotors - Front Pair',partNum:'BR-FRT-003',qty:0,min:2,cost:78.00,vendor:'AutoZone Commercial',vendorPhone:'(800) 288-6966',status:'out'},
+  {id:4,part:'Serpentine Belt - Universal',partNum:'SB-UNI-005',qty:6,min:3,cost:22.00,vendor:'NAPA Auto Parts',vendorPhone:'(800) 535-3738',status:'ok'},
+  {id:5,part:'Cabin Air Filter',partNum:'CAF-STD-008',qty:5,min:4,cost:12.00,vendor:"O'Reilly Auto Parts",vendorPhone:'(800) 755-6759',status:'ok'},
+  {id:6,part:'Wiper Blades - 22in',partNum:'WB-22-012',qty:2,min:4,cost:8.50,vendor:'AutoZone Commercial',vendorPhone:'(800) 288-6966',status:'low'},
+];
+const OPS_EQUIP=[
+  {id:1,name:'BendPak XPR-10AS 2-Post Lift',type:'Vehicle Lift',serial:'BP-2022-4819',lastService:'2024-08-15',nextDue:'2024-11-15',status:'due',calibration:null},
+  {id:2,name:'Hunter HawkEye Elite Aligner',type:'Alignment Machine',serial:'HE-2023-0092',lastService:'2024-10-01',nextDue:'2025-01-01',status:'ok',calibration:'2025-03-01'},
+  {id:3,name:'Snap-on SOLUS Edge Scanner',type:'Diagnostic Scanner',serial:'SN-2024-1187',lastService:'2024-09-20',nextDue:'2024-12-20',status:'ok',calibration:null},
+  {id:4,name:'Coats 70X Tire Changer',type:'Tire Machine',serial:'CT-2021-3301',lastService:'2024-03-10',nextDue:'2024-06-10',status:'overdue',calibration:null},
+  {id:5,name:'Robinair 34988 AC Machine',type:'AC Recovery Unit',serial:'RB-2023-0445',lastService:'2024-07-01',nextDue:'2025-01-01',status:'ok',calibration:'2025-07-01'},
+];
+const OPS_EXP=[
+  {id:1,date:'2024-11-15',desc:'Brake pads bulk order',amount:1450.00,category:'parts',vendor:'AutoZone Commercial'},
+  {id:2,date:'2024-11-14',desc:'Monthly rent',amount:3200.00,category:'rent',vendor:'Property Management Co'},
+  {id:3,date:'2024-11-14',desc:'Electric bill',amount:485.00,category:'utilities',vendor:'Houston Energy'},
+  {id:4,date:'2024-11-13',desc:'Google Ads - November',amount:750.00,category:'marketing',vendor:'Google'},
+  {id:5,date:'2024-11-12',desc:'Snap-on tool cart',amount:2100.00,category:'tools_equipment',vendor:'Snap-on'},
+  {id:6,date:'2024-11-11',desc:'Oil disposal pickup',amount:175.00,category:'waste_disposal',vendor:'Clean Harbors'},
+  {id:7,date:'2024-11-10',desc:'ASE training course',amount:350.00,category:'training',vendor:'ASE Online'},
+  {id:8,date:'2024-11-08',desc:'Filters bulk order',amount:680.00,category:'parts',vendor:"O'Reilly Auto Parts"},
+];
+const OPS_WARRANTY=[
+  {id:'WC-001',part:'Alternator - Reman',vendor:"O'Reilly",cost:189.99,vehicle:'2018 Honda Accord',status:'Submitted',days:14,reimbursed:0},
+  {id:'WC-002',part:'Water Pump',vendor:'AutoZone',cost:125.00,vehicle:'2020 Ford F-150',status:'Approved',days:32,reimbursed:125.00},
+  {id:'WC-003',part:'Starter Motor',vendor:'NAPA',cost:210.00,vehicle:'2017 Chevy Silverado',status:'Pending Documentation',days:7,reimbursed:0},
+];
+const CAT_LABELS={parts:'Parts',labor:'Labor',rent:'Rent',utilities:'Utilities',insurance:'Insurance',marketing:'Marketing',tools_equipment:'Tools & Equipment',training:'Training',waste_disposal:'Waste Disposal',office_supplies:'Office',miscellaneous:'Misc'};
+
+/* ── OPS SHARED UI ── */
+function OpsStatusBadge({status}){
+  const S={ok:{bg:'#27AE6012',c:'#27AE60',b:'#27AE6020',l:'IN STOCK'},low:{bg:`${G}10`,c:G,b:`${G}20`,l:'LOW'},out:{bg:'#C0392B12',c:'#C0392B',b:'#C0392B25',l:'OUT'},due:{bg:`${G}10`,c:G,b:`${G}20`,l:'DUE SOON'},overdue:{bg:'#C0392B12',c:'#C0392B',b:'#C0392B25',l:'OVERDUE'}};
+  const s=S[status]||S.ok;
+  return html`<span style=${{fontSize:9,fontWeight:800,padding:'3px 8px',borderRadius:3,background:s.bg,color:s.c,border:`1px solid ${s.b}`,letterSpacing:'0.08em'}}>${s.l}</span>`;
+}
+function OpsDataCell({label,value,highlight}){
+  return html`<div>
+    <div style=${{fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.08em',marginBottom:3}}>${label}</div>
+    <div style=${{fontSize:13,color:highlight?G:'#AAA',fontWeight:highlight?600:400}}>${value}</div>
+  </div>`;
+}
+function OpsActionBtn({label,onClick,active}){
+  return html`<button onClick=${onClick} style=${{padding:'10px 18px',borderRadius:4,border:active?`1px solid ${G}44`:'1px solid #2A2A30',background:active?`${G}12`:'#111',color:active?G:'#888',fontSize:11,fontWeight:700,cursor:'pointer',letterSpacing:'0.06em',fontFamily:"'Barlow',sans-serif"}}>${label}</button>`;
+}
+function OpsGoldBtn({label,onClick}){
+  return html`<button onClick=${onClick} style=${{padding:'10px 24px',borderRadius:4,border:`1px solid ${G}66`,background:`linear-gradient(135deg,${G},#B8900F)`,color:'#0B0B0D',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:"'Barlow Condensed',sans-serif",letterSpacing:'0.1em',textTransform:'uppercase',fontStyle:'italic'}}>${label}</button>`;
+}
+function OpsMiniField({label,placeholder,flex='1',type='text'}){
+  return html`<div style=${{flex,minWidth:120}}>
+    <label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>${label}</label>
+    <input type=${type} placeholder=${placeholder} style=${{width:'100%',padding:'10px 12px',borderRadius:4,border:'1px solid #1A1A1E',background:'#0E0E10',color:'#E8E8EA',fontSize:13,fontFamily:"'Barlow',sans-serif"}}/>
+  </div>`;
+}
+function OpsTH({children,right}){
+  return html`<th style=${{padding:'12px 16px',textAlign:right?'right':'left',fontSize:9,fontWeight:800,color:'#555',letterSpacing:'0.12em',borderBottom:'1px solid #1A1A1E'}}>${children}</th>`;
+}
+
+/* ── PARTS INVENTORY ── */
+function OpsPartsInventory(){
+  const[showUpload,sShowUpload]=useState(false);
+  const[showAdd,sShowAdd]=useState(false);
+  const fileId='ops-parts-file';
+  const outCount=OPS_PARTS.filter(p=>p.status==='out').length;
+  const lowCount=OPS_PARTS.filter(p=>p.status==='low').length;
+  return html`<div style=${{animation:'fadeIn .25s ease'}}>
+    ${(outCount>0||lowCount>0)&&html`<div style=${{display:'flex',gap:12,marginBottom:20}}>
+      ${outCount>0&&html`<div style=${{flex:1,padding:'14px 18px',borderRadius:4,background:'#C0392B12',border:'1px solid #C0392B25',display:'flex',alignItems:'center',gap:10}}>
+        <span style=${{fontSize:16}}>🔴</span>
+        <span style=${{fontSize:13,color:'#C0392B',fontWeight:600}}>${outCount} part${outCount>1?'s':''} OUT OF STOCK</span>
+      </div>`}
+      ${lowCount>0&&html`<div style=${{flex:1,padding:'14px 18px',borderRadius:4,background:`${G}08`,border:`1px solid ${G}20`,display:'flex',alignItems:'center',gap:10}}>
+        <span style=${{fontSize:16}}>🟡</span>
+        <span style=${{fontSize:13,color:G,fontWeight:600}}>${lowCount} part${lowCount>1?'s':''} below minimum threshold</span>
+      </div>`}
+    </div>`}
+    <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+      <div style=${{display:'flex',gap:10}}>
+        <${OpsActionBtn} label="+ ADD PART" onClick=${()=>{sShowAdd(!showAdd);sShowUpload(false);}} active=${showAdd}/>
+        <${OpsActionBtn} label="📄 UPLOAD CSV" onClick=${()=>{sShowUpload(!showUpload);sShowAdd(false);}} active=${showUpload}/>
+        <${OpsActionBtn} label="📋 GENERATE PO" onClick=${()=>{}}/>
+      </div>
+      <div style=${{fontSize:12,color:'#555'}}>${OPS_PARTS.length} parts tracked</div>
+    </div>
+    ${showUpload&&html`<div style=${{marginBottom:20,padding:24,borderRadius:4,background:'#111113',border:`1px dashed ${G}44`,animation:'fadeIn .2s ease'}}>
+      <div style=${{display:'flex',alignItems:'flex-start',gap:24}}>
+        <div style=${{flex:1}}>
+          <h3 style=${{fontSize:14,color:'#E8E8EA',fontWeight:700,marginBottom:8}}>Upload Parts CSV</h3>
+          <p style=${{fontSize:12,color:'#666',lineHeight:1.6,marginBottom:16}}>Required columns: Part Name, Part Number, Quantity, Min Threshold, Unit Cost, Vendor.</p>
+          <div style=${{padding:28,borderRadius:4,border:'2px dashed #2A2A30',background:'#0E0E10',textAlign:'center',cursor:'pointer'}} onClick=${()=>document.getElementById(fileId)?.click()}>
+            <input id=${fileId} type="file" accept=".csv,.xlsx,.xls" style=${{display:'none'}}/>
+            <div style=${{fontSize:28,marginBottom:8}}>📁</div>
+            <div style=${{fontSize:13,color:'#888',marginBottom:4}}>Drag & drop your CSV, or <span style=${{color:G,fontWeight:600}}>click to browse</span></div>
+            <div style=${{fontSize:11,color:'#444'}}>CSV, XLSX, or XLS — max 5MB</div>
+          </div>
+        </div>
+        <div style=${{width:280,padding:16,borderRadius:4,background:'#0E0E10',border:'1px solid #1A1A1E'}}>
+          <div style=${{fontSize:10,fontWeight:800,color:'#555',letterSpacing:'0.1em',marginBottom:10}}>EXPECTED FORMAT</div>
+          <pre style=${{fontFamily:'monospace',fontSize:10,color:'#888',background:'#0B0B0D',padding:10,borderRadius:3,lineHeight:1.8}}>Part Name,Part #,Qty,Min,Cost,Vendor\nBrake Pads,BP-001,12,4,35.00,AutoZone\nOil Filter,OF-010,24,8,6.50,O'Reilly</pre>
+        </div>
+      </div>
+    </div>`}
+    ${showAdd&&html`<div style=${{marginBottom:20,padding:24,borderRadius:4,background:'#111113',border:'1px solid #1A1A1E',animation:'fadeIn .2s ease'}}>
+      <h3 style=${{fontSize:14,color:'#E8E8EA',fontWeight:700,marginBottom:16}}>Add Part</h3>
+      <div style=${{display:'flex',gap:12,flexWrap:'wrap'}}>
+        <${OpsMiniField} label="Part Name" placeholder="Brake Pads - Ceramic Front" flex="2"/>
+        <${OpsMiniField} label="Part Number" placeholder="BP-CER-001" flex="1"/>
+        <${OpsMiniField} label="Qty" placeholder="12" flex="0.5" type="number"/>
+        <${OpsMiniField} label="Min Threshold" placeholder="4" flex="0.5" type="number"/>
+        <${OpsMiniField} label="Unit Cost ($)" placeholder="35.00" flex="0.5" type="number"/>
+        <${OpsMiniField} label="Vendor" placeholder="AutoZone Commercial" flex="1.5"/>
+        <${OpsMiniField} label="Vendor Phone" placeholder="(800) 288-6966" flex="1"/>
+      </div>
+      <div style=${{display:'flex',gap:10,marginTop:16}}>
+        <${OpsGoldBtn} label="ADD PART →"/>
+        <button onClick=${()=>sShowAdd(false)} style=${{padding:'10px 18px',borderRadius:4,border:'1px solid #2A2A30',background:'transparent',color:'#666',fontSize:11,fontWeight:700,cursor:'pointer',letterSpacing:'0.06em'}}>CANCEL</button>
+      </div>
+    </div>`}
+    <div style=${{borderRadius:4,border:'1px solid #1A1A1E',overflow:'hidden'}}>
+      <table style=${{width:'100%',borderCollapse:'collapse'}}>
+        <thead><tr style=${{background:'#111113'}}>
+          ${['STATUS','PART NAME','PART #','QTY','MIN','UNIT COST','VENDOR',''].map(h=>html`<${OpsTH} key=${h}>${h}</${OpsTH}>`)}
+        </tr></thead>
+        <tbody>
+          ${OPS_PARTS.map(p=>html`<tr key=${p.id} style=${{borderBottom:'1px solid #141416'}}>
+            <td style=${{padding:'12px 16px'}}><${OpsStatusBadge} status=${p.status}/></td>
+            <td style=${{padding:'12px 16px',fontSize:13,color:'#E8E8EA',fontWeight:600}}>${p.part}</td>
+            <td style=${{padding:'12px 16px',fontSize:12,color:'#666',fontFamily:'monospace'}}>${p.partNum}</td>
+            <td style=${{padding:'12px 16px',fontSize:14,fontWeight:700,color:p.status==='out'?'#C0392B':p.status==='low'?G:'#E8E8EA'}}>${p.qty}</td>
+            <td style=${{padding:'12px 16px',fontSize:12,color:'#555'}}>${p.min}</td>
+            <td style=${{padding:'12px 16px',fontSize:13,color:'#AAA'}}>$${p.cost.toFixed(2)}</td>
+            <td style=${{padding:'12px 16px',fontSize:12,color:'#666'}}>${p.vendor}</td>
+            <td style=${{padding:'12px 16px'}}><button style=${{padding:'4px 10px',borderRadius:3,border:'1px solid #1A1A1E',background:'transparent',color:'#555',fontSize:11,cursor:'pointer'}}>Edit</button></td>
+          </tr>`)}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+/* ── EQUIPMENT LOG ── */
+function OpsEquipmentLog(){
+  const overdue=OPS_EQUIP.filter(e=>e.status==='overdue').length;
+  const due=OPS_EQUIP.filter(e=>e.status==='due').length;
+  return html`<div style=${{animation:'fadeIn .25s ease'}}>
+    ${(overdue>0||due>0)&&html`<div style=${{marginBottom:20,padding:'14px 18px',borderRadius:4,background:'#C0392B12',border:'1px solid #C0392B25',display:'flex',alignItems:'center',gap:10}}>
+      <span style=${{fontSize:16}}>⚠️</span>
+      <span style=${{fontSize:13,color:'#C0392B',fontWeight:600}}>${overdue} overdue, ${due} due soon — service required</span>
+    </div>`}
+    <div style=${{display:'flex',gap:10,marginBottom:20}}>
+      <${OpsActionBtn} label="+ ADD EQUIPMENT" onClick=${()=>{}}/>
+      <${OpsActionBtn} label="📄 UPLOAD CSV" onClick=${()=>{}}/>
+      <${OpsActionBtn} label="📊 COMPLIANCE REPORT" onClick=${()=>{}}/>
+    </div>
+    <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(340px,1fr))',gap:12}}>
+      ${OPS_EQUIP.map(eq=>html`<div key=${eq.id} style=${{background:'#111113',border:`1px solid ${eq.status==='overdue'?'#C0392B33':eq.status==='due'?`${G}25`:'#1A1A1E'}`,borderRadius:4,padding:'18px 20px'}}>
+        <div style=${{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
+          <div>
+            <div style=${{fontSize:14,fontWeight:700,color:'#E8E8EA'}}>${eq.name}</div>
+            <div style=${{fontSize:11,color:'#555',marginTop:2}}>${eq.type} · Serial: ${eq.serial}</div>
+          </div>
+          <${OpsStatusBadge} status=${eq.status}/>
+        </div>
+        <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginTop:12}}>
+          <${OpsDataCell} label="Last Service" value=${eq.lastService}/>
+          <${OpsDataCell} label="Next Due" value=${eq.nextDue} highlight=${eq.status!=='ok'}/>
+          ${eq.calibration&&html`<${OpsDataCell} label="Calibration Due" value=${eq.calibration}/>`}
+        </div>
+        <div style=${{display:'flex',gap:8,marginTop:14}}>
+          <button style=${{flex:1,padding:8,borderRadius:3,border:'1px solid #1A1A1E',background:'#0E0E10',color:'#888',fontSize:11,fontWeight:600,cursor:'pointer',letterSpacing:'0.04em'}}>LOG SERVICE</button>
+          <button style=${{padding:'8px 12px',borderRadius:3,border:'1px solid #1A1A1E',background:'transparent',color:'#555',fontSize:11,cursor:'pointer'}}>Edit</button>
+        </div>
+      </div>`)}
+    </div>
+  </div>`;
+}
+
+/* ── EXPENSE TRACKER ── */
+function OpsExpenseTracker(){
+  const[showUpload,sShowUpload]=useState(false);
+  const[showAdd,sShowAdd]=useState(false);
+  const total=OPS_EXP.reduce((s,e)=>s+e.amount,0);
+  const byCat={};OPS_EXP.forEach(e=>{byCat[e.category]=(byCat[e.category]||0)+e.amount;});
+  const sortedCats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  return html`<div style=${{animation:'fadeIn .25s ease'}}>
+    <div style=${{display:'flex',gap:16,marginBottom:20}}>
+      <div style=${{flex:1,padding:'18px 22px',borderRadius:4,background:'#111113',border:'1px solid #1A1A1E'}}>
+        <div style=${{fontSize:9,fontWeight:800,color:'#555',letterSpacing:'0.12em',marginBottom:6}}>NOVEMBER 2024</div>
+        <div style=${{fontSize:28,fontWeight:800,color:'#E8E8EA',fontFamily:"'Barlow Condensed',sans-serif"}}>$${total.toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+        <div style=${{fontSize:11,color:'#555',marginTop:4}}>${OPS_EXP.length} transactions</div>
+      </div>
+      <div style=${{flex:2,padding:'18px 22px',borderRadius:4,background:'#111113',border:'1px solid #1A1A1E'}}>
+        <div style=${{fontSize:9,fontWeight:800,color:'#555',letterSpacing:'0.12em',marginBottom:10}}>TOP CATEGORIES</div>
+        <div style=${{display:'flex',flexDirection:'column',gap:6}}>
+          ${sortedCats.slice(0,4).map(([cat,amt])=>html`<div key=${cat} style=${{display:'flex',alignItems:'center',gap:10}}>
+            <div style=${{width:90,fontSize:11,color:'#888'}}>${CAT_LABELS[cat]||cat}</div>
+            <div style=${{flex:1,height:6,background:'#1A1A1E',borderRadius:3}}>
+              <div style=${{height:6,borderRadius:3,width:`${(amt/total)*100}%`,background:`linear-gradient(90deg,${G},#B8900F)`}}/>
+            </div>
+            <div style=${{width:80,textAlign:'right',fontSize:12,color:'#AAA',fontWeight:600}}>$${amt.toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+          </div>`)}
+        </div>
+      </div>
+    </div>
+    <div style=${{display:'flex',gap:10,marginBottom:20}}>
+      <${OpsActionBtn} label="+ ADD EXPENSE" onClick=${()=>{sShowAdd(!showAdd);sShowUpload(false);}} active=${showAdd}/>
+      <${OpsActionBtn} label="📄 UPLOAD CSV" onClick=${()=>{sShowUpload(!showUpload);sShowAdd(false);}} active=${showUpload}/>
+      <${OpsActionBtn} label="📊 GENERATE REPORT" onClick=${()=>{}}/>
+    </div>
+    ${showUpload&&html`<div style=${{marginBottom:20,padding:24,borderRadius:4,background:'#111113',border:`1px dashed ${G}44`,animation:'fadeIn .2s ease'}}>
+      <h3 style=${{fontSize:14,color:'#E8E8EA',fontWeight:700,marginBottom:8}}>Upload Expenses CSV</h3>
+      <p style=${{fontSize:12,color:'#666',lineHeight:1.6,marginBottom:16}}>Required columns: Date, Amount, Description, Category. Optional: Vendor.</p>
+      <div style=${{padding:28,borderRadius:4,border:'2px dashed #2A2A30',background:'#0E0E10',textAlign:'center',cursor:'pointer'}}>
+        <div style=${{fontSize:28,marginBottom:8}}>📁</div>
+        <div style=${{fontSize:13,color:'#888'}}>Drag & drop or <span style=${{color:G,fontWeight:600}}>click to browse</span></div>
+        <div style=${{fontSize:11,color:'#444',marginTop:4}}>Categories: parts, labor, rent, utilities, insurance, marketing, tools_equipment, training</div>
+      </div>
+    </div>`}
+    ${showAdd&&html`<div style=${{marginBottom:20,padding:24,borderRadius:4,background:'#111113',border:'1px solid #1A1A1E',animation:'fadeIn .2s ease'}}>
+      <h3 style=${{fontSize:14,color:'#E8E8EA',fontWeight:700,marginBottom:16}}>Add Expense</h3>
+      <div style=${{display:'flex',gap:12,flexWrap:'wrap'}}>
+        <${OpsMiniField} label="Date" placeholder="" flex="0.8" type="date"/>
+        <${OpsMiniField} label="Amount ($)" placeholder="450.00" flex="0.6" type="number"/>
+        <${OpsMiniField} label="Description" placeholder="Brake pads bulk order" flex="2"/>
+        <div style=${{flex:'1',minWidth:160}}>
+          <label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Category</label>
+          <select style=${{width:'100%',padding:'10px 12px',borderRadius:4,border:'1px solid #1A1A1E',background:'#0E0E10',color:'#AAA',fontSize:13}}>
+            <option value="">Select...</option>
+            ${Object.entries(CAT_LABELS).map(([k,v])=>html`<option key=${k} value=${k}>${v}</option>`)}
+          </select>
+        </div>
+        <${OpsMiniField} label="Vendor" placeholder="AutoZone" flex="1"/>
+      </div>
+      <div style=${{display:'flex',gap:10,marginTop:16}}>
+        <${OpsGoldBtn} label="ADD EXPENSE →"/>
+        <button onClick=${()=>sShowAdd(false)} style=${{padding:'10px 18px',borderRadius:4,border:'1px solid #2A2A30',background:'transparent',color:'#666',fontSize:11,fontWeight:700,cursor:'pointer',letterSpacing:'0.06em'}}>CANCEL</button>
+      </div>
+    </div>`}
+    <div style=${{borderRadius:4,border:'1px solid #1A1A1E',overflow:'hidden'}}>
+      <table style=${{width:'100%',borderCollapse:'collapse'}}>
+        <thead><tr style=${{background:'#111113'}}>
+          <${OpsTH}>DATE</${OpsTH}><${OpsTH}>DESCRIPTION</${OpsTH}><${OpsTH}>CATEGORY</${OpsTH}><${OpsTH}>VENDOR</${OpsTH}><${OpsTH} right>AMOUNT</${OpsTH}><${OpsTH}></${OpsTH}>
+        </tr></thead>
+        <tbody>
+          ${OPS_EXP.map(e=>html`<tr key=${e.id} style=${{borderBottom:'1px solid #141416'}}>
+            <td style=${{padding:'12px 16px',fontSize:12,color:'#666'}}>${e.date}</td>
+            <td style=${{padding:'12px 16px',fontSize:13,color:'#E8E8EA'}}>${e.desc}</td>
+            <td style=${{padding:'12px 16px'}}><span style=${{fontSize:10,fontWeight:700,padding:'3px 9px',borderRadius:3,background:`${G}10`,color:G,letterSpacing:'0.04em'}}>${CAT_LABELS[e.category]||e.category}</span></td>
+            <td style=${{padding:'12px 16px',fontSize:12,color:'#666'}}>${e.vendor}</td>
+            <td style=${{padding:'12px 16px',fontSize:14,fontWeight:700,color:'#E8E8EA',textAlign:'right'}}>$${e.amount.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+            <td style=${{padding:'12px 16px'}}><button style=${{padding:'4px 10px',borderRadius:3,border:'1px solid #1A1A1E',background:'transparent',color:'#555',fontSize:11,cursor:'pointer'}}>Edit</button></td>
+          </tr>`)}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+/* ── WARRANTY TRACKER ── */
+function OpsWarrantyTracker(){
+  const totalClaimed=OPS_WARRANTY.reduce((s,w)=>s+w.cost,0);
+  const totalRecovered=OPS_WARRANTY.reduce((s,w)=>s+w.reimbursed,0);
+  return html`<div style=${{animation:'fadeIn .25s ease'}}>
+    <div style=${{display:'flex',gap:16,marginBottom:20}}>
+      ${[{l:'TOTAL CLAIMED',v:`$${totalClaimed.toFixed(2)}`,c:'#E8E8EA'},{l:'RECOVERED',v:`$${totalRecovered.toFixed(2)}`,c:'#27AE60'},{l:'PENDING',v:`$${(totalClaimed-totalRecovered).toFixed(2)}`,c:G},{l:'OPEN CLAIMS',v:OPS_WARRANTY.filter(w=>w.status!=='Resolved').length,c:'#E8E8EA'}].map(s=>html`
+        <div key=${s.l} style=${{flex:1,padding:'16px 20px',borderRadius:4,background:'#111113',border:'1px solid #1A1A1E'}}>
+          <div style=${{fontSize:9,fontWeight:800,color:'#555',letterSpacing:'0.12em',marginBottom:6}}>${s.l}</div>
+          <div style=${{fontSize:24,fontWeight:800,color:s.c,fontFamily:"'Barlow Condensed',sans-serif"}}>${s.v}</div>
+        </div>`)}
+    </div>
+    <div style=${{display:'flex',gap:10,marginBottom:20}}>
+      <${OpsActionBtn} label="+ NEW CLAIM" onClick=${()=>{}}/>
+      <${OpsActionBtn} label="📊 MONTHLY REPORT" onClick=${()=>{}}/>
+    </div>
+    <div style=${{display:'flex',flexDirection:'column',gap:10}}>
+      ${OPS_WARRANTY.map(w=>html`<div key=${w.id} style=${{background:'#111113',border:`1px solid ${w.days>60?'#C0392B25':w.days>30?`${G}20`:'#1A1A1E'}`,borderRadius:4,padding:'18px 22px',display:'flex',alignItems:'center',gap:20}}>
+        <div style=${{width:52,height:52,borderRadius:4,background:'#0E0E10',border:'1px solid #1A1A1E',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:800,color:G}}>${w.id}</div>
+        <div style=${{flex:1}}>
+          <div style=${{fontSize:14,fontWeight:700,color:'#E8E8EA'}}>${w.part}</div>
+          <div style=${{fontSize:11,color:'#555',marginTop:2}}>${w.vehicle} · Vendor: ${w.vendor} · $${w.cost.toFixed(2)}</div>
+        </div>
+        <div style=${{textAlign:'center'}}>
+          <div style=${{fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em'}}>AGE</div>
+          <div style=${{fontSize:16,fontWeight:800,color:w.days>60?'#C0392B':w.days>30?G:'#AAA'}}>${w.days}d</div>
+        </div>
+        <div style=${{padding:'6px 14px',borderRadius:3,fontSize:11,fontWeight:700,background:w.status==='Approved'?'#27AE6012':w.status==='Submitted'?`${G}10`:'#1A1A1E',color:w.status==='Approved'?'#27AE60':w.status==='Submitted'?G:'#888',border:`1px solid ${w.status==='Approved'?'#27AE6020':w.status==='Submitted'?`${G}20`:'#2A2A30'}`}}>${w.status}</div>
+        <button style=${{padding:'8px 14px',borderRadius:3,border:'1px solid #1A1A1E',background:'transparent',color:'#555',fontSize:11,cursor:'pointer',fontWeight:600}}>UPDATE</button>
+      </div>`)}
+    </div>
+  </div>`;
+}
+
+/* ── OPERATIONS HUB ── */
+function OperationsHub({onBack}){
+  const[activeTab,sTab]=useState('parts');
+  const tabs=[
+    {id:'parts',label:'Parts Inventory',icon:'📦',count:OPS_PARTS.length,alert:OPS_PARTS.filter(p=>p.status!=='ok').length},
+    {id:'equipment',label:'Equipment',icon:'🔧',count:OPS_EQUIP.length,alert:OPS_EQUIP.filter(e=>e.status!=='ok').length},
+    {id:'expenses',label:'Expenses',icon:'💰',count:OPS_EXP.length,alert:0},
+    {id:'warranty',label:'Warranty Claims',icon:'🛡',count:OPS_WARRANTY.length,alert:OPS_WARRANTY.filter(w=>w.days>30).length},
+  ];
+  return html`<div style=${{position:'fixed',inset:0,zIndex:200,background:'#0B0B0D',display:'flex',flexDirection:'column',animation:'fadeIn .2s ease'}}>
+    <div style=${{height:3,background:`linear-gradient(90deg,${G},#F5C542,${G})`}}/>
+    <header style=${{padding:'16px 32px',display:'flex',alignItems:'center',gap:14,borderBottom:'1px solid #1A1A1E',background:'#0D0D0F'}}>
+      <button onClick=${onBack} style=${{padding:'6px 14px',borderRadius:4,border:'1px solid #2A2A30',background:'#111',color:'#888',fontSize:12,cursor:'pointer'}}>← Back</button>
+      <span style=${{fontSize:20}}>⚙️</span>
+      <h1 style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:22,color:'#F0F0F2',textTransform:'uppercase',letterSpacing:'0.02em',margin:0}}>Shop Operations</h1>
+    </header>
+    <div style=${{display:'flex',borderBottom:'2px solid #1A1A1E',padding:'0 32px',gap:2,background:'#0D0D0F'}}>
+      ${tabs.map(t=>html`<button key=${t.id} onClick=${()=>sTab(t.id)} style=${{padding:'14px 24px',border:'none',borderBottom:activeTab===t.id?`3px solid ${G}`:'3px solid transparent',marginBottom:-2,background:'transparent',color:activeTab===t.id?G:'#555',fontSize:12,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Barlow',sans-serif",display:'flex',alignItems:'center',gap:8}}>
+        <span style=${{fontSize:14}}>${t.icon}</span>
+        ${t.label}
+        <span style=${{fontSize:10,background:activeTab===t.id?`${G}20`:'#1A1A1E',color:activeTab===t.id?G:'#555',padding:'2px 7px',borderRadius:10}}>${t.count}</span>
+        ${t.alert>0&&html`<span style=${{fontSize:9,background:'#C0392B',color:'#fff',padding:'2px 6px',borderRadius:10,fontWeight:700}}>${t.alert}</span>`}
+      </button>`)}
+    </div>
+    <div style=${{flex:1,overflowY:'auto',padding:'24px 32px'}}>
+      ${activeTab==='parts'&&html`<${OpsPartsInventory}/>`}
+      ${activeTab==='equipment'&&html`<${OpsEquipmentLog}/>`}
+      ${activeTab==='expenses'&&html`<${OpsExpenseTracker}/>`}
+      ${activeTab==='warranty'&&html`<${OpsWarrantyTracker}/>`}
+    </div>
+  </div>`;
+}
+
+/* ── SHOP PROFILE ── */
+function ShopProfile({onBack}){
+  const[profile,sProfile]=useState(null);
+  const[activeTab,sActiveTab]=useState('profile');
+  const[editing,sEditing]=useState(false);
+  const[form,sForm]=useState({});
+  const[saving,sSaving]=useState(false);
+  const[saved,sSaved]=useState(false);
+  const[error,sErr]=useState(null);
+
+  // Inventory Hub state
+  const invFileRef=useRef(null);
+  const[invRows,sInvRows]=useState([]);
+  const[invFile,sInvFile]=useState(null);
+  const[invError,sInvError]=useState(null);
+  const[invSaving,sInvSaving]=useState(false);
+  const[invSaved,sInvSaved]=useState(false);
+  const[invDrag,sInvDrag]=useState(false);
+  const[invSearch,sInvSearch]=useState('');
+
+  useEffect(()=>{
+    // FIX: API returns {success, profile:{...}} — extract nested profile object
+    fetch(`${API}/api/profile`).then(r=>r.json()).then(d=>{
+      const p=d.profile||d;
+      sProfile(p);
+      sForm({
+        shop_name:p.shop_name||'',owner_name:p.owner_name||'',phone:p.phone||'',
+        address:p.address||'',location:p.location||'',business_type:p.business_type||'',
+        hours:p.hours||'',services:Array.isArray(p.services)?p.services.join(', '):p.services||'',
+        website:p.website||'',tagline:p.tagline||'',tone:p.tone||'Professional and friendly',
+        google_review:p.review_links?.google||'',yelp_review:p.review_links?.yelp||'',
+        facebook:p.social_media?.facebook||'',instagram:p.social_media?.instagram||'',
+      });
+    }).catch(()=>sErr('Could not load profile. Make sure the backend is running.'));
+    // Load saved catalog
+    fetch(`${API}/api/parts/catalog`).then(r=>r.json()).then(d=>{
+      if(d.items&&d.items.length>0)sInvRows(d.items);
+    }).catch(()=>{});
+  },[]);
+
+  const save=async()=>{
+    sSaving(true);sErr(null);
+    try{
+      const r=await post(`${API}/api/profile/save`,form);
+      if(r.success!==false){sSaved(true);sEditing(false);setTimeout(()=>sSaved(false),2500);}
+      else sErr(r.error||'Save failed');
+    }catch(e){sErr('Cannot reach backend on port 8000.');}
+    finally{sSaving(false);}
+  };
+
+  const u=(k,v)=>sForm(p=>({...p,[k]:v}));
+
+  // CSV parser — handles quoted fields, flexible headers
+  const parseCSV=(text)=>{
+    const lines=text.trim().split(/\r?\n/);
+    if(lines.length<2)return[];
+    const norm=h=>h.trim().toLowerCase().replace(/[\s\/\-]+/g,'_').replace(/[^a-z0-9_]/g,'');
+    const headers=lines[0].split(',').map(norm);
+    return lines.slice(1).filter(l=>l.trim()).map(line=>{
+      const vals=[];let cur='',inQ=false;
+      for(let i=0;i<line.length;i++){
+        if(line[i]==='"')inQ=!inQ;
+        else if(line[i]===','&&!inQ){vals.push(cur.trim());cur='';}
+        else cur+=line[i];
+      }
+      vals.push(cur.trim());
+      const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+      return{
+        brand:obj.brand||obj.manufacturer||obj.make||'',
+        part_name:obj.part_name||obj.name||obj.description||obj.part||'',
+        part_number:obj.part_number||obj.part_num||obj.sku||obj.number||obj.part_no||'',
+        category:obj.category||obj.cat||obj.type||'',
+        unit_cost:obj.unit_cost||obj.cost||obj.price||obj.unit_price||'',
+        vendor:obj.vendor||obj.supplier||obj.source||'',
+      };
+    }).filter(r=>r.part_name||r.part_number);
+  };
+
+  const handleFile=(file)=>{
+    if(!file)return;
+    sInvFile(file.name);sInvError(null);sInvRows([]);
+    const reader=new FileReader();
+    reader.onload=(e)=>{
+      try{
+        const rows=parseCSV(e.target.result);
+        if(rows.length===0)sInvError('No valid rows found. Check CSV headers: Brand, Part Name, Part Number, Category, Unit Cost, Vendor');
+        else sInvRows(rows);
+      }catch{sInvError('Could not parse file. Make sure it is a valid CSV.');}
+    };
+    reader.readAsText(file);
+  };
+
+  const saveInventory=async()=>{
+    if(invRows.length===0)return;
+    sInvSaving(true);sInvError(null);
+    try{
+      const r=await post(`${API}/api/parts/catalog`,{items:invRows});
+      if(r.success!==false){sInvSaved(true);setTimeout(()=>sInvSaved(false),2500);}
+      else sInvError(r.error||'Save failed');
+    }catch{sInvError('Cannot reach backend on port 8000.');}
+    finally{sInvSaving(false);}
+  };
+
+  const SECTIONS=[
+    {title:'Shop Info',fields:[
+      {k:'shop_name',l:'Shop Name'},{k:'owner_name',l:'Owner / Manager'},
+      {k:'phone',l:'Phone'},{k:'address',l:'Full Address'},
+      {k:'location',l:'City, State'},{k:'business_type',l:'Business Type'},
+    ]},
+    {title:'Hours & Services',fields:[
+      {k:'hours',l:'Business Hours'},{k:'services',l:'Services (comma-separated)'},
+      {k:'tagline',l:'Tagline / Slogan'},{k:'tone',l:'Communication Tone'},
+    ]},
+    {title:'Online Presence',fields:[
+      {k:'website',l:'Website URL'},{k:'google_review',l:'Google Review Link'},
+      {k:'yelp_review',l:'Yelp Review Link'},{k:'facebook',l:'Facebook Page'},
+      {k:'instagram',l:'Instagram Handle'},
+    ]},
+  ];
+
+  const ProfileField=({k,l})=>html`<div key=${k}>
+    <div style=${{fontSize:9,fontWeight:700,color:'#444',letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:5}}>${l}</div>
+    ${editing
+      ?html`<input value=${form[k]||''} onChange=${e=>u(k,e.target.value)}/>`
+      :html`<div style=${{fontSize:13,color:form[k]?'#CCC':'#2A2A2A',padding:'9px 0',borderBottom:'1px solid #151518',minHeight:36,lineHeight:1.6}}>
+        ${form[k]||html`<span style=${{fontStyle:'italic'}}>Not set</span>`}
+      </div>`}
+  </div>`;
+
+  const filteredRows=invSearch
+    ?invRows.filter(r=>[r.brand,r.part_name,r.part_number,r.category,r.vendor].join(' ').toLowerCase().includes(invSearch.toLowerCase()))
+    :invRows;
+
+  return html`<div style=${{position:'fixed',inset:0,zIndex:200,background:'#0B0B0D',display:'flex',flexDirection:'column',animation:'fadeIn .2s ease'}}>
+    <div style=${{height:3,background:`linear-gradient(90deg,${G},#F5C542,${G})`}}/>
+
+    <!-- Header bar -->
+    <div style=${{padding:'12px 24px',borderBottom:'1px solid #1A1A1E',display:'flex',alignItems:'center',gap:16,background:'#0D0D0F',flexWrap:'wrap'}}>
+      <button onClick=${onBack} style=${{padding:'6px 14px',borderRadius:3,border:'1px solid #222',background:'#111',color:'#555',fontSize:11,fontWeight:800,letterSpacing:'0.08em'}}>← Back</button>
+      <span style=${{fontSize:22}}>🏪</span>
+      <div>
+        <span style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:18,color:'#F0F0F2',textTransform:'uppercase'}}>My Shop Profile</span>
+        <span style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:600,fontSize:14,color:'#444',textTransform:'uppercase',marginLeft:10}}>Settings & Branding</span>
+      </div>
+      <div style=${{marginLeft:'auto',display:'flex',gap:8,alignItems:'center'}}>
+        ${activeTab==='profile'&&html`
+          ${saved&&html`<span style=${{fontSize:11,color:'#4ADE80',fontWeight:700,letterSpacing:'0.06em'}}>✓ SAVED</span>`}
+          ${!editing
+            ?html`<button onClick=${()=>sEditing(true)} style=${{padding:'8px 20px',borderRadius:3,border:`1px solid ${G}44`,background:`${G}10`,color:G,fontSize:11,fontWeight:800,letterSpacing:'0.1em',textTransform:'uppercase'}}>Edit Profile</button>`
+            :html`<div style=${{display:'flex',gap:8}}>
+              <button onClick=${()=>sEditing(false)} style=${{padding:'8px 16px',borderRadius:3,border:'1px solid #222',background:'#111',color:'#555',fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase'}}>Cancel</button>
+              <button onClick=${save} style=${{padding:'8px 20px',borderRadius:3,border:`1px solid ${G}66`,background:saving?'#333':`linear-gradient(135deg,${G},${G}CC)`,color:saving?'#888':'#0B0B0D',fontSize:11,fontWeight:800,letterSpacing:'0.1em',textTransform:'uppercase'}}>
+                ${saving?'Saving...':'Save Changes'}
+              </button>
+            </div>`
+          }
+        `}
+        ${activeTab==='inventory'&&html`
+          ${invSaved&&html`<span style=${{fontSize:11,color:'#4ADE80',fontWeight:700,letterSpacing:'0.06em'}}>✓ CATALOG SAVED</span>`}
+          ${invRows.length>0&&html`
+            <button onClick=${saveInventory} style=${{padding:'8px 20px',borderRadius:3,border:`1px solid ${G}66`,background:invSaving?'#333':`linear-gradient(135deg,${G},${G}CC)`,color:invSaving?'#888':'#0B0B0D',fontSize:11,fontWeight:800,letterSpacing:'0.1em',textTransform:'uppercase'}}>
+              ${invSaving?'Saving...':'Save Catalog →'}
+            </button>
+          `}
+        `}
+      </div>
+    </div>
+
+    <!-- Tab bar -->
+    <div style=${{display:'flex',borderBottom:'2px solid #1A1A1E',background:'#0D0D0F',padding:'0 24px',gap:2}}>
+      ${[{id:'profile',label:'Shop Profile'},{id:'inventory',label:'📦 Inventory Hub'}].map(t=>html`
+        <button key=${t.id} onClick=${()=>{sActiveTab(t.id);sEditing(false);}} style=${{
+          padding:'11px 20px',border:'none',
+          borderBottom:activeTab===t.id?`3px solid ${G}`:'3px solid transparent',
+          marginBottom:-2,background:'transparent',
+          color:activeTab===t.id?G:'#555',
+          fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',
+          cursor:'pointer',fontFamily:"'Barlow',sans-serif",whiteSpace:'nowrap',
+        }}>${t.label}</button>
+      `)}
+    </div>
+
+    <!-- Body -->
+    <div style=${{flex:1,overflowY:'auto',padding:'28px 32px 48px'}}>
+      ${!profile&&!error&&html`<div style=${{color:'#555',fontSize:13,letterSpacing:'0.06em'}}>Loading profile...</div>`}
+      ${error&&html`<div style=${{fontSize:12,color:'#E05',padding:'12px 16px',background:'#1A0A0A',borderRadius:3,border:'1px solid #5A1A1A',marginBottom:20}}>${error}</div>`}
+
+      ${/* ── PROFILE TAB ── */activeTab==='profile'&&profile&&html`
+        <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(420px,1fr))',gap:20}}>
+          ${SECTIONS.map(sec=>html`<div key=${sec.title} style=${{background:'#0D0D0F',border:'1px solid #1A1A1E',borderRadius:4,overflow:'hidden'}}>
+            <div style=${{padding:'14px 20px',borderBottom:'1px solid #1A1A1E',display:'flex',alignItems:'center',gap:10,background:'linear-gradient(90deg,#0E0E10,#0B0B0D)'}}>
+              <div style=${{width:3,height:16,background:G,borderRadius:1}}/>
+              <span style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:14,color:'#E0E0E2',textTransform:'uppercase',letterSpacing:'0.08em'}}>${sec.title}</span>
+            </div>
+            <div style=${{padding:'18px 20px',display:'flex',flexDirection:'column',gap:16}}>
+              ${sec.fields.map(({k,l})=>html`<${ProfileField} key=${k} k=${k} l=${l}/>`)}
+            </div>
+          </div>`)}
+        </div>
+      `}
+
+      ${/* ── INVENTORY HUB TAB ── */activeTab==='inventory'&&html`
+        <div>
+          <!-- Banner -->
+          <div style=${{marginBottom:24,padding:'16px 20px',borderRadius:4,background:`${G}08`,border:`1px solid ${G}20`,display:'flex',gap:14,alignItems:'flex-start'}}>
+            <span style=${{fontSize:22,lineHeight:1}}>📦</span>
+            <div>
+              <div style=${{fontSize:10,fontWeight:800,color:G,letterSpacing:'0.12em',marginBottom:5}}>INVENTORY HUB — PARTS & BRANDS CATALOG</div>
+              <div style=${{fontSize:12,color:'#888',lineHeight:1.7}}>
+                Upload a CSV of every brand and part your shop carries. This catalog feeds your Parts Estimator and Service Estimator — letting you pull real part numbers, costs, and vendor info directly into quotes.
+              </div>
+            </div>
+          </div>
+
+          ${invError&&html`<div style=${{fontSize:12,color:'#E05',padding:'10px 14px',background:'#1A0A0A',borderRadius:3,border:'1px solid #5A1A1A',marginBottom:16}}>${invError}</div>`}
+
+          <!-- Upload row -->
+          <div style=${{display:'flex',gap:20,marginBottom:24,flexWrap:'wrap'}}>
+            <!-- Drop zone -->
+            <div style=${{flex:'1 1 380px'}}>
+              <div style=${{fontSize:10,fontWeight:800,color:'#555',letterSpacing:'0.1em',marginBottom:10}}>UPLOAD CSV</div>
+              <div
+                onDragOver=${e=>{e.preventDefault();sInvDrag(true);}}
+                onDragLeave=${()=>sInvDrag(false)}
+                onDrop=${e=>{e.preventDefault();sInvDrag(false);handleFile(e.dataTransfer.files[0]);}}
+                onClick=${()=>invFileRef.current&&invFileRef.current.click()}
+                style=${{
+                  padding:'36px 24px',borderRadius:4,textAlign:'center',cursor:'pointer',
+                  border:`2px dashed ${invDrag?G:'#2A2A30'}`,
+                  background:invDrag?`${G}06`:'#111113',
+                  transition:'all .2s',
+                }}>
+                <input ref=${invFileRef} type="file" accept=".csv,.txt" style=${{display:'none'}}
+                  onChange=${e=>handleFile(e.target.files[0])}/>
+                <div style=${{fontSize:30,marginBottom:10}}>📁</div>
+                <div style=${{fontSize:13,color:'#888',marginBottom:4}}>
+                  Drag & drop your CSV here, or <span style=${{color:G,fontWeight:600}}>click to browse</span>
+                </div>
+                <div style=${{fontSize:11,color:'#444',marginBottom:invFile?10:0}}>.csv or .txt • max 5MB</div>
+                ${invFile&&html`<div style=${{fontSize:11,color:G,fontWeight:700,padding:'6px 12px',borderRadius:3,background:`${G}10`,display:'inline-block'}}>✓ ${invFile}</div>`}
+              </div>
+            </div>
+
+            <!-- Format guide -->
+            <div style=${{flex:'0 0 290px',padding:'16px',borderRadius:4,background:'#0E0E10',border:'1px solid #1A1A1E'}}>
+              <div style=${{fontSize:10,fontWeight:800,color:'#555',letterSpacing:'0.1em',marginBottom:10}}>EXPECTED CSV FORMAT</div>
+              <div style=${{fontFamily:'monospace',fontSize:10,color:'#777',background:'#0B0B0D',padding:'12px',borderRadius:3,lineHeight:1.9,whiteSpace:'pre-wrap',wordBreak:'break-all'}}>Brand,Part Name,Part Number,Category,Unit Cost,Vendor
+ACDelco,Oil Filter,PF61,Filters,8.50,AutoZone
+Motorcraft,Brake Pads,FD4615,Brakes,35.00,O'Reilly
+Gates,Serpentine Belt,K060820,Belts,22.00,NAPA</div>
+              <div style=${{fontSize:10,color:'#444',marginTop:10,lineHeight:1.6}}>
+                First row = column headers. Brand and Vendor are optional but recommended for the estimator. Rows with matching Part Numbers will be updated.
+              </div>
+            </div>
+          </div>
+
+          ${/* Parts table */invRows.length>0&&html`
+            <div>
+              <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:8}}>
+                <div style=${{fontSize:10,fontWeight:800,color:'#555',letterSpacing:'0.1em'}}>${invRows.length} PARTS IN CATALOG${invSearch?html` — <span style=${{color:G}}>${filteredRows.length} matching</span>`:''}</div>
+                <div style=${{display:'flex',gap:8,alignItems:'center'}}>
+                  <input
+                    value=${invSearch}
+                    onChange=${e=>sInvSearch(e.target.value)}
+                    placeholder="Search parts..."
+                    style=${{padding:'6px 12px',fontSize:11,borderRadius:3,border:'1px solid #222',background:'#111113',color:'#CCC',width:180}}/>
+                  <button onClick=${()=>{sInvRows([]);sInvFile(null);sInvSearch('');}} style=${{padding:'6px 14px',borderRadius:3,border:'1px solid #222',background:'transparent',color:'#555',fontSize:10,cursor:'pointer',fontWeight:700}}>✕ Clear</button>
+                </div>
+              </div>
+              <div style=${{borderRadius:4,border:'1px solid #1A1A1E',overflow:'hidden'}}>
+                <div style=${{overflowX:'auto'}}>
+                  <table style=${{width:'100%',borderCollapse:'collapse'}}>
+                    <thead>
+                      <tr style=${{background:'#111113'}}>
+                        ${['BRAND','PART NAME','PART #','CATEGORY','UNIT COST','VENDOR'].map(h=>html`
+                          <th key=${h} style=${{padding:'10px 14px',textAlign:'left',fontSize:9,fontWeight:800,color:'#555',letterSpacing:'0.1em',borderBottom:'1px solid #1A1A1E',whiteSpace:'nowrap'}}>${h}</th>
+                        `)}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${filteredRows.slice(0,200).map((r,i)=>html`
+                        <tr key=${i} style=${{borderBottom:'1px solid #141416',background:i%2===0?'transparent':'#0D0D0F'}}>
+                          <td style=${{padding:'9px 14px',fontSize:12,color:'#777'}}>${r.brand||html`<span style=${{color:'#333'}}>—</span>`}</td>
+                          <td style=${{padding:'9px 14px',fontSize:13,color:'#E8E8EA',fontWeight:600}}>${r.part_name}</td>
+                          <td style=${{padding:'9px 14px',fontSize:11,color:'#666',fontFamily:'monospace'}}>${r.part_number||html`<span style=${{color:'#333'}}>—</span>`}</td>
+                          <td style=${{padding:'9px 14px',fontSize:12,color:'#777'}}>${r.category||html`<span style=${{color:'#333'}}>—</span>`}</td>
+                          <td style=${{padding:'9px 14px',fontSize:13,color:'#AAA'}}>${r.unit_cost?'$'+parseFloat(r.unit_cost||0).toFixed(2):html`<span style=${{color:'#333'}}>—</span>`}</td>
+                          <td style=${{padding:'9px 14px',fontSize:12,color:'#666'}}>${r.vendor||html`<span style=${{color:'#333'}}>—</span>`}</td>
+                        </tr>
+                      `)}
+                      ${filteredRows.length>200&&html`
+                        <tr><td colspan="6" style=${{padding:'10px 14px',fontSize:11,color:'#444',textAlign:'center'}}>... and ${filteredRows.length-200} more rows. Save catalog to persist all ${invRows.length} parts.</td></tr>
+                      `}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          `}
+        </div>
+      `}
+    </div>
+  </div>`;
+}
+
 /* ── SETUP WIZARD ── */
 function SetupWizard({onComplete}){
   const[f,sF]=useState({name:'',owner:'',phone:'',address:'',hours:'',services:'',type:'Independent auto repair',website:'',tagline:'',tone:'Professional and friendly',google_review:''});
@@ -696,6 +1330,7 @@ function App(){
   const[panel,sPanel]=useState(null);
   const[ready,sReady]=useState(false);
   const[setup,sSetup]=useState(false);
+  const[view,sView]=useState('modules'); // 'modules' | 'profile'
 
   useEffect(()=>{
     setTimeout(()=>sReady(true),50);
@@ -708,6 +1343,8 @@ function App(){
 
   if(setup) return html`<${SetupWizard} onComplete=${()=>sSetup(false)}/>`;
   if(panel) return html`<${ModulePanel} mod=${panel} onClose=${()=>sPanel(null)}/>`;
+  if(view==='profile') return html`<${ShopProfile} onBack=${()=>sView('modules')}/>`;
+  if(view==='operations') return html`<${OperationsHub} onBack=${()=>sView('modules')}/>`;
 
   return html`<div style=${{minHeight:'100vh',background:'#0B0B0D'}}>
     <div style=${{height:3,background:`linear-gradient(90deg,transparent,${G},transparent)`}}/>
@@ -734,7 +1371,16 @@ function App(){
         </div>
       </div>
 
-      <nav style=${{display:'flex',marginTop:28,borderBottom:'2px solid #1A1A1E',overflow:'auto'}}>
+      <nav style=${{display:'flex',marginTop:28,borderBottom:'2px solid #1A1A1E',overflow:'auto',alignItems:'flex-end'}}>
+        <!-- MY SHOP button -->
+        <button onClick=${()=>sView('profile')} style=${{padding:'14px 22px',border:'none',borderBottom:'3px solid transparent',marginBottom:-2,background:'transparent',color:'#555',fontSize:11,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Barlow',sans-serif",transition:'all .2s',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:6}}>
+          <span style=${{fontSize:13}}>🏪</span> MY SHOP
+        </button>
+        <!-- OPS HUB button -->
+        <button onClick=${()=>sView('operations')} style=${{padding:'14px 22px',border:'none',borderBottom:'3px solid transparent',marginBottom:-2,background:'transparent',color:'#555',fontSize:11,fontWeight:800,letterSpacing:'0.12em',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Barlow',sans-serif",transition:'all .2s',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:6}}>
+          <span style=${{fontSize:13}}>⚙️</span> OPS HUB
+        </button>
+        <div style=${{width:1,height:28,background:'#222',marginBottom:2,flexShrink:0}}/>
         ${Object.entries(CATS).map(([k,v])=>{
           const count=k==='all'?MODULES.length:MODULES.filter(m=>m.cat===k).length;
           const active=cat===k;

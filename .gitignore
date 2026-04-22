@@ -1,19 +1,70 @@
-# Python
+# ── Python ──────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *.pyo
-.env
+*.pyd
+.Python
+*.egg-info/
+*.egg
+.eggs/
 venv/
 .venv/
+env/
+.env/
+pip-wheel-metadata/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 
-# Generated outputs (optional — remove these lines if you want to keep them)
-output/
+# ── Environment variables ────────────────────────────────
+.env
+.env.local
+.env.production
+.env.staging
+frontend/.env
+# Keep example files so teammates know what vars are needed
+!.env.example
+!frontend/.env.example
 
-# Node / Vite
+# ── Node / Frontend ──────────────────────────────────────
+node_modules/
 frontend/node_modules/
 frontend/dist/
-frontend/.env
+frontend/.cache/
+.npm/
 
-# OS
+# ── Generated shop outputs (produced at runtime) ─────────
+output/
+
+# ── Shop data (contains real business info) ──────────────
+# parts_catalog.json is uploaded by the owner — don't commit it
+data/parts_catalog.json
+# shop_profile.json is committed as a blank template (already empty)
+# Uncomment to exclude it entirely:
+# data/shop_profile.json
+
+# ── Supabase CLI temp files ───────────────────────────────
+supabase/.temp/
+
+# ── OS & editor ──────────────────────────────────────────
 .DS_Store
 Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.code-workspace
+
+# ── Logs ─────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Archives ─────────────────────────────────────────────
+*.zip
+*.tar.gz

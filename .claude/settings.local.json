@@ -22,7 +22,13 @@
       "Bash(curl -s http://localhost:5173)",
       "Bash(cmd /c \"node --version 2>&1\")",
       "Bash(cmd /c \"npm --version 2>&1\")",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(netstat -ano)",
+      "Bash(findstr \":8000\")",
+      "Bash(findstr LISTENING)",
+      "Bash(taskkill /PID 4240 /F)",
+      "PowerShell(Stop-Process -Id 4240 -Force)"
     ]
   }
 }

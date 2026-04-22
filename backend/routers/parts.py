@@ -2,11 +2,14 @@
 Router: Module 11 — Parts Inventory
 POST /api/parts/inventory
 POST /api/parts/po
+GET  /api/parts/catalog
+POST /api/parts/catalog
 """
 import argparse
+import json
 import os
 import sys
-from typing import Optional
+from typing import List, Optional
 
 from fastapi import APIRouter
 from pydantic import BaseModel
@@ -22,7 +25,50 @@ if _TOOLS_ROOT not in sys.path:
 from models.responses import ModuleResponse
 from utils import capture_output, read_output_files
 
+_DATA_DIR = "/data" if os.path.isdir("/data") else os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "data")
+)
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+CATALOG_PATH = os.path.join(_DATA_DIR, "parts_catalog.json")
+
 router = APIRouter()
+
+
+class CatalogItem(BaseModel):
+    brand: Optional[str] = ""
+    part_name: Optional[str] = ""
+    part_number: Optional[str] = ""
+    category: Optional[str] = ""
+    unit_cost: Optional[str] = ""
+    vendor: Optional[str] = ""
+
+
+class CatalogRequest(BaseModel):
+    items: List[CatalogItem]
+
+
+@router.get("/parts/catalog")
+def get_catalog():
+    try:
+        if not os.path.exists(CATALOG_PATH):
+            return {"success": True, "items": [], "count": 0}
+        with open(CATALOG_PATH, "r", encoding="utf-8") as fh:
+            items = json.load(fh)
+        return {"success": True, "items": items, "count": len(items)}
+    except Exception as exc:
+        return {"success": False, "items": [], "error": str(exc)}
+
+
+@router.post("/parts/catalog")
+def save_catalog(body: CatalogRequest):
+    try:
+        items = [item.dict() for item in body.items]
+        os.makedirs(os.path.dirname(CATALOG_PATH), exist_ok=True)
+        with open(CATALOG_PATH, "w", encoding="utf-8") as fh:
+            json.dump(items, fh, indent=2, ensure_ascii=False)
+        return {"success": True, "count": len(items), "message": f"Saved {len(items)} parts to catalog"}
+    except Exception as exc:
+        return {"success": False, "error": str(exc)}
 
 
 class PartsInventoryRequest(BaseModel):
