@@ -28,7 +28,8 @@
       "Bash(findstr \":8000\")",
       "Bash(findstr LISTENING)",
       "Bash(taskkill /PID 4240 /F)",
-      "PowerShell(Stop-Process -Id 4240 -Force)"
+      "PowerShell(Stop-Process -Id 4240 -Force)",
+      "Bash(read dir *)"
     ]
   }
 }
