@@ -212,15 +212,55 @@ function DeclinedForm({onSubmit,loading}){
 }
 
 function ServiceHistoryForm({onSubmit,loading}){
-  const[f,sF]=useState({customer:'',vehicle:'',vin:'',mileage:'',records:''});
-  return html`<form onSubmit=${e=>{e.preventDefault();onSubmit(f)}} style=${{padding:'24px 28px',flex:1}}>
-    <${Field} label="Customer Name"><input value=${f.customer} onChange=${e=>sF({...f,customer:e.target.value})} placeholder="e.g. Sarah Mitchell"/></${Field}>
-    <${Field} label="Vehicle"><input value=${f.vehicle} onChange=${e=>sF({...f,vehicle:e.target.value})} placeholder="e.g. 2019 Toyota Camry SE"/></${Field}>
-    <${Field} label="Current Mileage"><input type="number" value=${f.mileage} onChange=${e=>sF({...f,mileage:e.target.value})} placeholder="e.g. 67000"/></${Field}>
-    <${Field} label="VIN (optional)"><input value=${f.vin} onChange=${e=>sF({...f,vin:e.target.value})}/></${Field}>
-    <${Field} label="Service Records (JSON or date|mileage|service|tech|cost|notes per line)">
-      <textarea rows="5" value=${f.records} onChange=${e=>sF({...f,records:e.target.value})} placeholder='[{"date":"01/15/2024","mileage":62000,"service":"Oil Change","tech":"Mike","cost":45,"notes":""}]'/>
-    </${Field}>
+  const EMPTY_ROW=()=>({date:'',mileage:'',service:'',tech:'',cost:'',notes:''});
+  const[meta,sMeta]=useState({customer:'',vehicle:'',vin:'',mileage:''});
+  const[rows,sRows]=useState([EMPTY_ROW()]);
+
+  const setMeta=(k,v)=>sMeta(p=>({...p,[k]:v}));
+  const setRow=(i,k,v)=>sRows(r=>r.map((row,idx)=>idx===i?{...row,[k]:v}:row));
+  const addRow=()=>sRows(r=>[...r,EMPTY_ROW()]);
+  const removeRow=(i)=>sRows(r=>r.filter((_,idx)=>idx!==i));
+
+  const handleSubmit=(e)=>{
+    e.preventDefault();
+    const records=JSON.stringify(rows.filter(r=>r.date||r.service));
+    onSubmit({...meta,records});
+  };
+
+  const iStyle={padding:'6px 8px',borderRadius:3,border:'1px solid #222',background:'#111',
+    color:'#CCC',fontSize:12,fontFamily:"'Barlow',sans-serif",width:'100%'};
+
+  return html`<form onSubmit=${handleSubmit} style=${{padding:'20px 24px',flex:1,overflowY:'auto'}}>
+    <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
+      <div><${Label}>Customer Name</${Label}><input style=${iStyle} value=${meta.customer} onChange=${e=>setMeta('customer',e.target.value)} placeholder="Sarah Mitchell"/></div>
+      <div><${Label}>Vehicle</${Label}><input style=${iStyle} value=${meta.vehicle} onChange=${e=>setMeta('vehicle',e.target.value)} placeholder="2019 Toyota Camry"/></div>
+      <div><${Label}>Current Mileage</${Label}><input type="number" style=${iStyle} value=${meta.mileage} onChange=${e=>setMeta('mileage',e.target.value)} placeholder="67000"/></div>
+      <div><${Label}>VIN (optional)</${Label}><input style=${iStyle} value=${meta.vin} onChange=${e=>setMeta('vin',e.target.value)}/></div>
+    </div>
+
+    <div style=${{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+      <div style=${{width:3,height:14,background:G,borderRadius:1}}/>
+      <span style=${{fontSize:9,fontWeight:800,color:'#555',letterSpacing:'0.14em'}}>SERVICE RECORDS</span>
+    </div>
+
+    <!-- Column headers -->
+    <div style=${{display:'grid',gridTemplateColumns:'90px 70px 1fr 70px 60px 28px',gap:4,marginBottom:4}}>
+      ${['Date','Mileage','Service','Tech','Cost',''].map((h,i)=>html`<div key=${i} style=${{fontSize:9,fontWeight:700,color:'#444',letterSpacing:'0.08em',textTransform:'uppercase',padding:'0 2px'}}>${h}</div>`)}
+    </div>
+
+    <!-- Rows -->
+    <div style=${{display:'flex',flexDirection:'column',gap:4,marginBottom:10}}>
+      ${rows.map((row,i)=>html`<div key=${i} style=${{display:'grid',gridTemplateColumns:'90px 70px 1fr 70px 60px 28px',gap:4,alignItems:'center'}}>
+        <input style=${iStyle} value=${row.date} onChange=${e=>setRow(i,'date',e.target.value)} placeholder="01/15/24"/>
+        <input style=${iStyle} type="number" value=${row.mileage} onChange=${e=>setRow(i,'mileage',e.target.value)} placeholder="62000"/>
+        <input style=${iStyle} value=${row.service} onChange=${e=>setRow(i,'service',e.target.value)} placeholder="Oil Change"/>
+        <input style=${iStyle} value=${row.tech} onChange=${e=>setRow(i,'tech',e.target.value)} placeholder="Mike"/>
+        <input style=${iStyle} value=${row.cost} onChange=${e=>setRow(i,'cost',e.target.value)} placeholder="45"/>
+        <button type="button" onClick=${()=>removeRow(i)} style=${{width:24,height:24,borderRadius:3,border:'1px solid #2A1A1A',background:'transparent',color:'#C0392B',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>×</button>
+      </div>`)}
+    </div>
+
+    <button type="button" onClick=${addRow} style=${{width:'100%',padding:'7px',borderRadius:3,border:'1px dashed #2A2A30',background:'transparent',color:'#555',fontSize:11,fontWeight:700,cursor:'pointer',marginBottom:16,fontFamily:"'Barlow',sans-serif",letterSpacing:'0.08em'}}>+ ADD ROW</button>
     <${GenBtn} loading=${loading}/>
   </form>`;
 }
@@ -565,12 +605,30 @@ function CopyBtn({label,text,dim}){
   const click=()=>{navigator.clipboard.writeText(text).catch(()=>{});sOk(true);setTimeout(()=>sOk(false),1500)};
   return html`<button onClick=${click} style=${{padding:'6px 14px',borderRadius:3,border:`1px solid ${dim?'#222':G+'66'}`,background:dim?'#111':`${G}15`,color:dim?'#555':G,fontSize:10,fontWeight:800,letterSpacing:'0.1em',textTransform:'uppercase'}}>${ok?'✓ Copied':label}</button>`;
 }
-function DlBtn({text}){
-  const click=()=>{const b=new Blob([text],{type:'text/plain'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='output.txt';a.click();URL.revokeObjectURL(u)};
-  return html`<button onClick=${click} style=${{padding:'6px 14px',borderRadius:3,border:'1px solid #222',background:'#111',color:'#555',fontSize:10,fontWeight:800,letterSpacing:'0.1em',textTransform:'uppercase'}}>Download .txt</button>`;
+function DlBtn({text,filename}){
+  const click=()=>{const b=new Blob([text],{type:'text/plain'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=filename||'output.txt';a.click();URL.revokeObjectURL(u)};
+  return html`<button onClick=${click} style=${{padding:'6px 14px',borderRadius:3,border:'1px solid #222',background:'#111',color:'#555',fontSize:10,fontWeight:800,letterSpacing:'0.1em',textTransform:'uppercase'}}>↓ Download</button>`;
 }
 
-function OutputPanel({output,loading,error,files}){
+function FileTypeLabel({name}){
+  const n=name.toLowerCase();
+  if(n.includes('sms'))return html`<span style=${{fontSize:9,padding:'2px 7px',borderRadius:2,background:'#1A2A1A',border:'1px solid #2A4A2A',color:'#4ADE80',fontWeight:800,letterSpacing:'0.08em'}}>SMS</span>`;
+  if(n.includes('email'))return html`<span style=${{fontSize:9,padding:'2px 7px',borderRadius:2,background:'#1A1A2A',border:'1px solid #2A2A5A',color:'#60A5FA',fontWeight:800,letterSpacing:'0.08em'}}>EMAIL</span>`;
+  if(n.includes('phone')||n.includes('script'))return html`<span style=${{fontSize:9,padding:'2px 7px',borderRadius:2,background:'#2A1A1A',border:'1px solid #5A2A1A',color:'#F97316',fontWeight:800,letterSpacing:'0.08em'}}>PHONE</span>`;
+  return html`<span style=${{fontSize:9,padding:'2px 7px',borderRadius:2,background:'#1A1A1A',border:'1px solid #2A2A2A',color:'#888',fontWeight:800,letterSpacing:'0.08em'}}>TXT</span>`;
+}
+
+function OutputPanel({output,loading,error,content}){
+  const[activeFile,sActiveFile]=useState(null);
+  const[showSummary,sShowSummary]=useState(false);
+
+  const fileEntries=content?Object.entries(content):[];
+
+  // Auto-select first file when content arrives
+  useEffect(()=>{
+    if(fileEntries.length>0&&!activeFile)sActiveFile(fileEntries[0][0]);
+  },[content]);
+
   if(loading) return html`<div style=${{flex:1,display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:16}}>
     <div style=${{display:'flex',gap:8}}>
       ${[0,1,2].map(i=>html`<div key=${i} style=${{width:10,height:10,borderRadius:'50%',background:G,animation:`pulse 1.2s ease ${i*0.2}s infinite`}}/>`)}
@@ -586,56 +644,221 @@ function OutputPanel({output,loading,error,files}){
     </div>
   </div>`;
 
-  if(!output) return html`<div style=${{flex:1,display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:12}}>
+  if(fileEntries.length===0&&!output) return html`<div style=${{flex:1,display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:12}}>
     <div style=${{fontSize:32,opacity:.3}}>⚡</div>
-    <div style=${{fontSize:11,color:'#333',fontWeight:700,letterSpacing:'0.1em',textAlign:'center'}}>FILL IN THE FORM${'\n'}AND CLICK GENERATE</div>
+    <div style=${{fontSize:11,color:'#333',fontWeight:700,letterSpacing:'0.1em',textAlign:'center'}}>FILL IN THE FORM AND CLICK GENERATE</div>
   </div>`;
 
-  const hasSMS=output.includes('SMS')||output.includes('[SMS]');
-  const hasEmail=output.includes('Subject:');
-  const hasScript=output.includes('[GREET]');
+  // ── Rich file preview mode ──
+  if(fileEntries.length>0){
+    const allText=fileEntries.map(([k,v])=>v).join('\n\n'+'─'.repeat(40)+'\n\n');
+    const activeContent=content[activeFile]||'';
+    const shortName=n=>n.replace(/^.*[\\/]/,'').replace(/\.txt$/,'').replace(/_/g,' ').toUpperCase();
 
+    return html`<div style=${{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+
+      <!-- Top action bar -->
+      <div style=${{padding:'12px 20px',borderBottom:'1px solid #1A1A1E',display:'flex',gap:8,alignItems:'center',flexWrap:'wrap',background:'#0D0D0F'}}>
+        <span style=${{fontSize:11,color:G,fontWeight:700,marginRight:4}}>✓ ${fileEntries.length} file${fileEntries.length>1?'s':''} generated</span>
+        <${CopyBtn} label="Copy All" text=${allText}/>
+        <${DlBtn} text=${allText} filename="all_output.txt"/>
+        ${output&&html`<button onClick=${()=>sShowSummary(s=>!s)} style=${{padding:'6px 12px',borderRadius:3,border:'1px solid #222',background:'transparent',color:'#444',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:"'Barlow',sans-serif",letterSpacing:'0.08em'}}>${showSummary?'▲ HIDE':'▼ SUMMARY'}</button>`}
+      </div>
+
+      <!-- Collapsible summary -->
+      ${showSummary&&output&&html`<div style=${{padding:'12px 20px',borderBottom:'1px solid #151518',background:'#0A0A0C'}}>
+        <pre style=${{fontSize:11,color:'#555',lineHeight:1.6,whiteSpace:'pre-wrap',margin:0}}>${output}</pre>
+      </div>`}
+
+      <!-- File tabs -->
+      <div style=${{display:'flex',overflowX:'auto',borderBottom:'1px solid #1A1A1E',background:'#0D0D0F',flexShrink:0}}>
+        ${fileEntries.map(([fname])=>html`<button key=${fname} onClick=${()=>sActiveFile(fname)}
+          style=${{padding:'10px 16px',border:'none',borderBottom:activeFile===fname?`2px solid ${G}`:'2px solid transparent',
+          marginBottom:-1,background:'transparent',color:activeFile===fname?G:'#555',fontSize:10,fontWeight:800,
+          letterSpacing:'0.07em',cursor:'pointer',fontFamily:"'Barlow',sans-serif",whiteSpace:'nowrap',flexShrink:0}}>
+          ${shortName(fname)}
+        </button>`)}
+      </div>
+
+      <!-- Active file preview -->
+      <div style=${{flex:1,overflowY:'auto',display:'flex',flexDirection:'column'}}>
+        ${activeFile&&html`<div style=${{padding:'16px 20px',borderBottom:'1px solid #151518',display:'flex',alignItems:'center',gap:10,background:'#0D0D0F'}}>
+          <${FileTypeLabel} name=${activeFile}/>
+          <span style=${{fontSize:11,color:'#666',fontFamily:'monospace',flex:1}}>${activeFile.replace(/^.*[\\/]/,'')}</span>
+          <${CopyBtn} label="Copy" text=${activeContent}/>
+          <${DlBtn} text=${activeContent} filename=${activeFile.replace(/^.*[\\/]/,'')}/>
+        </div>`}
+        <div style=${{flex:1,padding:'20px 24px'}}>
+          <pre style=${{fontFamily:"'Barlow',monospace",fontSize:13,color:'#D0D0D4',lineHeight:1.9,whiteSpace:'pre-wrap',wordBreak:'break-word',margin:0}}>${activeContent}</pre>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── Fallback: stdout-only mode ──
   return html`<div style=${{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
     <div style=${{padding:'14px 20px',borderBottom:'1px solid #1A1A1E',display:'flex',gap:8,flexWrap:'wrap'}}>
       <${CopyBtn} label="Copy All" text=${output}/>
-      <${DlBtn} text=${output}/>
-      ${hasSMS&&html`<${CopyBtn} label="Copy SMS" text=${output} dim/>`}
-      ${hasEmail&&html`<${CopyBtn} label="Copy Email" text=${output} dim/>`}
-      ${hasScript&&html`<${CopyBtn} label="Copy Script" text=${output} dim/>`}
+      <${DlBtn} text=${output} filename="output.txt"/>
     </div>
     <div style=${{flex:1,overflowY:'auto',padding:'20px 24px'}}>
       <pre style=${{fontFamily:"'Barlow',monospace",fontSize:12.5,color:'#CCC',lineHeight:1.8,whiteSpace:'pre-wrap',wordBreak:'break-word'}}>${output}</pre>
-      ${files&&files.length>0&&html`<div style=${{marginTop:24,paddingTop:16,borderTop:'1px solid #1A1A1E'}}>
-        <div style=${{fontSize:9,fontWeight:800,color:'#444',letterSpacing:'0.1em',marginBottom:8}}>SAVED FILES</div>
-        ${files.map((f,i)=>html`<div key=${i} style=${{fontSize:11,color:'#555',padding:'4px 0',fontFamily:'monospace'}}>📄 ${f}</div>`)}
+    </div>
+  </div>`;
+}
+
+/* ── CHAT MODULE PANEL (AI + VOICE) ── */
+const AI_VOICE_IDS=new Set(['repair-auto','componentcare','fleetmaint','prev-advisor','enviromaint']);
+
+function ChatModulePanel({mod,onClose}){
+  const[msgs,sMsgs]=useState([]);
+  const[input,sInput]=useState('');
+  const[loading,sLoad]=useState(false);
+  const[listening,sListening]=useState(false);
+  const bottomRef=useRef(null);
+  const recognitionRef=useRef(null);
+
+  useEffect(()=>{
+    if(bottomRef.current)bottomRef.current.scrollIntoView({behavior:'smooth'});
+  },[msgs]);
+
+  const startVoice=()=>{
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){alert('Voice input not supported in this browser. Try Chrome.');return;}
+    const r=new SR();r.lang='en-US';r.continuous=false;r.interimResults=false;
+    r.onstart=()=>sListening(true);
+    r.onend=()=>sListening(false);
+    r.onresult=(e)=>{const t=e.results[0][0].transcript;sInput(p=>p?p+' '+t:t);};
+    r.onerror=()=>sListening(false);
+    recognitionRef.current=r;r.start();
+  };
+
+  const send=async()=>{
+    const q=input.trim();if(!q||loading)return;
+    sInput('');
+    const userMsg={role:'user',text:q};
+    sMsgs(p=>[...p,userMsg]);
+    sLoad(true);
+    try{
+      const url=endpointFor(mod.id,{query:q});
+      const res=url?await post(url,{query:q}):{success:false,error:'No endpoint configured yet.'};
+      let reply='';
+      if(res.success===false)reply=res.error||'Something went wrong.';
+      else{
+        reply=res.output||'';
+        if(!reply&&res.content&&typeof res.content==='object'){
+          reply=Object.entries(res.content).map(([k,v])=>`${k}\n\n${v}`).join('\n\n'+'─'.repeat(40)+'\n\n');
+        }
+        if(!reply)reply=JSON.stringify(res,null,2);
+      }
+      sMsgs(p=>[...p,{role:'ai',text:reply,content:res.content||null}]);
+    }catch(e){sMsgs(p=>[...p,{role:'ai',text:'Could not reach backend. Make sure the server is running.',content:null}]);}
+    finally{sLoad(false);}
+  };
+
+  const onKey=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}};
+
+  return html`<div style=${{position:'fixed',inset:0,zIndex:200,background:'#0B0B0D',display:'flex',flexDirection:'column',animation:'fadeIn .2s ease'}}>
+    <div style=${{height:3,background:`linear-gradient(90deg,${G},#F5C542,${G})`}}/>
+
+    <!-- Header -->
+    <div style=${{padding:'12px 24px',borderBottom:'1px solid #1A1A1E',display:'flex',alignItems:'center',gap:16,background:'#0D0D0F'}}>
+      <button onClick=${onClose} style=${{padding:'6px 14px',borderRadius:3,border:'1px solid #222',background:'#111',color:'#555',fontSize:11,fontWeight:800,letterSpacing:'0.08em'}}>← Back</button>
+      <span style=${{fontSize:20}}>${mod.icon}</span>
+      <div>
+        <span style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:18,color:'#F0F0F2',textTransform:'uppercase'}}>${mod.title}</span>
+        <span style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:600,fontSize:14,color:'#444',textTransform:'uppercase',marginLeft:8}}>${mod.sub}</span>
+      </div>
+      <div style=${{marginLeft:'auto',display:'flex',alignItems:'center',gap:8}}>
+        <span style=${{fontSize:9,padding:'3px 10px',borderRadius:2,background:`${G}15`,border:`1px solid ${G}40`,color:G,fontWeight:800,letterSpacing:'0.1em'}}>🎙 AI + VOICE</span>
+      </div>
+    </div>
+
+    <!-- Chat history -->
+    <div style=${{flex:1,overflowY:'auto',padding:'24px 32px',display:'flex',flexDirection:'column',gap:16}}>
+      ${msgs.length===0&&html`<div style=${{textAlign:'center',marginTop:60,opacity:.4}}>
+        <div style=${{fontSize:40,marginBottom:12}}>${mod.icon}</div>
+        <div style=${{fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:800,color:'#AAA',textTransform:'uppercase',letterSpacing:'0.08em'}}>${mod.title}</div>
+        <div style=${{fontSize:12,color:'#555',marginTop:8,lineHeight:1.6,maxWidth:400,margin:'8px auto 0'}}>Type your question or tap the mic to speak. Ask about any vehicle, complaint, or job.</div>
       </div>`}
+
+      ${msgs.map((m,i)=>html`<div key=${i} style=${{display:'flex',justifyContent:m.role==='user'?'flex-end':'flex-start'}}>
+        <div style=${{maxWidth:'75%'}}>
+          ${m.role==='user'?html`
+            <div style=${{background:`linear-gradient(135deg,${G}22,${G}10)`,border:`1px solid ${G}33`,borderRadius:'12px 12px 3px 12px',padding:'12px 16px'}}>
+              <p style=${{fontSize:13,color:'#E8E8EA',lineHeight:1.6,margin:0}}>${m.text}</p>
+            </div>
+          `:html`
+            <div style=${{background:'#111113',border:'1px solid #1E1E22',borderRadius:'12px 12px 12px 3px',padding:'12px 16px'}}>
+              <div style=${{display:'flex',alignItems:'center',gap:6,marginBottom:8}}>
+                <span style=${{fontSize:14}}>${mod.icon}</span>
+                <span style=${{fontSize:10,color:G,fontWeight:800,letterSpacing:'0.1em'}}>${mod.title.toUpperCase()}</span>
+              </div>
+              <pre style=${{fontSize:13,color:'#CCC',lineHeight:1.8,whiteSpace:'pre-wrap',wordBreak:'break-word',margin:0,fontFamily:"'Barlow',monospace"}}>${m.text}</pre>
+              ${m.content&&Object.keys(m.content).length>0&&html`<div style=${{marginTop:12,display:'flex',gap:8,flexWrap:'wrap'}}>
+                <${CopyBtn} label="Copy" text=${m.text}/>
+                <${DlBtn} text=${Object.entries(m.content).map(([k,v])=>v).join('\n\n')} filename="response.txt"/>
+              </div>`}
+              ${!m.content&&m.text.length>50&&html`<div style=${{marginTop:10,display:'flex',gap:8}}>
+                <${CopyBtn} label="Copy" text=${m.text}/>
+                <${DlBtn} text=${m.text} filename="response.txt"/>
+              </div>`}
+            </div>
+          `}
+        </div>
+      </div>`)}
+
+      ${loading&&html`<div style=${{display:'flex',justifyContent:'flex-start'}}>
+        <div style=${{background:'#111113',border:'1px solid #1E1E22',borderRadius:'12px 12px 12px 3px',padding:'14px 18px',display:'flex',gap:6,alignItems:'center'}}>
+          ${[0,1,2].map(i=>html`<div key=${i} style=${{width:8,height:8,borderRadius:'50%',background:G,animation:`pulse 1.2s ease ${i*0.2}s infinite`}}/>`)}
+        </div>
+      </div>`}
+
+      <div ref=${bottomRef}/>
+    </div>
+
+    <!-- Input bar -->
+    <div style=${{padding:'16px 24px',borderTop:'1px solid #1A1A1E',background:'#0D0D0F',display:'flex',gap:10,alignItems:'flex-end'}}>
+      <textarea
+        value=${input}
+        onChange=${e=>sInput(e.target.value)}
+        onKeyDown=${onKey}
+        placeholder="Ask about a vehicle, complaint, or job... (Enter to send)"
+        rows="2"
+        style=${{flex:1,padding:'12px 16px',borderRadius:8,border:`1px solid ${listening?G:'#222'}`,background:'#111',color:'#E0E0E4',fontSize:13,fontFamily:"'Barlow',sans-serif",resize:'none',lineHeight:1.5,transition:'border-color .2s'}}
+      />
+      <button onClick=${startVoice}
+        style=${{width:46,height:46,borderRadius:8,border:`1px solid ${listening?G+'88':'#222'}`,background:listening?`${G}20`:'#111',color:listening?G:'#555',fontSize:18,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,animation:listening?'pulse 1s infinite':'none'}}>
+        🎙
+      </button>
+      <button onClick=${send} disabled=${loading||!input.trim()}
+        style=${{height:46,padding:'0 20px',borderRadius:8,border:`1px solid ${G}66`,background:loading||!input.trim()?'#111':`linear-gradient(135deg,${G},${G}CC)`,color:loading||!input.trim()?'#444':'#0B0B0D',fontSize:13,fontWeight:800,fontFamily:"'Barlow Condensed',sans-serif",letterSpacing:'0.1em',textTransform:'uppercase',fontStyle:'italic',flexShrink:0}}>
+        ${loading?'...':'Send →'}
+      </button>
     </div>
   </div>`;
 }
 
 /* ── MODULE PANEL ── */
 function ModulePanel({mod,onClose}){
+  if(AI_VOICE_IDS.has(mod.id))return html`<${ChatModulePanel} mod=${mod} onClose=${onClose}/>`;
+
   const[output,sOut]=useState('');
   const[loading,sLoad]=useState(false);
   const[error,sErr]=useState(null);
-  const[files,sFiles]=useState([]);
+  const[content,sContent]=useState(null);
   const Form=FORM_MAP[mod.id];
 
   const handleSubmit=async(data)=>{
-    sLoad(true);sErr(null);sOut('');sFiles([]);
+    sLoad(true);sErr(null);sOut('');sContent(null);
     try{
       const url=endpointFor(mod.id,data);
       if(!url)throw new Error('No endpoint for '+mod.id);
       const res=await post(url,data);
       if(res.success===false&&res.error)sErr(res.error);
       else{
-        // Prefer stdout output; fall back to file contents from res.content
-        let displayText=res.output||'';
-        if(!displayText&&res.content&&typeof res.content==='object'){
-          displayText=Object.entries(res.content).map(([fname,body])=>`── ${fname} ──\n\n${body}`).join('\n\n'+('─').repeat(40)+'\n\n');
-        }
-        sOut(displayText||JSON.stringify(res,null,2));
-        sFiles(res.files||[]);
+        sOut(res.output||'');
+        sContent(res.content&&Object.keys(res.content).length>0?res.content:null);
       }
     }catch(e){sErr(e.message||'Could not reach backend on port 8000');}
     finally{sLoad(false);}
@@ -672,7 +895,7 @@ function ModulePanel({mod,onClose}){
             <span style=${{fontSize:9,fontWeight:800,color:'#555',letterSpacing:'0.14em'}}>OUTPUT</span>
           </div>
         </div>
-        <${OutputPanel} output=${output} loading=${loading} error=${error} files=${files}/>
+        <${OutputPanel} output=${output} loading=${loading} error=${error} content=${content}/>
       </div>
     </div>
   </div>`;
