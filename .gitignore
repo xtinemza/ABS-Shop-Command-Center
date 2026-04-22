@@ -35,7 +35,12 @@ frontend/.cache/
 .npm/
 
 # ── Generated shop outputs (produced at runtime) ─────────
+# Backend creates these folders dynamically — no need to track them
 output/
+
+# ── Nested git repos (duplicate folders) ─────────────────
+Shop-Command-Center-/
+ABS-Shop-Command-Center/
 
 # ── Shop data (contains real business info) ──────────────
 # parts_catalog.json is uploaded by the owner — don't commit it
