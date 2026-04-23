@@ -5,6 +5,7 @@ Uses Claude API — requires ANTHROPIC_API_KEY env variable.
 import json
 import os
 import sys
+import re
 import hashlib
 import time
 from typing import Optional
@@ -16,7 +17,37 @@ from pydantic import BaseModel
 _BACKEND = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if _BACKEND not in sys.path:
     sys.path.insert(0, _BACKEND)
-from knowledge_base import find_vehicle, vehicle_context, price_context
+from knowledge_base import find_vehicle, vehicle_context, price_context, VEHICLES as _STATIC_VEHICLES
+
+# ── Learned vehicles (persistent on Render /data disk) ───────────────────────
+_LEARNED_PATH = os.path.join(_DATA_DIR, "learned_vehicles.json")
+
+def _load_learned() -> dict:
+    try:
+        if os.path.exists(_LEARNED_PATH):
+            with open(_LEARNED_PATH, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return {}
+
+def _save_learned(key: str, data: dict):
+    learned = _load_learned()
+    learned[key] = data
+    os.makedirs(os.path.dirname(_LEARNED_PATH), exist_ok=True)
+    with open(_LEARNED_PATH, "w", encoding="utf-8") as f:
+        json.dump(learned, f, indent=2)
+
+def _find_vehicle_any(query: str) -> dict | None:
+    """Check static KB first, then learned vehicles."""
+    v = find_vehicle(query)
+    if v:
+        return v
+    q = query.lower()
+    for key, data in _load_learned().items():
+        if all(p in q for p in key.split()):
+            return data
+    return None
 
 # ── Simple response cache (saves credits on repeated identical queries) ───────
 # Stores {cache_key: (response_text, timestamp)}
@@ -125,6 +156,27 @@ def _err(msg: str):
     return {"success": False, "output": "", "files": [], "content": {}, "error": msg}
 
 
+# ── Knowledge Base endpoints ─────────────────────────────────────────────────
+
+@router.get("/knowledge-base/learned")
+def get_learned_vehicles():
+    """Return all auto-learned vehicles saved from AI queries."""
+    return {"success": True, "vehicles": _load_learned()}
+
+@router.delete("/knowledge-base/learned/{key}")
+def delete_learned_vehicle(key: str):
+    """Remove a learned vehicle entry (key = url-encoded 'make model')."""
+    learned = _load_learned()
+    norm = key.replace("-", " ").lower()
+    if norm in learned:
+        del learned[norm]
+        os.makedirs(os.path.dirname(_LEARNED_PATH), exist_ok=True)
+        with open(_LEARNED_PATH, "w", encoding="utf-8") as f:
+            json.dump(learned, f, indent=2)
+        return {"success": True}
+    return {"success": False, "error": "Vehicle not found"}
+
+
 # ── Request models ───────────────────────────────────────────────────────────
 
 class QueryRequest(BaseModel):
@@ -163,7 +215,7 @@ def repair_auto(body: QueryRequest):
     client, err = _get_client()
     if err: return _err(err)
     q = body.query or ""
-    veh = find_vehicle(q)
+    veh = _find_vehicle_any(q)
     kb = f" VEHICLE SPECS FROM KB: {vehicle_context(veh)}." if veh else ""
     prices = f" PRICE GUIDE: {price_context()}."
     system = f"Auto repair estimator. Shop: {_shop_ctx(profile)}.{kb}{prices} Reply with 4 sections: DIAGNOSIS SUMMARY, RECOMMENDED SERVICES (part, cost, labor hrs at $120/hr), CUSTOMER EXPLANATION (plain language, risk of delay), URGENCY LEVEL (Safety Critical/High/Medium/Low + one reason). Use KB specs — do not fabricate part numbers."
@@ -172,16 +224,48 @@ def repair_auto(body: QueryRequest):
     return _ok(text, "repair_auto_estimate")
 
 
+_SPEC_SCHEMA = '{"name":"Make Model (years)","engines":["engine string"],"oil":"spec","oil_cap":"X qt","coolant":"type","spark_plug":"part number","torque":{"Lug Nuts":"X ft-lb","Drain Plug":"X ft-lb"},"intervals":{"Oil Change":"X,000 mi"},"known_issues":["issue"]}'
+
 @router.post("/componentcare/query")
 def componentcare(body: QueryRequest):
     profile = _load_profile()
     client, err = _get_client()
     if err: return _err(err)
     q = body.query or ""
-    veh = find_vehicle(q)
-    kb = f" VERIFIED SPECS FOR THIS VEHICLE: {vehicle_context(veh)}. Use these exact figures." if veh else ""
-    system = f"Vehicle technical assistant for an auto shop. Shop: {_shop_ctx(profile)}.{kb} Answer questions on maintenance intervals, torque specs (always ft-lb/in-lb), fluids, TSBs, diagnostics. Use headers and bullets. Be concise."
-    text, err = _call_claude(client, system, q or "What vehicle and question can I help with?")
+    veh = _find_vehicle_any(q)
+
+    if veh:
+        # Known vehicle — inject exact specs, short focused answer
+        kb = f" VERIFIED SPECS: {vehicle_context(veh)}. Use these exact figures."
+        system = f"Vehicle technical assistant. Shop: {_shop_ctx(profile)}.{kb} Answer concisely with headers and bullets."
+        text, err = _call_claude(client, system, q or "What vehicle and question can I help with?")
+    else:
+        # Unknown vehicle — answer AND silently extract specs to grow the KB
+        system = (
+            f"Vehicle technical assistant. Shop: {_shop_ctx(profile)}. "
+            "Answer the question with headers and bullets. "
+            "If a specific vehicle (make/model/year) is mentioned, also append its specs as JSON "
+            f"between <<<SPECS>>> and <<<END>>> tags using this schema: {_SPEC_SCHEMA}. "
+            "Only include fields you are confident about. "
+            "If no specific vehicle is mentioned, omit the JSON block entirely."
+        )
+        text, err = _call_claude(client, system, q or "What vehicle and question can I help with?", max_tokens=1100)
+        if not err and text:
+            match = re.search(r'<<<SPECS>>>(.*?)<<<END>>>', text, re.DOTALL)
+            if match:
+                try:
+                    specs = json.loads(match.group(1).strip())
+                    name = specs.get("name", "")
+                    parts = name.replace("(", "").replace(")", "").split()
+                    if len(parts) >= 2:
+                        key = f"{parts[0]} {parts[1]}".lower()
+                        if key not in _STATIC_VEHICLES:   # don't overwrite static KB
+                            _save_learned(key, specs)
+                except Exception:
+                    pass
+                # Strip the JSON block from the displayed response
+                text = re.sub(r'\s*<<<SPECS>>>.*?<<<END>>>', '', text, flags=re.DOTALL).strip()
+
     if err: return _err(err)
     return _ok(text, "componentcare_answer")
 
@@ -192,7 +276,7 @@ def fleetmaint(body: QueryRequest):
     client, err = _get_client()
     if err: return _err(err)
     q = body.query or ""
-    veh = find_vehicle(q)
+    veh = _find_vehicle_any(q)
     kb = f" VEHICLE SPECS: {vehicle_context(veh)}." if veh else ""
     prices = f" PRICE GUIDE: {price_context()}."
     system = f"Fleet maintenance advisor. Shop: {_shop_ctx(profile)}.{kb}{prices} Provide: PREDICTIVE ALERTS, 6-MONTH SCHEDULE (month-by-month), COST FORECAST, PRIORITY ORDER (Safety Critical→Revenue→Reliability→Convenience)."
@@ -207,7 +291,7 @@ def prev_advisor(body: QueryRequest):
     client, err = _get_client()
     if err: return _err(err)
     q = body.query or ""
-    veh = find_vehicle(q)
+    veh = _find_vehicle_any(q)
     kb = f" OEM INTERVALS FROM KB: {vehicle_context(veh)}." if veh else ""
     system = f"Preventive maintenance advisor. Shop: {_shop_ctx(profile)}.{kb} Output: IMMEDIATE (overdue/urgent), UPCOMING (due within 3k mi/3 months), LONG-TERM (6-12 months), INSPECTION CHECKLIST. Flag severe-duty conditions."
     text, err = _call_claude(client, system, q or "Describe the vehicle (year/make/model/mileage) and service history.")
