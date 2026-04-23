@@ -314,16 +314,23 @@ def find_vehicle(query: str) -> dict | None:
 
 
 def vehicle_context(v: dict) -> str:
-    """Format vehicle specs as a compact string for prompt injection."""
-    torque_str = ", ".join(f"{k}: {v2}" for k, v2 in v["torque"].items())
-    intervals_str = ", ".join(f"{k}: {v2}" for k, v2 in v["intervals"].items())
-    issues_str = " | ".join(v["known_issues"])
-    return (
-        f"{v['name']} | Engines: {', '.join(v['engines'])} | "
-        f"Oil: {v['oil']} ({v['oil_cap']}) | Coolant: {v['coolant']} | "
-        f"Spark Plug: {v['spark_plug']} | Torque — {torque_str} | "
-        f"Intervals — {intervals_str} | Known Issues — {issues_str}"
-    )
+    """Format vehicle specs as a compact string for prompt injection.
+    Uses .get() throughout so partially-learned vehicles don't crash."""
+    torque_str = ", ".join(f"{k}: {v2}" for k, v2 in (v.get("torque") or {}).items())
+    intervals_str = ", ".join(f"{k}: {v2}" for k, v2 in (v.get("intervals") or {}).items())
+    issues_str = " | ".join(v.get("known_issues") or [])
+    engines = v.get("engines") or []
+    parts = [
+        v.get("name", "Unknown Vehicle"),
+        f"Engines: {', '.join(engines)}" if engines else "",
+        f"Oil: {v.get('oil', '')} ({v.get('oil_cap', '')})" if v.get("oil") else "",
+        f"Coolant: {v.get('coolant', '')}" if v.get("coolant") else "",
+        f"Spark Plug: {v.get('spark_plug', '')}" if v.get("spark_plug") else "",
+        f"Torque — {torque_str}" if torque_str else "",
+        f"Intervals — {intervals_str}" if intervals_str else "",
+        f"Known Issues — {issues_str}" if issues_str else "",
+    ]
+    return " | ".join(p for p in parts if p)
 
 
 def price_context() -> str:

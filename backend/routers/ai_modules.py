@@ -304,8 +304,11 @@ def enviromaint(body: QueryRequest):
     profile = _load_profile()
     client, err = _get_client()
     if err: return _err(err)
-    system = f"Climate-aware maintenance advisor. Shop: {_shop_ctx(profile)}. Given vehicle + environment, provide: ENVIRONMENT IMPACT (how climate stresses this vehicle), ADJUSTED INTERVALS (OEM modified for climate), SEASONAL CHECKLIST, COMMON CLIMATE FAILURES."
-    text, err = _call_claude(client, system, body.query or "Describe the vehicle and environment (city/state, climate, driving conditions).")
+    q = body.query or ""
+    veh = _find_vehicle_any(q)
+    kb = f" VEHICLE SPECS: {vehicle_context(veh)}." if veh else ""
+    system = f"Climate-aware maintenance advisor. Shop: {_shop_ctx(profile)}.{kb} Provide: ENVIRONMENT IMPACT (how climate stresses this vehicle), ADJUSTED INTERVALS (OEM modified for climate), SEASONAL CHECKLIST, COMMON CLIMATE FAILURES."
+    text, err = _call_claude(client, system, q or "Describe the vehicle and environment (city/state, climate, driving conditions).")
     if err: return _err(err)
     return _ok(text, "climate_maintenance_plan")
 
