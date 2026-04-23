@@ -29,35 +29,15 @@ def _load_profile() -> dict:
     return {}
 
 
-def _get_api_key() -> str:
-    """Check env var first, then fall back to saved config file."""
-    key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if key:
-        return key
-    try:
-        config_path = os.path.join(_DATA_DIR, "config.json")
-        if os.path.exists(config_path):
-            with open(config_path, "r", encoding="utf-8") as f:
-                cfg = json.load(f)
-                key = cfg.get("anthropic_api_key", "")
-                if key:
-                    os.environ["ANTHROPIC_API_KEY"] = key  # cache it
-    except Exception:
-        pass
-    return key
-
-
 def _get_client():
     try:
         import anthropic
-        api_key = _get_api_key()
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
         if not api_key:
-            return None, (
-                "No API key found. Go to MY SHOP → API Keys and paste your Anthropic API key."
-            )
+            return None, "AI features are not yet enabled for this platform. Please contact support."
         return anthropic.Anthropic(api_key=api_key), None
     except ImportError:
-        return None, "The 'anthropic' package is not installed. Run: pip install anthropic"
+        return None, "The 'anthropic' package is not installed."
 
 
 def _shop_ctx(profile: dict) -> str:

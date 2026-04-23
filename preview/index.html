@@ -1486,7 +1486,7 @@ function ShopProfile({onBack}){
 
     <!-- Tab bar -->
     <div style=${{display:'flex',borderBottom:'2px solid #1A1A1E',background:'#0D0D0F',padding:'0 24px',gap:2}}>
-      ${[{id:'profile',label:'Shop Profile'},{id:'inventory',label:'📦 Inventory Hub'},{id:'apikeys',label:'🔑 API Keys'}].map(t=>html`
+      ${[{id:'profile',label:'Shop Profile'},{id:'inventory',label:'📦 Inventory Hub'}].map(t=>html`
         <button key=${t.id} onClick=${()=>{sActiveTab(t.id);sEditing(false);}} style=${{
           padding:'11px 20px',border:'none',
           borderBottom:activeTab===t.id?`3px solid ${G}`:'3px solid transparent',
@@ -1618,106 +1618,6 @@ Gates,Serpentine Belt,K060820,Belts,22.00,NAPA</div>
         </div>
       `}
 
-      ${/* ── API KEYS TAB ── */activeTab==='apikeys'&&html`
-        <${APIKeysTab}/>
-      `}
-    </div>
-  </div>`;
-}
-
-function APIKeysTab(){
-  const[key,sKey]=useState('');
-  const[show,sShow]=useState(false);
-  const[status,sStatus]=useState(null); // null | 'set' | 'not_set'
-  const[saving,sSaving]=useState(false);
-  const[saved,sSaved]=useState(false);
-  const[error,sErr]=useState(null);
-
-  useEffect(()=>{
-    fetch(`${API}/api/config`).then(r=>r.json()).then(d=>{
-      if(d.config){
-        sStatus(d.config.anthropic_api_key_set?'set':'not_set');
-        if(d.config.anthropic_api_key_set) sKey(d.config.anthropic_api_key);
-      }
-    }).catch(()=>{});
-  },[]);
-
-  const save=async()=>{
-    if(!key.trim()||!key.startsWith('sk-')) return sErr('Key must start with sk-');
-    sSaving(true);sErr(null);
-    try{
-      const r=await post(`${API}/api/config/save`,{anthropic_api_key:key.trim()});
-      if(r.success){sSaved(true);sStatus('set');setTimeout(()=>sSaved(false),3000);}
-      else sErr(r.error||'Save failed');
-    }catch{sErr('Cannot reach backend.');}
-    finally{sSaving(false);}
-  };
-
-  return html`<div style=${{maxWidth:600}}>
-    <!-- Anthropic API Key -->
-    <div style=${{background:'#0D0D0F',border:'1px solid #1A1A1E',borderRadius:4,overflow:'hidden',marginBottom:20}}>
-      <div style=${{padding:'14px 20px',borderBottom:'1px solid #1A1A1E',background:'linear-gradient(90deg,#0E0E10,#0B0B0D)',display:'flex',alignItems:'center',gap:10}}>
-        <div style=${{width:3,height:16,background:G,borderRadius:1}}/>
-        <span style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:14,color:'#E0E0E2',textTransform:'uppercase'}}>Anthropic API Key</span>
-        ${status==='set'&&html`<span style=${{marginLeft:'auto',fontSize:10,color:'#4ADE80',fontWeight:700,padding:'3px 10px',background:'#4ADE8010',border:'1px solid #4ADE8030',borderRadius:2}}>● ACTIVE</span>`}
-        ${status==='not_set'&&html`<span style=${{marginLeft:'auto',fontSize:10,color:'#E05',fontWeight:700,padding:'3px 10px',background:'#E0551008',border:'1px solid #E0552020',borderRadius:2}}>○ NOT SET</span>`}
-      </div>
-      <div style=${{padding:'20px'}}>
-        <p style=${{fontSize:12,color:'#666',lineHeight:1.7,marginBottom:16}}>
-          Powers all AI modules — Repair Automation, ComponentCare, Social Media, Blog Post, and more.
-          Get your key at <span style=${{color:G,fontWeight:600}}>console.anthropic.com</span>.
-        </p>
-        <div style=${{display:'flex',gap:8,alignItems:'center'}}>
-          <div style=${{position:'relative',flex:1}}>
-            <input
-              type=${show?'text':'password'}
-              value=${key}
-              onChange=${e=>sKey(e.target.value)}
-              placeholder="sk-ant-api03-..."
-              style=${{width:'100%',padding:'11px 14px',borderRadius:3,border:`1px solid ${key&&key.startsWith('sk-')?G+'44':'#222'}`,background:'#111',color:'#CCC',fontSize:13,fontFamily:'monospace'}}
-            />
-          </div>
-          <button type="button" onClick=${()=>sShow(s=>!s)} style=${{padding:'11px 14px',borderRadius:3,border:'1px solid #222',background:'#111',color:'#555',fontSize:12,cursor:'pointer',fontFamily:"'Barlow',sans-serif",whiteSpace:'nowrap'}}>
-            ${show?'Hide':'Show'}
-          </button>
-          <button type="button" onClick=${save} style=${{padding:'11px 20px',borderRadius:3,border:`1px solid ${G}66`,background:saving?'#333':`linear-gradient(135deg,${G},${G}CC)`,color:saving?'#888':'#0B0B0D',fontSize:11,fontWeight:800,letterSpacing:'0.1em',textTransform:'uppercase',fontFamily:"'Barlow Condensed',sans-serif',fontStyle:'italic",whiteSpace:'nowrap',cursor:'pointer'}}>
-            ${saved?'✓ Saved':saving?'Saving...':'Save Key →'}
-          </button>
-        </div>
-        ${error&&html`<div style=${{marginTop:10,fontSize:12,color:'#E05'}}>${error}</div>`}
-        <div style=${{marginTop:14,padding:'12px 14px',borderRadius:3,background:'#0A0A0C',border:'1px solid #151518'}}>
-          <div style=${{fontSize:10,fontWeight:700,color:'#444',letterSpacing:'0.1em',marginBottom:6}}>HOW IT WORKS</div>
-          <div style=${{fontSize:12,color:'#555',lineHeight:1.7}}>
-            The key is saved securely on your server's persistent disk and never exposed in the browser.
-            It is used only to call Claude AI for your shop's content generation.
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modules that need the key -->
-    <div style=${{background:'#0D0D0F',border:'1px solid #1A1A1E',borderRadius:4,overflow:'hidden'}}>
-      <div style=${{padding:'14px 20px',borderBottom:'1px solid #1A1A1E',background:'linear-gradient(90deg,#0E0E10,#0B0B0D)',display:'flex',alignItems:'center',gap:10}}>
-        <div style=${{width:3,height:16,background:G,borderRadius:1}}/>
-        <span style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:14,color:'#E0E0E2',textTransform:'uppercase'}}>AI-Powered Modules</span>
-      </div>
-      <div style=${{padding:'16px 20px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-        ${[
-          {icon:'✏️',name:'Repair Automation'},
-          {icon:'🧠',name:'ComponentCare'},
-          {icon:'🚛',name:'FleetMaintainer'},
-          {icon:'🩺',name:'Preventive Advisor'},
-          {icon:'🌡',name:'EnviroMaintainer'},
-          {icon:'📱',name:'Social Media Posts'},
-          {icon:'📣',name:'CTA Copy'},
-          {icon:'🎯',name:'Promotion Builder'},
-          {icon:'✍️',name:'Blog Post Writer'},
-        ].map((m,i)=>html`<div key=${i} style=${{display:'flex',alignItems:'center',gap:8,padding:'8px 10px',borderRadius:3,background:'#111',border:'1px solid #1A1A1E'}}>
-          <span style=${{fontSize:14}}>${m.icon}</span>
-          <span style=${{fontSize:12,color:'#888'}}>${m.name}</span>
-          <span style=${{marginLeft:'auto',fontSize:9,color:status==='set'?'#4ADE80':G,fontWeight:700}}>${status==='set'?'✓ READY':'NEEDS KEY'}</span>
-        </div>`)}
-      </div>
     </div>
   </div>`;
 }
