@@ -645,7 +645,7 @@ function OutputPanel({output,loading,error,content}){
     <div style=${{background:'#1A0A0A',border:'1px solid #5A1A1A',borderRadius:4,padding:'20px 24px',maxWidth:400}}>
       <div style=${{fontSize:10,fontWeight:800,color:'#E05',letterSpacing:'0.1em',marginBottom:8}}>ERROR</div>
       <div style=${{fontSize:13,color:'#AAA',lineHeight:1.6}}>${error}</div>
-      <div style=${{fontSize:11,color:'#555',marginTop:12}}>Make sure the backend is running on port 8000.</div>
+      <div style=${{fontSize:11,color:'#555',marginTop:12}}>The server may be waking up — please wait a moment and try again.</div>
     </div>
   </div>`;
 
@@ -757,7 +757,7 @@ function ChatModulePanel({mod,onClose}){
         if(!reply)reply=JSON.stringify(res,null,2);
       }
       sMsgs(p=>[...p,{role:'ai',text:reply,content:res.content||null}]);
-    }catch(e){sMsgs(p=>[...p,{role:'ai',text:'Could not reach backend. Make sure the server is running.',content:null}]);}
+    }catch(e){sMsgs(p=>[...p,{role:'ai',text:'Could not reach the server. Please try again in a moment.',content:null}]);}
     finally{sLoad(false);}
   };
 
@@ -865,7 +865,7 @@ function ModulePanel({mod,onClose}){
         sOut(res.output||'');
         sContent(res.content&&Object.keys(res.content).length>0?res.content:null);
       }
-    }catch(e){sErr(e.message||'Could not reach backend on port 8000');}
+    }catch(e){sErr(e.message||'Could not reach the server. Please try again');}
     finally{sLoad(false);}
   };
 
@@ -1354,7 +1354,7 @@ function ShopProfile({onBack}){
         google_review:p.review_links?.google||'',yelp_review:p.review_links?.yelp||'',
         facebook:p.social_media?.facebook||'',instagram:p.social_media?.instagram||'',
       });
-    }).catch(()=>sErr('Could not load profile. Make sure the backend is running.'));
+    }).catch(()=>sErr('Could not load profile. Please wait a moment and refresh.'));
     // Load saved catalog
     fetch(`${API}/api/parts/catalog`).then(r=>r.json()).then(d=>{
       if(d.items&&d.items.length>0)sInvRows(d.items);
@@ -1367,7 +1367,7 @@ function ShopProfile({onBack}){
       const r=await post(`${API}/api/profile/save`,form);
       if(r.success!==false){sSaved(true);sEditing(false);setTimeout(()=>sSaved(false),2500);}
       else sErr(r.error||'Save failed');
-    }catch(e){sErr('Cannot reach backend on port 8000.');}
+    }catch(e){sErr('Cannot reach the server. Please try again.');}
     finally{sSaving(false);}
   };
 
@@ -1420,7 +1420,7 @@ function ShopProfile({onBack}){
       const r=await post(`${API}/api/parts/catalog`,{items:invRows});
       if(r.success!==false){sInvSaved(true);setTimeout(()=>sInvSaved(false),2500);}
       else sInvError(r.error||'Save failed');
-    }catch{sInvError('Cannot reach backend on port 8000.');}
+    }catch{sInvError('Cannot reach the server. Please try again.');}
     finally{sInvSaving(false);}
   };
 
@@ -1638,7 +1638,7 @@ function SetupWizard({onComplete}){
   const submit=async(e)=>{
     e.preventDefault();sLoad(true);sErr(null);
     try{const r=await post(`${API}/api/setup`,f);if(r.success!==false)onComplete();else sErr(r.error||'Setup failed');}
-    catch(e){sErr('Cannot reach backend. Start it on port 8000 first.');}
+    catch(e){sErr('Cannot reach the server. Please try again in a moment.');}
     finally{sLoad(false);}
   };
 
