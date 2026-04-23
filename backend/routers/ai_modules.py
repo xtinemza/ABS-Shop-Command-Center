@@ -63,7 +63,15 @@ def _call_claude(client, system: str, user: str, max_tokens: int = 2048) -> tupl
         )
         return msg.content[0].text, None
     except Exception as e:
-        return None, str(e)
+        err = str(e)
+        if "credit balance is too low" in err or "insufficient_quota" in err:
+            return None, "AI credits have been exhausted. Please contact support to restore service."
+        if "invalid_api_key" in err or "authentication_error" in err:
+            return None, "AI service is not configured correctly. Please contact support."
+        if "overloaded" in err:
+            return None, "AI service is temporarily overloaded. Please try again in a moment."
+        # Return a clean message without the raw JSON dump
+        return None, f"AI service error. Please try again."
 
 
 def _ok(text: str, key: str):

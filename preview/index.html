@@ -1921,15 +1921,19 @@ function App(){
   const[view,sView]=useState('modules'); // 'modules' | 'profile'
   const[session,sSession]=useState(undefined); // undefined=loading, null=no session, obj=logged in
 
+  // Auth listener — runs once on mount
   useEffect(()=>{
-    // Check existing session
     supabase.auth.getSession().then(({data:{session}})=>sSession(session??null));
-    // Listen for auth changes
     const{data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>sSession(session??null));
-    setTimeout(()=>sReady(true),50);
-    fetch(`${API}/api/health`).then(r=>r.json()).then(d=>{if(!d.setup_complete)sSetup(true);}).catch(()=>{});
     return()=>subscription.unsubscribe();
   },[]);
+
+  // Health check — runs every time session becomes active (covers new signups + returning users)
+  useEffect(()=>{
+    if(!session) return;
+    setTimeout(()=>sReady(true),50);
+    fetch(`${API}/api/health`).then(r=>r.json()).then(d=>{if(!d.setup_complete)sSetup(true);}).catch(()=>{});
+  },[session]);
 
   // Still checking session
   if(session===undefined) return html`<div style=${{minHeight:'100vh',background:'#0B0B0D',display:'flex',alignItems:'center',justifyContent:'center'}}>
