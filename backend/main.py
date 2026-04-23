@@ -1,6 +1,14 @@
 import sys
 import os
 
+# Load .env file for local development
+try:
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+    load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+except ImportError:
+    pass
+
 # Ensure project root is on the path so tool imports work
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 TOOLS_ROOT = os.path.join(PROJECT_ROOT, "tools")
@@ -30,6 +38,7 @@ from routers import (
     tech,
     milestones,
     ai_modules,
+    config,
 )
 
 app = FastAPI(
@@ -66,6 +75,7 @@ app.include_router(referrals.router, prefix="/api", tags=["15 - Referrals"])
 app.include_router(tech.router, prefix="/api", tags=["16 - Tech Productivity"])
 app.include_router(milestones.router, prefix="/api", tags=["17 - Milestones"])
 app.include_router(ai_modules.router, prefix="/api", tags=["AI Modules"])
+app.include_router(config.router, prefix="/api", tags=["Config"])
 
 
 @app.get("/")
