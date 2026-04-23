@@ -4,12 +4,19 @@ Uses Claude API — requires ANTHROPIC_API_KEY env variable.
 """
 import json
 import os
+import sys
 import hashlib
 import time
 from typing import Optional
 
 from fastapi import APIRouter
 from pydantic import BaseModel
+
+# Import static knowledge base
+_BACKEND = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if _BACKEND not in sys.path:
+    sys.path.insert(0, _BACKEND)
+from knowledge_base import find_vehicle, vehicle_context, price_context
 
 # ── Simple response cache (saves credits on repeated identical queries) ───────
 # Stores {cache_key: (response_text, timestamp)}
@@ -155,8 +162,12 @@ def repair_auto(body: QueryRequest):
     profile = _load_profile()
     client, err = _get_client()
     if err: return _err(err)
-    system = f"Auto repair estimator. Shop: {_shop_ctx(profile)}. Given vehicle+complaint, reply with 4 sections: DIAGNOSIS SUMMARY (likely causes), RECOMMENDED SERVICES (part, cost, labor hrs at $120/hr), CUSTOMER EXPLANATION (plain language, risk of delay), URGENCY LEVEL (Safety Critical/High/Medium/Low + one reason). Be specific, no fabricated part numbers."
-    text, err = _call_claude(client, system, body.query or "Describe the vehicle (year/make/model/mileage) and complaint.")
+    q = body.query or ""
+    veh = find_vehicle(q)
+    kb = f" VEHICLE SPECS FROM KB: {vehicle_context(veh)}." if veh else ""
+    prices = f" PRICE GUIDE: {price_context()}."
+    system = f"Auto repair estimator. Shop: {_shop_ctx(profile)}.{kb}{prices} Reply with 4 sections: DIAGNOSIS SUMMARY, RECOMMENDED SERVICES (part, cost, labor hrs at $120/hr), CUSTOMER EXPLANATION (plain language, risk of delay), URGENCY LEVEL (Safety Critical/High/Medium/Low + one reason). Use KB specs — do not fabricate part numbers."
+    text, err = _call_claude(client, system, q or "Describe the vehicle (year/make/model/mileage) and complaint.")
     if err: return _err(err)
     return _ok(text, "repair_auto_estimate")
 
@@ -166,8 +177,11 @@ def componentcare(body: QueryRequest):
     profile = _load_profile()
     client, err = _get_client()
     if err: return _err(err)
-    system = f"Vehicle technical assistant for an auto shop. Shop: {_shop_ctx(profile)}. Answer questions on maintenance intervals, torque specs (always include ft-lb/in-lb), fluid types/capacities, TSBs, diagnostics, OEM vs aftermarket. Always state make/model/year/engine. Use headers and bullets."
-    text, err = _call_claude(client, system, body.query or "What vehicle and question can I help with?")
+    q = body.query or ""
+    veh = find_vehicle(q)
+    kb = f" VERIFIED SPECS FOR THIS VEHICLE: {vehicle_context(veh)}. Use these exact figures." if veh else ""
+    system = f"Vehicle technical assistant for an auto shop. Shop: {_shop_ctx(profile)}.{kb} Answer questions on maintenance intervals, torque specs (always ft-lb/in-lb), fluids, TSBs, diagnostics. Use headers and bullets. Be concise."
+    text, err = _call_claude(client, system, q or "What vehicle and question can I help with?")
     if err: return _err(err)
     return _ok(text, "componentcare_answer")
 
@@ -177,8 +191,12 @@ def fleetmaint(body: QueryRequest):
     profile = _load_profile()
     client, err = _get_client()
     if err: return _err(err)
-    system = f"Fleet maintenance advisor. Shop: {_shop_ctx(profile)}. Given vehicle/fleet info, provide: PREDICTIVE ALERTS (overdue/due soon), 6-MONTH SCHEDULE (month-by-month with mileage triggers), COST FORECAST (parts+labor), PRIORITY ORDER (Safety Critical→Revenue→Reliability→Convenience). Be practical."
-    text, err = _call_claude(client, system, body.query or "Describe the vehicle or fleet (year/make/model/mileage/usage).")
+    q = body.query or ""
+    veh = find_vehicle(q)
+    kb = f" VEHICLE SPECS: {vehicle_context(veh)}." if veh else ""
+    prices = f" PRICE GUIDE: {price_context()}."
+    system = f"Fleet maintenance advisor. Shop: {_shop_ctx(profile)}.{kb}{prices} Provide: PREDICTIVE ALERTS, 6-MONTH SCHEDULE (month-by-month), COST FORECAST, PRIORITY ORDER (Safety Critical→Revenue→Reliability→Convenience)."
+    text, err = _call_claude(client, system, q or "Describe the vehicle or fleet (year/make/model/mileage/usage).")
     if err: return _err(err)
     return _ok(text, "fleet_maintenance_plan")
 
@@ -188,8 +206,11 @@ def prev_advisor(body: QueryRequest):
     profile = _load_profile()
     client, err = _get_client()
     if err: return _err(err)
-    system = f"Preventive maintenance advisor. Shop: {_shop_ctx(profile)}. Given vehicle info, output: IMMEDIATE (overdue/urgent), UPCOMING (due within 3k miles/3 months), LONG-TERM (6-12 month outlook), INSPECTION CHECKLIST. Use OEM schedules. Flag severe-duty conditions (towing, extreme temps, short trips)."
-    text, err = _call_claude(client, system, body.query or "Describe the vehicle (year/make/model/mileage) and service history.")
+    q = body.query or ""
+    veh = find_vehicle(q)
+    kb = f" OEM INTERVALS FROM KB: {vehicle_context(veh)}." if veh else ""
+    system = f"Preventive maintenance advisor. Shop: {_shop_ctx(profile)}.{kb} Output: IMMEDIATE (overdue/urgent), UPCOMING (due within 3k mi/3 months), LONG-TERM (6-12 months), INSPECTION CHECKLIST. Flag severe-duty conditions."
+    text, err = _call_claude(client, system, q or "Describe the vehicle (year/make/model/mileage) and service history.")
     if err: return _err(err)
     return _ok(text, "preventive_maintenance_checklist")
 
@@ -260,6 +281,6 @@ def blog_post(body: BlogRequest):
     shop_name = profile.get("shop_name", "our shop")
     system = f"SEO blog writer for auto shop ({shop_name}). Shop: {_shop_ctx(profile)}. Audience: {body.audience}. Conversational but authoritative. Structure: meta title, meta description, H1, intro, 3 H2 sections, conclusion with soft CTA. No fabricated stats."
     user = f"Write a ~{body.length}-word post: {body.topic or 'auto maintenance tips'}" + (f"\nKeywords: {body.keywords}" if body.keywords else "")
-    text, err = _call_claude(client, system, user, max_tokens=1800)
+    text, err = _call_claude(client, system, user, max_tokens=2200)
     if err: return _err(err)
     return _ok(text, "blog_post")
