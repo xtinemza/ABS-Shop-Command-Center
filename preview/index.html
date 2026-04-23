@@ -30,6 +30,11 @@ import{createRoot}from'https://esm.sh/react-dom@18/client';
 import htm from'https://esm.sh/htm@3';
 const html=htm.bind(React.createElement);
 import React from'https://esm.sh/react@18';
+import{createClient}from'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPA_URL='https://hnaivutukaciupcowxlr.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhuYWl2dXR1a2FjaXVwY293eGxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDM0ODAsImV4cCI6MjA5MjQ3OTQ4MH0.Qf3L5J3qTtFs4B5ljzmfVPe817dYDmKtWg_70XdrzgI';
+const supabase=createClient(SUPA_URL,SUPA_KEY);
 
 const G='#D4A017';
 const API = window.__BACKEND_URL__
@@ -1805,6 +1810,107 @@ function ComponentCarePanel({onBack}){
   </div>`;
 }
 
+/* ── AUTH PAGE ── */
+function AuthPage({onAuth}){
+  const[tab,sTab]=useState('signin'); // 'signin'|'signup'
+  const[email,sEmail]=useState('');
+  const[pass,sPass]=useState('');
+  const[name,sName]=useState('');
+  const[loading,sLoading]=useState(false);
+  const[err,sErr]=useState('');
+  const[msg,sMsg]=useState('');
+
+  async function handleSignIn(e){
+    e.preventDefault();
+    sErr('');sLoading(true);
+    const{error}=await supabase.auth.signInWithPassword({email,password:pass});
+    sLoading(false);
+    if(error)sErr(error.message);
+  }
+
+  async function handleSignUp(e){
+    e.preventDefault();
+    sErr('');sLoading(true);
+    const{error}=await supabase.auth.signUp({
+      email,password:pass,
+      options:{data:{full_name:name}}
+    });
+    sLoading(false);
+    if(error)sErr(error.message);
+    else sMsg('Account created! Check your email to confirm, or sign in if confirmation is disabled.');
+  }
+
+  const inputStyle={background:'#111113',border:'1px solid #2A2A2E',borderRadius:4,color:'#E0E0E0',padding:'12px 14px',fontSize:14,width:'100%',outline:'none',fontFamily:"'Barlow',sans-serif",transition:'border-color .2s'};
+  const btnStyle={width:'100%',padding:'13px',background:G,color:'#000',border:'none',borderRadius:4,fontSize:14,fontWeight:800,letterSpacing:'0.06em',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Barlow',sans-serif",marginTop:6};
+  const tabBtn=(t)=>({padding:'11px 28px',border:'none',borderBottom:tab===t?`2px solid ${G}`:'2px solid transparent',background:'transparent',color:tab===t?G:'#555',fontSize:12,fontWeight:800,letterSpacing:'0.1em',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Barlow',sans-serif",transition:'all .2s'});
+
+  return html`
+    <div style=${{minHeight:'100vh',background:'#0B0B0D',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24}}>
+      <div style=${{height:3,background:`linear-gradient(90deg,transparent,${G},transparent)`,position:'fixed',top:0,left:0,right:0}}/>
+
+      <div style=${{marginBottom:36,textAlign:'center'}}>
+        <div style=${{display:'flex',alignItems:'center',gap:12,justifyContent:'center',marginBottom:12}}>
+          <div style=${{width:46,height:46,borderRadius:4,background:'linear-gradient(135deg,#18180B,#0F0F0A)',border:`2px solid ${G}55`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:22}}>⚙️</div>
+          <div>
+            <h1 style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:28,color:'#F2F2F4',textTransform:'uppercase',letterSpacing:'0.03em',lineHeight:1,margin:0}}>Shop Command Center</h1>
+            <p style=${{fontSize:10,color:G,fontWeight:700,letterSpacing:'0.18em',textTransform:'uppercase',margin:'5px 0 0'}}>AI-Powered Operations Suite</p>
+          </div>
+        </div>
+        <p style=${{fontSize:13,color:'#555',marginTop:4}}>Sign in to access your shop's operations dashboard</p>
+      </div>
+
+      <div style=${{width:'100%',maxWidth:420,background:'#111113',border:'1px solid #1E1E22',borderRadius:8,overflow:'hidden'}}>
+        <div style=${{display:'flex',borderBottom:'1px solid #1E1E22'}}>
+          <button style=${tabBtn('signin')} onClick=${()=>{sTab('signin');sErr('');sMsg('');}}>Sign In</button>
+          <button style=${tabBtn('signup')} onClick=${()=>{sTab('signup');sErr('');sMsg('');}}>Create Account</button>
+        </div>
+
+        <div style=${{padding:32}}>
+          ${err&&html`<div style=${{background:'#1A0808',border:'1px solid #4A1A1A',borderRadius:4,padding:'10px 14px',marginBottom:16,color:'#E05555',fontSize:13}}>${err}</div>`}
+          ${msg&&html`<div style=${{background:'#0A1A0A',border:'1px solid #1A4A1A',borderRadius:4,padding:'10px 14px',marginBottom:16,color:'#55BB55',fontSize:13}}>${msg}</div>`}
+
+          ${tab==='signin'?html`
+            <form onSubmit=${handleSignIn} style=${{display:'flex',flexDirection:'column',gap:14}}>
+              <div>
+                <label style=${{fontSize:11,color:'#666',fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',display:'block',marginBottom:6}}>Email</label>
+                <input type="email" value=${email} onInput=${e=>sEmail(e.target.value)} placeholder="you@example.com" required style=${inputStyle}/>
+              </div>
+              <div>
+                <label style=${{fontSize:11,color:'#666',fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',display:'block',marginBottom:6}}>Password</label>
+                <input type="password" value=${pass} onInput=${e=>sPass(e.target.value)} placeholder="••••••••" required style=${inputStyle}/>
+              </div>
+              <button type="submit" disabled=${loading} style=${btnStyle}>
+                ${loading?'Signing in…':'Sign In'}
+              </button>
+            </form>
+          `:html`
+            <form onSubmit=${handleSignUp} style=${{display:'flex',flexDirection:'column',gap:14}}>
+              <div>
+                <label style=${{fontSize:11,color:'#666',fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',display:'block',marginBottom:6}}>Full Name</label>
+                <input type="text" value=${name} onInput=${e=>sName(e.target.value)} placeholder="Jane Smith" style=${inputStyle}/>
+              </div>
+              <div>
+                <label style=${{fontSize:11,color:'#666',fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',display:'block',marginBottom:6}}>Email</label>
+                <input type="email" value=${email} onInput=${e=>sEmail(e.target.value)} placeholder="you@example.com" required style=${inputStyle}/>
+              </div>
+              <div>
+                <label style=${{fontSize:11,color:'#666',fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',display:'block',marginBottom:6}}>Password (min 6 chars)</label>
+                <input type="password" value=${pass} onInput=${e=>sPass(e.target.value)} placeholder="••••••••" required minLength="6" style=${inputStyle}/>
+              </div>
+              <button type="submit" disabled=${loading} style=${btnStyle}>
+                ${loading?'Creating account…':'Create Account'}
+              </button>
+            </form>
+          `}
+        </div>
+      </div>
+
+      <p style=${{marginTop:20,fontSize:11,color:'#333',textAlign:'center'}}>
+        Powered by <span style=${{color:G,fontWeight:700}}>AmericasBestShops.com</span>
+      </p>
+    </div>`;
+}
+
 /* ── APP ── */
 function App(){
   const[cat,sCat]=useState('all');
@@ -1813,11 +1919,30 @@ function App(){
   const[ready,sReady]=useState(false);
   const[setup,sSetup]=useState(false);
   const[view,sView]=useState('modules'); // 'modules' | 'profile'
+  const[session,sSession]=useState(undefined); // undefined=loading, null=no session, obj=logged in
 
   useEffect(()=>{
+    // Check existing session
+    supabase.auth.getSession().then(({data:{session}})=>sSession(session??null));
+    // Listen for auth changes
+    const{data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>sSession(session??null));
     setTimeout(()=>sReady(true),50);
     fetch(`${API}/api/health`).then(r=>r.json()).then(d=>{if(!d.setup_complete)sSetup(true);}).catch(()=>{});
+    return()=>subscription.unsubscribe();
   },[]);
+
+  // Still checking session
+  if(session===undefined) return html`<div style=${{minHeight:'100vh',background:'#0B0B0D',display:'flex',alignItems:'center',justifyContent:'center'}}>
+    <div style=${{width:36,height:36,border:`3px solid ${G}`,borderTopColor:'transparent',borderRadius:'50%',animation:'spin 0.7s linear infinite'}}/>
+    <style>${'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
+  </div>`;
+
+  // Not logged in
+  if(!session) return html`<${AuthPage}/>`;
+
+  async function handleLogout(){
+    await supabase.auth.signOut();
+  }
 
   const list=MODULES.filter(m=>cat==='all'||m.cat===cat);
   const core=list.filter(m=>m.status==='core');
@@ -1844,13 +1969,18 @@ function App(){
             <p style=${{fontSize:11,color:G,fontWeight:700,letterSpacing:'0.18em',textTransform:'uppercase',margin:'5px 0 0'}}>AI-Powered Operations Suite</p>
           </div>
         </div>
-        <div style=${{display:'flex',gap:16,marginBottom:4}}>
+        <div style=${{display:'flex',gap:16,marginBottom:4,alignItems:'center'}}>
           ${[{n:'20',l:'Core'},{n:'6',l:'Suggested'},{n:'7',l:'Categories'}].map((s,i)=>html`
             <div key=${i} style=${{textAlign:'center',padding:'8px 18px',background:'#0E0E10',border:'1px solid #1C1C20',borderRadius:3}}>
               <div style=${{fontFamily:"'Barlow Condensed',sans-serif",fontSize:26,fontWeight:800,color:G,lineHeight:1}}>${s.n}</div>
               <div style=${{fontSize:9,color:'#555',fontWeight:700,letterSpacing:'0.1em',marginTop:3,textTransform:'uppercase'}}>${s.l}</div>
             </div>
           `)}
+          <button onClick=${handleLogout} title="Sign out" style=${{padding:'8px 14px',background:'#161618',border:'1px solid #2A2A2E',borderRadius:4,color:'#666',fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Barlow',sans-serif",display:'flex',alignItems:'center',gap:6,transition:'all .2s'}}
+            onMouseEnter=${e=>{e.currentTarget.style.color='#E05555';e.currentTarget.style.borderColor='#4A1A1A';}}
+            onMouseLeave=${e=>{e.currentTarget.style.color='#666';e.currentTarget.style.borderColor='#2A2A2E';}}>
+            <span>⎋</span> Sign Out
+          </button>
         </div>
       </div>
 
