@@ -1683,7 +1683,7 @@ const KB_VEHICLES=[
 ];
 
 function ComponentCarePanel({onBack}){
-  const[kbTab,sKbTab]=useState('vehicles'); // 'vehicles' | 'prices'
+  const[kbTab,sKbTab]=useState('vehicles'); // 'vehicles' | 'prices' | 'marketing'
   const[search,sSearch]=useState('');
   const[makeFilter,sMakeFilter]=useState('ALL');
   const[selected,sSelected]=useState(null);
@@ -1692,6 +1692,7 @@ function ComponentCarePanel({onBack}){
   const[priceRows,sPriceRows]=useState([]);
   const[priceUploading,sPriceUploading]=useState(false);
   const[priceMsg,sPriceMsg]=useState('');
+  const[mktTemplates,sMktTemplates]=useState({social:[],cta:[],promo:[]});
 
   useEffect(()=>{
     fetch(`${API}/api/knowledge-base/learned`)
@@ -1722,9 +1723,12 @@ function ComponentCarePanel({onBack}){
         });
         sLearned(transformed);
       }).catch(()=>{});
-    // Also load any uploaded parts & prices
+    // Load uploaded parts & prices
     fetch(`${API}/api/knowledge-base/parts-prices`)
       .then(r=>r.json()).then(d=>{if(d.success)sPriceRows(d.rows||[]);}).catch(()=>{});
+    // Load marketing template list
+    fetch(`${API}/api/knowledge-base/marketing-templates`)
+      .then(r=>r.json()).then(d=>{if(d.success)sMktTemplates({social:d.social||[],cta:d.cta||[],promo:d.promo||[]});}).catch(()=>{});
   },[]);
 
   async function handlePriceUpload(e){
@@ -1785,7 +1789,7 @@ function ComponentCarePanel({onBack}){
       </div>
       <!-- Tab switcher -->
       <div style=${{display:'flex',gap:4,marginLeft:24}}>
-        ${[{id:'vehicles',label:'🚗 Vehicles'},{id:'prices',label:'💰 Parts & Prices'}].map(t=>html`
+        ${[{id:'vehicles',label:'🚗 Vehicles'},{id:'prices',label:'💰 Parts & Prices'},{id:'marketing',label:'📣 Marketing'}].map(t=>html`
           <button key=${t.id} onClick=${()=>sKbTab(t.id)}
             style=${{padding:'6px 14px',borderRadius:3,border:`1px solid ${kbTab===t.id?G+'66':'#222'}`,background:kbTab===t.id?`${G}18`:'transparent',color:kbTab===t.id?G:'#555',fontSize:11,fontWeight:800,letterSpacing:'0.06em',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Barlow',sans-serif",transition:'all .15s'}}>
             ${t.label}
@@ -1870,6 +1874,46 @@ function ComponentCarePanel({onBack}){
               ${priceRows.length} items · AI repair estimates will use these prices instead of generic ranges
             </div>
           `}
+        </div>
+      `}
+
+      ${kbTab==='marketing'&&html`
+        <!-- ── MARKETING TEMPLATES PANEL ── -->
+        <div style=${{flex:1,overflowY:'auto',padding:'32px 40px'}}>
+          <div style=${{marginBottom:28}}>
+            <div style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:20,color:'#F0F0F2',textTransform:'uppercase',marginBottom:4}}>Marketing Templates</div>
+            <div style=${{fontSize:12,color:'#555',maxWidth:600}}>Pre-written content for the most common auto services. These run instantly with zero AI credits — your shop info is filled in automatically. Only unknown services use AI.</div>
+          </div>
+
+          ${[
+            {label:'📸 Social Media Posts',color:'#1A6A3A',border:'#1A4A2A',items:mktTemplates.social,note:'Instagram · Facebook · Google Business'},
+            {label:'🎯 CTA Copy',color:'#1A3A6A',border:'#1A2A4A',items:mktTemplates.cta,note:'Button · Headline · Email · SMS'},
+            {label:'🎉 Promo Builder',color:'#5A3A1A',border:'#3A2A1A',items:mktTemplates.promo,note:'SMS · Email · Social Media'},
+          ].map((section,si)=>html`
+            <div key=${si} style=${{marginBottom:28}}>
+              <div style=${{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
+                <div style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:15,color:'#D0D0D4',textTransform:'uppercase',letterSpacing:'0.06em'}}>${section.label}</div>
+                <div style=${{fontSize:10,color:'#444',fontWeight:600}}>${section.note}</div>
+                <div style=${{marginLeft:'auto',fontSize:10,color:G,fontWeight:700}}>${section.items.length} templates</div>
+              </div>
+              <div style=${{display:'flex',flexWrap:'wrap',gap:8}}>
+                ${section.items.map((svc,i)=>html`
+                  <div key=${i} style=${{padding:'6px 14px',borderRadius:3,background:`${section.color}22`,border:`1px solid ${section.border}`,fontSize:12,color:'#AAA',fontWeight:600,textTransform:'capitalize'}}>
+                    ✅ ${svc.replace(/_/g,' ')}
+                  </div>
+                `)}
+              </div>
+            </div>
+          `)}
+
+          <div style=${{marginTop:12,padding:'16px 20px',borderRadius:4,background:'#0D0D0F',border:'1px solid #1A1A1E'}}>
+            <div style=${{fontSize:12,color:G,fontWeight:700,marginBottom:6}}>💡 How it works</div>
+            <div style=${{fontSize:12,color:'#555',lineHeight:1.7}}>
+              When a shop owner generates a social post, CTA, or promo — the system checks if the service type matches one of the templates above.
+              If it does, content is generated instantly using your shop name and phone number. No API call, no credits used.
+              Only truly custom requests (unusual services, unique platforms) fall through to AI.
+            </div>
+          </div>
         </div>
       `}
 

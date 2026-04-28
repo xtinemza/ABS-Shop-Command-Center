@@ -20,6 +20,9 @@ _BACKEND = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if _BACKEND not in sys.path:
     sys.path.insert(0, _BACKEND)
 from knowledge_base import find_vehicle, vehicle_context, price_context, VEHICLES as _STATIC_VEHICLES
+from marketing_templates import (find_social, find_cta, find_promo,
+                                  _fill, _hashtag, SOCIAL, CTA, PROMO,
+                                  SOCIAL_SERVICES, CTA_GOALS, PROMO_SERVICES)
 
 # ── Persistent paths ─────────────────────────────────────────────────────────
 _LEARNED_PATH = os.path.join(_DATA_DIR, "learned_vehicles.json")
@@ -247,6 +250,17 @@ async def upload_parts_prices(file: UploadFile = File(...)):
         return {"success": False, "error": str(e)}
 
 
+@router.get("/knowledge-base/marketing-templates")
+def get_marketing_templates():
+    """Return available template service types for display in the KB panel."""
+    return {
+        "success": True,
+        "social":  SOCIAL_SERVICES,
+        "cta":     CTA_GOALS,
+        "promo":   PROMO_SERVICES,
+    }
+
+
 @router.delete("/knowledge-base/parts-prices")
 def clear_parts_prices():
     """Remove the uploaded parts & prices list."""
@@ -399,12 +413,33 @@ def enviromaint(body: QueryRequest):
 @router.post("/social-media/generate")
 def social_media(body: SocialMediaRequest):
     profile = _load_profile()
+    shop_name = profile.get("shop_name", "our shop")
+    phone     = profile.get("phone", "")
+    tag       = _hashtag(shop_name)
+    promo_line = f"💥 {body.promo}\n\n" if body.promo else ""
+    kw = dict(shop_name=shop_name, phone=phone, hashtag=tag, promo_line=promo_line)
+
+    # ── Try template first ──────────────────────────────────────────────────
+    tmpl = find_social(body.service_type or "") or SOCIAL["general"]
+    want = (body.platform or "all").lower()
+    parts = []
+    if want in ("all", "instagram")       and "instagram" in tmpl:
+        parts.append(f"📸 INSTAGRAM\n\n{_fill(tmpl['instagram'], **kw)}")
+    if want in ("all", "facebook")        and "facebook"  in tmpl:
+        parts.append(f"👍 FACEBOOK\n\n{_fill(tmpl['facebook'], **kw)}")
+    if want in ("all", "google", "google business") and "google" in tmpl:
+        parts.append(f"🔍 GOOGLE BUSINESS\n\n{_fill(tmpl['google'], **kw)}")
+    if parts:
+        return _ok("\n\n─────────────────────\n\n".join(parts), "social_media_posts")
+
+    # ── Fall back to AI for unusual platform or highly custom request ───────
     client, err = _get_client()
     if err: return _err(err)
-    shop_name = profile.get("shop_name", "our shop")
-    phone = profile.get("phone", "")
     platforms = body.platform if body.platform != "all" else "Facebook, Instagram, Google Business"
-    system = f"Social media copywriter for auto repair shop. Shop: {_shop_ctx(profile)}. Tone: {body.tone}. Local, authentic, never corporate. Include shop name ({shop_name}) and phone ({phone}) naturally. Instagram: <150 words + hashtags. Facebook: <200 words. Google Business: 1-2 sentences. Label each platform."
+    system = (f"Social media copywriter for auto repair shop. Shop: {_shop_ctx(profile)}. "
+              f"Tone: {body.tone}. Local, authentic, never corporate. "
+              f"Include shop name ({shop_name}) and phone ({phone}) naturally. "
+              "Instagram: <150 words + hashtags. Facebook: <200 words. Google Business: 1-2 sentences. Label each platform.")
     user = f"Platform(s): {platforms}\nService/Topic: {body.service_type or 'general update'}" + (f"\nPromo: {body.promo}" if body.promo else "")
     text, err = _call_claude(client, system, user)
     if err: return _err(err)
@@ -414,12 +449,31 @@ def social_media(body: SocialMediaRequest):
 @router.post("/cta-copy/generate")
 def cta_copy(body: CTACopyRequest):
     profile = _load_profile()
+    shop_name = profile.get("shop_name", "us")
+    phone     = profile.get("phone", "")
+    kw = dict(shop_name=shop_name, phone=phone, service=body.service_type or "auto repair")
+
+    # ── Try template first ──────────────────────────────────────────────────
+    tmpl = find_cta(body.goal or "") or CTA["general"]
+    want = (body.format or "all").lower()
+    parts = []
+    if want in ("all", "button", "button text"):
+        parts.append(f"BUTTON TEXT\n{_fill(tmpl['button'], **kw)}")
+    if want in ("all", "headline", "page headline"):
+        parts.append(f"PAGE HEADLINE\n{_fill(tmpl['headline'], **kw)}")
+    if want in ("all", "email", "email cta", "email cta line"):
+        parts.append(f"EMAIL CTA\n{_fill(tmpl['email'], **kw)}")
+    if want in ("all", "sms", "sms cta"):
+        parts.append(f"SMS CTA\n{_fill(tmpl['sms'], **kw)}")
+    if parts:
+        return _ok("\n\n".join(parts), "cta_copy")
+
+    # ── Fall back to AI for custom format requests ──────────────────────────
     client, err = _get_client()
     if err: return _err(err)
-    shop_name = profile.get("shop_name", "us")
-    phone = profile.get("phone", "")
     formats = body.format if body.format != "all" else "Button text, Page headline, Email CTA, SMS CTA (<30 chars)"
-    system = f"Conversion copywriter for auto shop. Shop: {_shop_ctx(profile)}. Direct, action-oriented CTAs. Use shop name ({shop_name}) and phone ({phone}). Label each format."
+    system = (f"Conversion copywriter for auto shop. Shop: {_shop_ctx(profile)}. "
+              f"Direct, action-oriented CTAs. Use shop name ({shop_name}) and phone ({phone}). Label each format.")
     user = f"Formats: {formats}\nService: {body.service_type or 'auto repair'}\nGoal: {body.goal}\nUrgency: {body.urgency}"
     text, err = _call_claude(client, system, user)
     if err: return _err(err)
@@ -429,13 +483,34 @@ def cta_copy(body: CTACopyRequest):
 @router.post("/promo-builder/generate")
 def promo_builder(body: PromoRequest):
     profile = _load_profile()
+    shop_name = profile.get("shop_name", "our shop")
+    phone     = profile.get("phone", "")
+    offer     = body.offer or "special offer"
+    expiry    = body.expiry or "limited time"
+    kw = dict(shop_name=shop_name, phone=phone, offer=offer, expiry=expiry)
+
+    # ── Try template first (promo always has a general fallback) ────────────
+    tmpl = find_promo(body.service_type or "", body.offer or "") or PROMO["general"]
+    want = (body.channels or "all").lower()
+    parts = []
+    if want in ("all", "sms"):
+        parts.append(f"SMS (under 160 chars)\n{_fill(tmpl['sms'], **kw)}")
+    if want in ("all", "email"):
+        subj = _fill(tmpl["email_subject"], **kw)
+        body_text = _fill(tmpl["email_body"], **kw)
+        parts.append(f"EMAIL\nSubject: {subj}\n\n{body_text}")
+    if want in ("all", "social", "social media"):
+        parts.append(f"SOCIAL MEDIA\n{_fill(tmpl['social'], **kw)}")
+    if parts:
+        return _ok("\n\n─────────────────────\n\n".join(parts), "promo_content")
+
+    # ── Fall back to AI for unusual channel combos ──────────────────────────
     client, err = _get_client()
     if err: return _err(err)
-    shop_name = profile.get("shop_name", "our shop")
-    phone = profile.get("phone", "")
     channels_label = body.channels if body.channels != "all" else "SMS (<160 chars), Email (subject + body), Social Media caption"
-    system = f"Promo copywriter for auto shop. Shop: {_shop_ctx(profile)}. Urgency without pushiness. Always include: {shop_name}, {phone}, expiry. Label each channel."
-    user = f"Offer: {body.offer or 'seasonal discount'}\nService: {body.service_type or 'general'}\nExpiry: {body.expiry or 'limited time'}\nChannels: {channels_label}"
+    system = (f"Promo copywriter for auto shop. Shop: {_shop_ctx(profile)}. "
+              f"Urgency without pushiness. Always include: {shop_name}, {phone}, expiry. Label each channel.")
+    user = f"Offer: {offer}\nService: {body.service_type or 'general'}\nExpiry: {expiry}\nChannels: {channels_label}"
     text, err = _call_claude(client, system, user)
     if err: return _err(err)
     return _ok(text, "promo_content")
