@@ -1683,11 +1683,15 @@ const KB_VEHICLES=[
 ];
 
 function ComponentCarePanel({onBack}){
+  const[kbTab,sKbTab]=useState('vehicles'); // 'vehicles' | 'prices'
   const[search,sSearch]=useState('');
   const[makeFilter,sMakeFilter]=useState('ALL');
   const[selected,sSelected]=useState(null);
   const[specTab,sSpecTab]=useState('intervals');
   const[learnedVehicles,sLearned]=useState([]);
+  const[priceRows,sPriceRows]=useState([]);
+  const[priceUploading,sPriceUploading]=useState(false);
+  const[priceMsg,sPriceMsg]=useState('');
 
   useEffect(()=>{
     fetch(`${API}/api/knowledge-base/learned`)
@@ -1718,7 +1722,44 @@ function ComponentCarePanel({onBack}){
         });
         sLearned(transformed);
       }).catch(()=>{});
+    // Also load any uploaded parts & prices
+    fetch(`${API}/api/knowledge-base/parts-prices`)
+      .then(r=>r.json()).then(d=>{if(d.success)sPriceRows(d.rows||[]);}).catch(()=>{});
   },[]);
+
+  async function handlePriceUpload(e){
+    const file=e.target.files[0];
+    if(!file) return;
+    sPriceUploading(true); sPriceMsg('');
+    const fd=new FormData(); fd.append('file',file);
+    try{
+      const res=await fetch(`${API}/api/knowledge-base/parts-prices/upload`,{method:'POST',body:fd});
+      const d=await res.json();
+      if(d.success){
+        sPriceMsg(`✅ ${d.message}`);
+        const r=await fetch(`${API}/api/knowledge-base/parts-prices`);
+        const rd=await r.json();
+        if(rd.success) sPriceRows(rd.rows||[]);
+      } else {
+        sPriceMsg(`❌ ${d.error||'Upload failed'}`);
+      }
+    }catch(err){ sPriceMsg('❌ Could not reach server'); }
+    sPriceUploading(false);
+    e.target.value='';
+  }
+
+  async function handlePriceClear(){
+    if(!confirm('Remove all uploaded parts & prices?')) return;
+    await fetch(`${API}/api/knowledge-base/parts-prices`,{method:'DELETE'});
+    sPriceRows([]); sPriceMsg('Price list cleared.');
+  }
+
+  function downloadTemplate(){
+    const csv=`service,price,part_number,labor_hours,notes\nOil Change (Conventional),59.99,,0.5,\nOil Change (Full Synthetic),79.99,,0.5,\nOil Change (Diesel),94.99,,0.5,\nFront Brake Pads (per axle),189.00,BP-OEM-F,1.5,\nRear Brake Pads (per axle),169.00,BP-OEM-R,1.5,\nTire Rotation,29.99,,0.5,\nWheel Alignment,89.99,,1.0,\nCabin Air Filter,49.99,,0.3,\nEngine Air Filter,39.99,,0.3,\nBattery Replacement,189.00,,0.5,Includes installation\nSpark Plugs (4-cyl),149.00,,1.0,\nCoolant Flush,129.00,,1.0,\nBrake Fluid Flush,99.00,,0.5,\nTransmission Service,199.00,,1.5,\nAC Recharge,149.00,,0.5,`;
+    const a=document.createElement('a');
+    a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+    a.download='parts_prices_template.csv'; a.click();
+  }
 
   const allVehicles=[...KB_VEHICLES,...learnedVehicles];
   const makes=[...new Set(allVehicles.map(v=>v.make))];
@@ -1742,21 +1783,99 @@ function ComponentCarePanel({onBack}){
         <span style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:18,color:'#F0F0F2',textTransform:'uppercase'}}>ComponentCare</span>
         <span style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:600,fontSize:14,color:'#444',textTransform:'uppercase',marginLeft:8}}>Knowledge Base</span>
       </div>
+      <!-- Tab switcher -->
+      <div style=${{display:'flex',gap:4,marginLeft:24}}>
+        ${[{id:'vehicles',label:'🚗 Vehicles'},{id:'prices',label:'💰 Parts & Prices'}].map(t=>html`
+          <button key=${t.id} onClick=${()=>sKbTab(t.id)}
+            style=${{padding:'6px 14px',borderRadius:3,border:`1px solid ${kbTab===t.id?G+'66':'#222'}`,background:kbTab===t.id?`${G}18`:'transparent',color:kbTab===t.id?G:'#555',fontSize:11,fontWeight:800,letterSpacing:'0.06em',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Barlow',sans-serif",transition:'all .15s'}}>
+            ${t.label}
+          </button>
+        `)}
+      </div>
       <div style=${{marginLeft:'auto',display:'flex',gap:16,alignItems:'center'}}>
-        ${[{n:allVehicles.length,l:'Vehicles'},{n:totalProcs,l:'Procedures'},{n:totalIssues,l:'Issues Documented'}].map((s,i)=>html`
+        ${kbTab==='vehicles'&&[{n:allVehicles.length,l:'Vehicles'},{n:totalProcs,l:'Procedures'},{n:totalIssues,l:'Issues'}].map((s,i)=>html`
           <div key=${i} style=${{textAlign:'center'}}>
             <div style=${{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:800,color:G,lineHeight:1}}>${s.n}</div>
             <div style=${{fontSize:9,color:'#555',fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase'}}>${s.l}</div>
           </div>
         `)}
-        <button style=${{padding:'8px 16px',borderRadius:3,border:`1px solid ${G}66`,background:`linear-gradient(135deg,${G},${G}CC)`,color:'#0B0B0D',fontSize:11,fontWeight:800,letterSpacing:'0.08em',textTransform:'uppercase',fontFamily:"'Barlow',sans-serif"}}>+ ADD VEHICLE</button>
+        ${kbTab==='prices'&&html`
+          <div style=${{textAlign:'center'}}>
+            <div style=${{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:800,color:G,lineHeight:1}}>${priceRows.length}</div>
+            <div style=${{fontSize:9,color:'#555',fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase'}}>Items Loaded</div>
+          </div>
+        `}
       </div>
     </div>
 
     <!-- Body -->
     <div style=${{flex:1,display:'flex',overflow:'hidden'}}>
+
+      ${kbTab==='prices'&&html`
+        <!-- ── PARTS & PRICES PANEL ── -->
+        <div style=${{flex:1,overflowY:'auto',padding:'32px 40px'}}>
+          <!-- Upload row -->
+          <div style=${{display:'flex',alignItems:'center',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+            <div style=${{flex:1,minWidth:200}}>
+              <div style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontStyle:'italic',fontSize:20,color:'#F0F0F2',textTransform:'uppercase',marginBottom:4}}>Shop Parts & Prices</div>
+              <div style=${{fontSize:12,color:'#555'}}>Upload your own CSV to use real shop pricing in all AI estimates. Replaces generic price ranges.</div>
+            </div>
+            <button onClick=${downloadTemplate}
+              style=${{padding:'9px 16px',borderRadius:3,border:'1px solid #2A2A2E',background:'#111',color:'#888',fontSize:11,fontWeight:700,letterSpacing:'0.06em',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Barlow',sans-serif"}}>
+              ⬇ Download Template
+            </button>
+            <label style=${{padding:'9px 18px',borderRadius:3,border:`1px solid ${G}66`,background:`${G}18`,color:G,fontSize:11,fontWeight:800,letterSpacing:'0.06em',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Barlow',sans-serif"}}>
+              ${priceUploading?'Uploading…':'⬆ Upload CSV'}
+              <input type="file" accept=".csv" onChange=${handlePriceUpload} style=${{display:'none'}} disabled=${priceUploading}/>
+            </label>
+            ${priceRows.length>0&&html`
+              <button onClick=${handlePriceClear}
+                style=${{padding:'9px 14px',borderRadius:3,border:'1px solid #3A1A1A',background:'#1A0808',color:'#AA4444',fontSize:11,fontWeight:700,letterSpacing:'0.06em',textTransform:'uppercase',cursor:'pointer',fontFamily:"'Barlow',sans-serif"}}>
+                🗑 Clear All
+              </button>
+            `}
+          </div>
+
+          ${priceMsg&&html`
+            <div style=${{padding:'10px 14px',borderRadius:3,background:priceMsg.startsWith('✅')?'#0A1A0A':'#1A0808',border:`1px solid ${priceMsg.startsWith('✅')?'#1A4A1A':'#4A1A1A'}`,color:priceMsg.startsWith('✅')?'#55BB55':'#E05555',fontSize:12,marginBottom:16}}>${priceMsg}</div>
+          `}
+
+          ${priceRows.length===0?html`
+            <!-- Empty state -->
+            <div style=${{border:'2px dashed #1E1E22',borderRadius:6,padding:'60px 40px',textAlign:'center'}}>
+              <div style=${{fontSize:40,marginBottom:12}}>📋</div>
+              <div style=${{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:800,fontSize:16,color:'#444',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:8}}>No Price List Uploaded</div>
+              <div style=${{fontSize:12,color:'#333',marginBottom:20,maxWidth:400,margin:'0 auto 20px'}}>Upload a CSV with your shop's actual parts and labor prices. The AI will use your real rates for all repair estimates.</div>
+              <div style=${{fontSize:11,color:'#2A2A2E',fontFamily:"monospace"}}>Columns: service, price, part_number, labor_hours, notes</div>
+            </div>
+          `:html`
+            <!-- Price table -->
+            <div style=${{borderRadius:4,overflow:'hidden',border:'1px solid #1A1A1E'}}>
+              <div style=${{display:'grid',gridTemplateColumns:'2fr 1fr 1fr 1fr 2fr',background:'#0D0D0F',borderBottom:'1px solid #222',padding:'10px 16px',gap:8}}>
+                ${['Service / Part','Price','Part #','Labor Hrs','Notes'].map(h=>html`
+                  <div style=${{fontSize:9,color:'#555',fontWeight:800,letterSpacing:'0.1em',textTransform:'uppercase'}}>${h}</div>
+                `)}
+              </div>
+              ${priceRows.map((r,i)=>html`
+                <div key=${i} style=${{display:'grid',gridTemplateColumns:'2fr 1fr 1fr 1fr 2fr',padding:'10px 16px',gap:8,borderBottom:'1px solid #111',background:i%2===0?'transparent':'#0D0D0F0A',alignItems:'center'}}>
+                  <div style=${{fontSize:13,color:'#D0D0D4',fontWeight:600}}>${r.service}</div>
+                  <div style=${{fontSize:13,color:G,fontWeight:700}}>${r.price?`$${r.price}`:'-'}</div>
+                  <div style=${{fontSize:11,color:'#555',fontFamily:'monospace'}}>${r.part_number||'-'}</div>
+                  <div style=${{fontSize:11,color:'#555'}}>${r.labor_hours?`${r.labor_hours}h`:'-'}</div>
+                  <div style=${{fontSize:11,color:'#444'}}>${r.notes||''}</div>
+                </div>
+              `)}
+            </div>
+            <div style=${{marginTop:12,fontSize:11,color:'#333'}}>
+              ${priceRows.length} items · AI repair estimates will use these prices instead of generic ranges
+            </div>
+          `}
+        </div>
+      `}
+
+      ${kbTab==='vehicles'&&html`
       <!-- Left sidebar -->
-      <div style=${{width:280,borderRight:'1px solid #1A1A1E',display:'flex',flexDirection:'column',background:'#0D0D0F'}}>
+      <div style=${{width:280,borderRight:'1px solid #1A1A1E',display:'flex',flexDirection:'column',background:'#0D0D0F'}}>`}
         <div style=${{padding:'14px 16px',borderBottom:'1px solid #151518'}}>
           <input value=${search} onChange=${e=>sSearch(e.target.value)} placeholder="Search make, model, engine..."
             style=${{width:'100%',padding:'9px 12px',borderRadius:3,border:'1px solid #1A1A1E',background:'#111',color:'#CCC',fontSize:12,fontFamily:"'Barlow',sans-serif"}}/>
@@ -1842,6 +1961,9 @@ function ComponentCarePanel({onBack}){
           </div>
         `}
       </div>
+    </div>
+    `}
+
     </div>
   </div>`;
 }

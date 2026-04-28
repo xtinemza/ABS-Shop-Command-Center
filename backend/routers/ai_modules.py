@@ -2,6 +2,8 @@
 Router: AI-Powered Modules (Repair Intel + Marketing)
 Uses Claude API — requires ANTHROPIC_API_KEY env variable.
 """
+import csv
+import io
 import json
 import os
 import sys
@@ -10,7 +12,7 @@ import hashlib
 import time
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, UploadFile, File
 from pydantic import BaseModel
 
 # Import static knowledge base
@@ -19,8 +21,9 @@ if _BACKEND not in sys.path:
     sys.path.insert(0, _BACKEND)
 from knowledge_base import find_vehicle, vehicle_context, price_context, VEHICLES as _STATIC_VEHICLES
 
-# ── Learned vehicles (persistent on Render /data disk) ───────────────────────
+# ── Persistent paths ─────────────────────────────────────────────────────────
 _LEARNED_PATH = os.path.join(_DATA_DIR, "learned_vehicles.json")
+_PRICES_PATH  = os.path.join(_DATA_DIR, "parts_prices.json")
 
 def _load_learned() -> dict:
     try:
@@ -37,6 +40,34 @@ def _save_learned(key: str, data: dict):
     os.makedirs(os.path.dirname(_LEARNED_PATH), exist_ok=True)
     with open(_LEARNED_PATH, "w", encoding="utf-8") as f:
         json.dump(learned, f, indent=2)
+
+def _load_shop_prices() -> list:
+    try:
+        if os.path.exists(_PRICES_PATH):
+            with open(_PRICES_PATH, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return []
+
+def _prices_context() -> str:
+    """Shop-specific prices if uploaded, else fall back to generic KB ranges."""
+    rows = _load_shop_prices()
+    if rows:
+        items = []
+        for r in rows[:60]:                        # cap at 60 to stay token-lean
+            svc   = r.get("service", "")
+            price = r.get("price", "")
+            pn    = r.get("part_number", "")
+            if svc:
+                label = svc
+                if price:  label += f": ${price}"
+                if pn:     label += f" (P/N {pn})"
+                items.append(label)
+        if items:
+            return "SHOP PRICE LIST: " + " | ".join(items)
+    return f"PRICE GUIDE (general ranges): {price_context()}"
+
 
 def _find_vehicle_any(query: str) -> dict | None:
     """Check static KB first, then learned vehicles."""
@@ -177,6 +208,56 @@ def delete_learned_vehicle(key: str):
     return {"success": False, "error": "Vehicle not found"}
 
 
+@router.get("/knowledge-base/parts-prices")
+def get_parts_prices():
+    """Return the shop's uploaded parts & prices list."""
+    rows = _load_shop_prices()
+    return {"success": True, "rows": rows, "count": len(rows)}
+
+
+@router.post("/knowledge-base/parts-prices/upload")
+async def upload_parts_prices(file: UploadFile = File(...)):
+    """Accept a CSV upload, parse it, and save to /data/parts_prices.json."""
+    try:
+        raw = await file.read()
+        text = raw.decode("utf-8-sig")          # strip BOM if present
+        reader = csv.DictReader(io.StringIO(text))
+        rows = []
+        for row in reader:
+            norm = {k.lower().strip().replace(" ", "_"): (v or "").strip()
+                    for k, v in row.items()}
+            service = (norm.get("service") or norm.get("name") or
+                       norm.get("description") or norm.get("item") or "").strip()
+            if not service:
+                continue
+            rows.append({
+                "service":     service,
+                "price":       norm.get("price") or norm.get("total") or norm.get("amount") or "",
+                "part_number": norm.get("part_number") or norm.get("part#") or norm.get("sku") or "",
+                "labor_hours": norm.get("labor_hours") or norm.get("labor") or norm.get("hours") or "",
+                "part_cost":   norm.get("part_cost") or norm.get("parts_cost") or "",
+                "notes":       norm.get("notes") or norm.get("note") or "",
+            })
+        os.makedirs(os.path.dirname(_PRICES_PATH), exist_ok=True)
+        with open(_PRICES_PATH, "w", encoding="utf-8") as f:
+            json.dump(rows, f, indent=2)
+        return {"success": True, "count": len(rows),
+                "message": f"{len(rows)} items loaded from {file.filename}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@router.delete("/knowledge-base/parts-prices")
+def clear_parts_prices():
+    """Remove the uploaded parts & prices list."""
+    try:
+        if os.path.exists(_PRICES_PATH):
+            os.remove(_PRICES_PATH)
+        return {"success": True}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
 # ── Request models ───────────────────────────────────────────────────────────
 
 class QueryRequest(BaseModel):
@@ -217,7 +298,7 @@ def repair_auto(body: QueryRequest):
     q = body.query or ""
     veh = _find_vehicle_any(q)
     kb = f" VEHICLE SPECS FROM KB: {vehicle_context(veh)}." if veh else ""
-    prices = f" PRICE GUIDE: {price_context()}."
+    prices = f" {_prices_context()}."
     system = f"Auto repair estimator. Shop: {_shop_ctx(profile)}.{kb}{prices} Reply with 4 sections: DIAGNOSIS SUMMARY, RECOMMENDED SERVICES (part, cost, labor hrs at $120/hr), CUSTOMER EXPLANATION (plain language, risk of delay), URGENCY LEVEL (Safety Critical/High/Medium/Low + one reason). Use KB specs — do not fabricate part numbers."
     text, err = _call_claude(client, system, q or "Describe the vehicle (year/make/model/mileage) and complaint.")
     if err: return _err(err)
@@ -278,7 +359,7 @@ def fleetmaint(body: QueryRequest):
     q = body.query or ""
     veh = _find_vehicle_any(q)
     kb = f" VEHICLE SPECS: {vehicle_context(veh)}." if veh else ""
-    prices = f" PRICE GUIDE: {price_context()}."
+    prices = f" {_prices_context()}."
     system = f"Fleet maintenance advisor. Shop: {_shop_ctx(profile)}.{kb}{prices} Provide: PREDICTIVE ALERTS, 6-MONTH SCHEDULE (month-by-month), COST FORECAST, PRIORITY ORDER (Safety Critical→Revenue→Reliability→Convenience)."
     text, err = _call_claude(client, system, q or "Describe the vehicle or fleet (year/make/model/mileage/usage).")
     if err: return _err(err)
