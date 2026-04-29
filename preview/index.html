@@ -1919,7 +1919,7 @@ function ComponentCarePanel({onBack}){
 
       ${kbTab==='vehicles'&&html`
       <!-- Left sidebar -->
-      <div style=${{width:280,borderRight:'1px solid #1A1A1E',display:'flex',flexDirection:'column',background:'#0D0D0F'}}>`}
+      <div style=${{width:280,borderRight:'1px solid #1A1A1E',display:'flex',flexDirection:'column',background:'#0D0D0F'}}>
         <div style=${{padding:'14px 16px',borderBottom:'1px solid #151518'}}>
           <input value=${search} onChange=${e=>sSearch(e.target.value)} placeholder="Search make, model, engine..."
             style=${{width:'100%',padding:'9px 12px',borderRadius:3,border:'1px solid #1A1A1E',background:'#111',color:'#CCC',fontSize:12,fontFamily:"'Barlow',sans-serif"}}/>
@@ -2005,7 +2005,6 @@ function ComponentCarePanel({onBack}){
           </div>
         `}
       </div>
-    </div>
     `}
 
     </div>
@@ -2125,7 +2124,7 @@ function App(){
 
   // Auth listener — runs once on mount
   useEffect(()=>{
-    supabase.auth.getSession().then(({data:{session}})=>sSession(session??null));
+    supabase.auth.getSession().then(({data:{session}})=>sSession(session??null)).catch(()=>sSession(null));
     const{data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>sSession(session??null));
     return()=>subscription.unsubscribe();
   },[]);
