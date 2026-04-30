@@ -23,37 +23,42 @@ export default function App() {
   const [bootstrapped, setBootstrapped] = useState(false)
   const [editorOpen, setEditorOpen] = useState(false)
   const [sopEditorOpen, setSopEditorOpen] = useState(false)
+  const [profileEditorOpen, setProfileEditorOpen] = useState(false)
   const [session, setSession] = useState(null)
 
   useEffect(() => {
     async function init() {
-      // 1. Get auth session
       const { data: { session } } = await supabase.auth.getSession()
       setSession(session)
-
-      // Listen for auth changes
+      
       supabase.auth.onAuthStateChange((_event, session) => {
         setSession(session)
       })
-
-      // 2. Fetch profile from Supabase (will fail if not logged in, but we handle it)
-      if (session) {
-        try {
-          const p = await getProfile()
-          if (!p || Object.keys(p).length === 0 || !p.shop_name) {
-            setSetupNeeded(true)
-          } else {
-            setProfile(p)
-          }
-        } catch {
-          setSetupNeeded(true)
-        }
-      }
       setBootstrapped(true)
       setTimeout(() => setReady(true), 50)
     }
     init()
   }, [])
+
+  useEffect(() => {
+    async function fetchUserContext() {
+      if (session) {
+        try {
+          const res = await getProfile()
+          const p = res.profile || {}
+          if (!p || Object.keys(p).length === 0 || !p.shop_name) {
+            setSetupNeeded(true)
+          } else {
+            setProfile(p)
+            setSetupNeeded(false)
+          }
+        } catch {
+          setSetupNeeded(true)
+        }
+      }
+    }
+    fetchUserContext()
+  }, [session])
 
   const handleSetupComplete = async () => {
     setSetupNeeded(false)
@@ -91,8 +96,20 @@ export default function App() {
     return <Login />
   }
 
-  if (setupNeeded) {
-    return <SetupWizard onComplete={handleSetupComplete} />
+  if (setupNeeded || profileEditorOpen) {
+    return <SetupWizard 
+      existingProfile={profile}
+      onComplete={async () => {
+        setSetupNeeded(false)
+        setProfileEditorOpen(false)
+        try {
+          const res = await getProfile()
+          setProfile(res.profile || {})
+        } catch {}
+        setTimeout(() => setReady(true), 50)
+      }} 
+      onCancel={profileEditorOpen ? () => setProfileEditorOpen(false) : undefined}
+    />
   }
 
   if (panelOpen && selected) {
@@ -112,6 +129,7 @@ export default function App() {
         profile={profile} 
         onEditPrices={() => setEditorOpen(true)} 
         onEditSops={() => setSopEditorOpen(true)}
+        onEditProfile={() => setProfileEditorOpen(true)}
       />
 
       <NavBar cat={cat} setCat={setCat} categoryMeta={categoryMeta} />

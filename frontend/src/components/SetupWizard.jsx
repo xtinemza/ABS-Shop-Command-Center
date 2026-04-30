@@ -32,22 +32,22 @@ function Field({ label, required, children }) {
   )
 }
 
-export default function SetupWizard({ onComplete }) {
+export default function SetupWizard({ onComplete, existingProfile, onCancel }) {
   const [form, setForm] = useState({
-    shop_name: "",
-    owner_name: "",
-    phone: "",
-    street: "",
-    city: "",
-    state: "",
-    zip: "",
-    hours: "",
-    services: "",
-    business_type: "",
-    website: "",
-    tagline: "",
-    tone: "Professional and friendly",
-    google_review_link: "",
+    shop_name: existingProfile?.shop_name || "",
+    owner_name: existingProfile?.owner_name || "",
+    phone: existingProfile?.phone || "",
+    street: existingProfile?.street || "",
+    city: existingProfile?.city || "",
+    state: existingProfile?.state || "",
+    zip: existingProfile?.zip || "",
+    hours: existingProfile?.hours || "",
+    services: existingProfile?.services ? (Array.isArray(existingProfile.services) ? existingProfile.services.join(", ") : existingProfile.services) : "",
+    business_type: existingProfile?.business_type || "",
+    website: existingProfile?.website || "",
+    tagline: existingProfile?.tagline || "",
+    tone: existingProfile?.tone || "Professional and friendly",
+    google_review_link: existingProfile?.google_review_link || "",
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -107,7 +107,7 @@ export default function SetupWizard({ onComplete }) {
                   lineHeight: 1, margin: 0,
                 }}>Shop Command Center</h1>
                 <p style={{ fontSize: 11, color: gold, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", margin: "4px 0 0" }}>
-                  First-Time Setup
+                  {existingProfile?.shop_name ? "Edit Shop Profile" : "First-Time Setup"}
                 </p>
               </div>
             </div>
@@ -205,18 +205,30 @@ export default function SetupWizard({ onComplete }) {
               <p style={{ fontSize: 12, color: "#E05252", marginBottom: 16, lineHeight: 1.5 }}>{error}</p>
             )}
 
-            <button type="submit" disabled={loading} style={{
-              width: "100%", marginTop: 8,
-              padding: "16px 0", borderRadius: 3,
-              border: `1px solid ${gold}66`,
-              background: loading ? `${gold}88` : `linear-gradient(135deg, ${gold}, ${gold}CC)`,
-              color: "#0B0B0D", fontSize: 13, fontWeight: 800,
-              cursor: loading ? "default" : "pointer",
-              fontFamily: "'Barlow Condensed', sans-serif",
-              letterSpacing: "0.12em", textTransform: "uppercase", fontStyle: "italic",
-            }}>
-              {loading ? "Setting Up..." : "Complete Setup →"}
-            </button>
+            <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+              {onCancel && (
+                <button type="button" onClick={onCancel} style={{
+                  flex: 1, padding: "16px 0", borderRadius: 3,
+                  border: "1px solid #333", background: "transparent", color: "#888",
+                  fontSize: 13, fontWeight: 800, cursor: "pointer",
+                  fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.12em",
+                  textTransform: "uppercase"
+                }}>
+                  Cancel
+                </button>
+              )}
+              <button type="submit" disabled={loading} style={{
+                flex: 2, padding: "16px 0", borderRadius: 3,
+                border: `1px solid ${gold}66`,
+                background: loading ? `${gold}88` : `linear-gradient(135deg, ${gold}, ${gold}CC)`,
+                color: "#0B0B0D", fontSize: 13, fontWeight: 800,
+                cursor: loading ? "default" : "pointer",
+                fontFamily: "'Barlow Condensed', sans-serif",
+                letterSpacing: "0.12em", textTransform: "uppercase", fontStyle: "italic",
+              }}>
+                {loading ? "Saving..." : (existingProfile?.shop_name ? "Save Changes →" : "Complete Setup →")}
+              </button>
+            </div>
           </form>
         </div>
       </div>

@@ -1,6 +1,6 @@
 const gold = "#D4A017"
 
-export default function Header({ profile, onEditPrices, onEditSops }) {
+export default function Header({ profile, onEditPrices, onEditSops, onEditProfile }) {
   const name = profile?.shop_name || "Shop Command Center"
   const tag = profile?.tagline || "Professional Auto Care"
   return (
@@ -81,6 +81,15 @@ export default function Header({ profile, onEditPrices, onEditSops }) {
                 textTransform: "uppercase"
               }}>
                 ⚙️ EDIT PRICES
+              </button>
+              <button onClick={onEditProfile} style={{
+                background: "transparent", border: `1px solid ${gold}44`,
+                color: gold, padding: "8px 16px", borderRadius: 3,
+                fontSize: 11, fontWeight: 700, cursor: "pointer",
+                fontFamily: "'Barlow', sans-serif", letterSpacing: "0.08em",
+                textTransform: "uppercase"
+              }}>
+                🏢 EDIT PROFILE
               </button>
             </div>
             {[{ n: "13", l: "Core" }, { n: "4", l: "Suggested" }, { n: "5", l: "Categories" }].map((s, i) => (
