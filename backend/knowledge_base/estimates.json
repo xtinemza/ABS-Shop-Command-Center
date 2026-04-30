@@ -1,0 +1,75 @@
+{
+  "_description": "Repair Estimate Narrator — labor rates, markup tiers, narrative tone rules, plain-language translations",
+
+  "labor_rates": {
+    "independent_shop_range": "$95–$145/hr",
+    "dealership_range": "$150–$200/hr",
+    "default_rate_for_estimates": "$120/hr",
+    "note": "Use the shop's actual labor rate if available in shop_profile.json."
+  },
+
+  "parts_markup": {
+    "standard_pct": 30,
+    "high_demand_pct": 40,
+    "oem_parts_pct": 25,
+    "aftermarket_parts_pct": 35,
+    "note": "Markup is applied to shop cost. Show customer the final price, not the markup."
+  },
+
+  "urgency_classification": {
+    "safety_critical": {
+      "color_code": "red",
+      "label": "Safety Critical — Do Not Delay",
+      "examples": ["brake failure", "steering component", "tire below 2/32 tread", "wheel bearing"]
+    },
+    "high": {
+      "color_code": "orange",
+      "label": "High Priority — Repair Within 30 Days",
+      "examples": ["coolant leak", "oil leak", "check engine light", "timing belt near interval"]
+    },
+    "medium": {
+      "color_code": "yellow",
+      "label": "Schedule Soon — Within 60–90 Days",
+      "examples": ["air filters", "spark plugs due", "transmission service", "wiper blades"]
+    },
+    "maintenance": {
+      "color_code": "green",
+      "label": "Routine Maintenance — Schedule at Next Visit",
+      "examples": ["cabin air filter", "tire rotation", "fluid top-offs"]
+    }
+  },
+
+  "plain_language_translations": {
+    "caliper": "the part that squeezes your brake pads against the rotor to stop the car",
+    "rotor": "the metal disc your brakes clamp onto to slow the vehicle",
+    "CV axle": "the shaft that sends power from the engine to your wheels — it lets the wheel move up/down while still spinning",
+    "wheel bearing": "a set of steel balls that help your wheel spin smoothly — worn bearings cause a grinding or humming noise",
+    "strut": "a combined shock absorber and structural support for your front suspension — controls ride and handling",
+    "tie rod": "connects your steering wheel to your tires — worn tie rods cause loose or wandering steering",
+    "sway bar link": "keeps your car from leaning too much in corners — worn links cause clunking over bumps",
+    "timing belt": "a rubber belt that keeps your engine's valves and pistons moving in sync — if it breaks, engine damage can occur",
+    "serpentine belt": "a single belt that drives your alternator, AC, and power steering — if it snaps, the car breaks down",
+    "alternator": "charges your battery while the car runs — a failing alternator means your battery will eventually die while driving",
+    "O2 sensor": "measures exhaust gases to help the engine use fuel efficiently — a bad sensor hurts mpg and can trigger the check engine light",
+    "EGR valve": "recirculates exhaust gases to reduce emissions — a clogged EGR causes rough idle and poor performance",
+    "coolant flush": "replaces the antifreeze in your cooling system — old coolant becomes acidic and can corrode your radiator and hoses",
+    "differential fluid": "lubricates the gears that allow your wheels to turn at different speeds (important for turns and 4WD)"
+  },
+
+  "estimate_narrative_structure": [
+    "What we found (plain English)",
+    "Why it matters (consequence of not repairing)",
+    "What the repair involves (brief, non-technical)",
+    "Parts and labor breakdown",
+    "Urgency classification",
+    "Recommended action"
+  ],
+
+  "formatting_rules": {
+    "group_items_by": "urgency_level",
+    "show_subtotals": true,
+    "show_total": true,
+    "include_warranty_line": true,
+    "warranty_text": "All parts and labor covered by our 12-month / 12,000-mile warranty."
+  }
+}

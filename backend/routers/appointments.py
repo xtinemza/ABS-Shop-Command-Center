@@ -6,7 +6,10 @@ import os
 import sys
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from auth import get_current_user
+from supabase_client import supabase
+
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -30,7 +33,7 @@ class AppointmentRequest(BaseModel):
 
 
 @router.post("/appointments/generate", response_model=ModuleResponse)
-def generate_appointments(body: AppointmentRequest):
+def generate_appointments(body: AppointmentRequest, user=Depends(get_current_user)): 
     try:
         from appointments import generate_reminders
 

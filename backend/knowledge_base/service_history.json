@@ -1,0 +1,78 @@
+{
+  "_description": "Vehicle Service History — report structure, service categories, mileage thresholds",
+
+  "report_sections": [
+    "vehicle_summary",
+    "service_timeline",
+    "next_due_services",
+    "parts_installed",
+    "warranty_items",
+    "technician_notes"
+  ],
+
+  "service_categories": {
+    "preventive_maintenance": [
+      "Oil Change", "Tire Rotation", "Cabin Air Filter", "Engine Air Filter",
+      "Spark Plugs", "Coolant Flush", "Transmission Service", "Differential Fluid",
+      "Brake Fluid Flush", "Power Steering Flush", "Serpentine Belt", "Timing Belt"
+    ],
+    "brakes": [
+      "Brake Pads", "Brake Rotors", "Brake Calipers", "Brake Lines",
+      "Brake Master Cylinder", "Brake Fluid"
+    ],
+    "tires_and_wheels": [
+      "Tire Replacement", "Tire Rotation", "Wheel Alignment", "Wheel Balance",
+      "TPMS Sensor", "Lug Nut Replacement"
+    ],
+    "engine": [
+      "Diagnostic", "Valve Cover Gasket", "Head Gasket", "Timing Belt/Chain",
+      "Water Pump", "Thermostat", "Fuel Injector Cleaning", "EGR Valve",
+      "Oxygen Sensor", "Mass Air Flow Sensor", "Throttle Body Service"
+    ],
+    "electrical": [
+      "Battery", "Alternator", "Starter", "Fuses", "Bulb Replacement",
+      "Module Replacement", "Wiring Repair"
+    ],
+    "cooling_system": [
+      "Radiator", "Coolant Flush", "Thermostat", "Hose Replacement",
+      "Coolant Reservoir", "Fan Clutch"
+    ],
+    "suspension_steering": [
+      "Struts", "Shocks", "Control Arm", "Tie Rod", "Ball Joint",
+      "Sway Bar Link", "Wheel Bearing", "Alignment", "Power Steering Pump"
+    ],
+    "ac_and_heating": [
+      "AC Recharge", "AC Compressor", "Cabin Air Filter", "Blower Motor",
+      "Heater Core", "Evaporator", "AC Condenser"
+    ],
+    "transmission": [
+      "Transmission Service", "Transmission Flush", "Solenoid", "Torque Converter",
+      "Clutch (manual)", "Transmission Replacement"
+    ],
+    "general_repair": [
+      "Recall Service", "Inspection", "Multi-Point Inspection", "Pre-Purchase Inspection",
+      "State Inspection", "Emissions Test"
+    ]
+  },
+
+  "mileage_thresholds": {
+    "overdue_warning_pct": 10,
+    "note": "Flag any service that is more than 10% past its recommended interval as overdue.",
+    "upcoming_window_miles": 1500,
+    "upcoming_window_days": 45
+  },
+
+  "warranty_tracking": {
+    "default_parts_warranty_months": 12,
+    "default_parts_warranty_miles": 12000,
+    "labor_warranty_months": 12,
+    "note": "Highlight any parts or labor still under warranty in the report header."
+  },
+
+  "report_formatting": {
+    "date_format": "MM/DD/YYYY",
+    "mileage_format": "comma-separated (e.g. 47,250 mi)",
+    "cost_format": "dollar sign, two decimals (e.g. $124.99)",
+    "sort_order": "chronological, most recent first"
+  }
+}

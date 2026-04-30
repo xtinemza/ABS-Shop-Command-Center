@@ -12,7 +12,10 @@ import hashlib
 import time
 from typing import Optional
 
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, Depends
+from auth import get_current_user
+from supabase_client import supabase
+, UploadFile, File
 from pydantic import BaseModel
 
 # Import static knowledge base
@@ -117,14 +120,12 @@ router = APIRouter()
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
 
-def _load_profile() -> dict:
+def _load_profile(user_id: str) -> dict:
     try:
-        if os.path.exists(PROFILE_PATH):
-            with open(PROFILE_PATH, "r", encoding="utf-8") as f:
-                return json.load(f)
+        res = supabase.table("profiles").select("shop_info").eq("id", user_id).execute()
+        return res.data[0].get("shop_info", {}) if res.data else {}
     except Exception:
-        pass
-    return {}
+        return {}
 
 
 def _get_client():
@@ -193,12 +194,12 @@ def _err(msg: str):
 # ── Knowledge Base endpoints ─────────────────────────────────────────────────
 
 @router.get("/knowledge-base/learned")
-def get_learned_vehicles():
+def get_learned_vehicles()user=Depends(get_current_user)):
     """Return all auto-learned vehicles saved from AI queries."""
     return {"success": True, "vehicles": _load_learned()}
 
 @router.delete("/knowledge-base/learned/{key}")
-def delete_learned_vehicle(key: str):
+def delete_learned_vehicle(key: str, user=Depends(get_current_user)):
     """Remove a learned vehicle entry (key = url-encoded 'make model')."""
     learned = _load_learned()
     norm = key.replace("-", " ").lower()
@@ -211,15 +212,26 @@ def delete_learned_vehicle(key: str):
     return {"success": False, "error": "Vehicle not found"}
 
 
+@router.get("/knowledge-base/vehicle-lookup")
+def vehicle_lookup(q: str = "", user=Depends(get_current_user)):
+    """Fast, direct lookup of vehicle specs without using AI tokens."""
+    if not q:
+        return {"success": False, "error": "No query provided"}
+    
+    v = _find_vehicle_any(q)
+    if v:
+        return {"success": True, "vehicle": v}
+    return {"success": False, "error": "Vehicle not found in database"}
+
 @router.get("/knowledge-base/parts-prices")
-def get_parts_prices():
+def get_parts_prices()user=Depends(get_current_user)):
     """Return the shop's uploaded parts & prices list."""
     rows = _load_shop_prices()
     return {"success": True, "rows": rows, "count": len(rows)}
 
 
 @router.post("/knowledge-base/parts-prices/upload")
-async def upload_parts_prices(file: UploadFile = File(...)):
+async def upload_parts_prices(file: UploadFile = File(...), user=Depends(get_current_user)):
     """Accept a CSV upload, parse it, and save to /data/parts_prices.json."""
     try:
         raw = await file.read()
@@ -251,7 +263,7 @@ async def upload_parts_prices(file: UploadFile = File(...)):
 
 
 @router.get("/knowledge-base/marketing-templates")
-def get_marketing_templates():
+def get_marketing_templates()user=Depends(get_current_user)):
     """Return available template service types for display in the KB panel."""
     return {
         "success": True,
@@ -262,7 +274,7 @@ def get_marketing_templates():
 
 
 @router.delete("/knowledge-base/parts-prices")
-def clear_parts_prices():
+def clear_parts_prices()user=Depends(get_current_user)):
     """Remove the uploaded parts & prices list."""
     try:
         if os.path.exists(_PRICES_PATH):
@@ -305,15 +317,15 @@ class BlogRequest(BaseModel):
 # ── Repair Intel endpoints ───────────────────────────────────────────────────
 
 @router.post("/repair-auto/generate")
-def repair_auto(body: QueryRequest):
-    profile = _load_profile()
+def repair_auto(body: QueryRequest, user=Depends(get_current_user)): 
+    profile = _load_profile(user.id)
     client, err = _get_client()
     if err: return _err(err)
     q = body.query or ""
     veh = _find_vehicle_any(q)
     kb = f" VEHICLE SPECS FROM KB: {vehicle_context(veh)}." if veh else ""
     prices = f" {_prices_context()}."
-    system = f"Auto repair estimator. Shop: {_shop_ctx(profile)}.{kb}{prices} Reply with 4 sections: DIAGNOSIS SUMMARY, RECOMMENDED SERVICES (part, cost, labor hrs at $120/hr), CUSTOMER EXPLANATION (plain language, risk of delay), URGENCY LEVEL (Safety Critical/High/Medium/Low + one reason). Use KB specs — do not fabricate part numbers."
+    system = f"Auto repair estimator for US-based independent auto repair shops. US vehicles and US market specifications only — do not reference non-US vehicle specs, pricing, or regulations. Shop: {_shop_ctx(profile)}.{kb}{prices} Reply with 4 sections: DIAGNOSIS SUMMARY, RECOMMENDED SERVICES (part, cost, labor hrs at $120/hr), CUSTOMER EXPLANATION (plain language, risk of delay), URGENCY LEVEL (Safety Critical/High/Medium/Low + one reason). Use KB specs when available — do not fabricate part numbers."
     text, err = _call_claude(client, system, q or "Describe the vehicle (year/make/model/mileage) and complaint.")
     if err: return _err(err)
     return _ok(text, "repair_auto_estimate")
@@ -322,8 +334,8 @@ def repair_auto(body: QueryRequest):
 _SPEC_SCHEMA = '{"name":"Make Model (years)","engines":["engine string"],"oil":"spec","oil_cap":"X qt","coolant":"type","spark_plug":"part number","torque":{"Lug Nuts":"X ft-lb","Drain Plug":"X ft-lb"},"intervals":{"Oil Change":"X,000 mi"},"known_issues":["issue"]}'
 
 @router.post("/componentcare/query")
-def componentcare(body: QueryRequest):
-    profile = _load_profile()
+def componentcare(body: QueryRequest, user=Depends(get_current_user)): 
+    profile = _load_profile(user.id)
     client, err = _get_client()
     if err: return _err(err)
     q = body.query or ""
@@ -332,12 +344,14 @@ def componentcare(body: QueryRequest):
     if veh:
         # Known vehicle — inject exact specs, short focused answer
         kb = f" VERIFIED SPECS: {vehicle_context(veh)}. Use these exact figures."
-        system = f"Vehicle technical assistant. Shop: {_shop_ctx(profile)}.{kb} Answer concisely with headers and bullets."
+        system = f"Vehicle technical assistant for US-based auto repair shops. US vehicles and US market specifications only. Shop: {_shop_ctx(profile)}.{kb} Answer concisely with headers and bullets."
         text, err = _call_claude(client, system, q or "What vehicle and question can I help with?")
     else:
         # Unknown vehicle — answer AND silently extract specs to grow the KB
         system = (
-            f"Vehicle technical assistant. Shop: {_shop_ctx(profile)}. "
+            f"Vehicle technical assistant for US-based auto repair shops. US vehicles and US market specifications only — "
+            "only reference vehicles sold in the US market; do not use non-US specs, parts, or standards. "
+            f"Shop: {_shop_ctx(profile)}. "
             "Answer the question with headers and bullets. "
             "If a specific vehicle (make/model/year) is mentioned, also append its specs as JSON "
             f"between <<<SPECS>>> and <<<END>>> tags using this schema: {_SPEC_SCHEMA}. "
@@ -366,43 +380,43 @@ def componentcare(body: QueryRequest):
 
 
 @router.post("/fleetmaint/generate")
-def fleetmaint(body: QueryRequest):
-    profile = _load_profile()
+def fleetmaint(body: QueryRequest, user=Depends(get_current_user)): 
+    profile = _load_profile(user.id)
     client, err = _get_client()
     if err: return _err(err)
     q = body.query or ""
     veh = _find_vehicle_any(q)
     kb = f" VEHICLE SPECS: {vehicle_context(veh)}." if veh else ""
     prices = f" {_prices_context()}."
-    system = f"Fleet maintenance advisor. Shop: {_shop_ctx(profile)}.{kb}{prices} Provide: PREDICTIVE ALERTS, 6-MONTH SCHEDULE (month-by-month), COST FORECAST, PRIORITY ORDER (Safety Critical→Revenue→Reliability→Convenience)."
+    system = f"Fleet maintenance advisor for US-based auto repair shops. US vehicles and US market specifications only. Shop: {_shop_ctx(profile)}.{kb}{prices} Provide: PREDICTIVE ALERTS, 6-MONTH SCHEDULE (month-by-month), COST FORECAST, PRIORITY ORDER (Safety Critical→Revenue→Reliability→Convenience)."
     text, err = _call_claude(client, system, q or "Describe the vehicle or fleet (year/make/model/mileage/usage).")
     if err: return _err(err)
     return _ok(text, "fleet_maintenance_plan")
 
 
 @router.post("/prev-advisor/generate")
-def prev_advisor(body: QueryRequest):
-    profile = _load_profile()
+def prev_advisor(body: QueryRequest, user=Depends(get_current_user)): 
+    profile = _load_profile(user.id)
     client, err = _get_client()
     if err: return _err(err)
     q = body.query or ""
     veh = _find_vehicle_any(q)
     kb = f" OEM INTERVALS FROM KB: {vehicle_context(veh)}." if veh else ""
-    system = f"Preventive maintenance advisor. Shop: {_shop_ctx(profile)}.{kb} Output: IMMEDIATE (overdue/urgent), UPCOMING (due within 3k mi/3 months), LONG-TERM (6-12 months), INSPECTION CHECKLIST. Flag severe-duty conditions."
+    system = f"Preventive maintenance advisor for US-based auto repair shops. US vehicles and US market specifications only. Shop: {_shop_ctx(profile)}.{kb} Output: IMMEDIATE (overdue/urgent), UPCOMING (due within 3k mi/3 months), LONG-TERM (6-12 months), INSPECTION CHECKLIST. Flag severe-duty conditions."
     text, err = _call_claude(client, system, q or "Describe the vehicle (year/make/model/mileage) and service history.")
     if err: return _err(err)
     return _ok(text, "preventive_maintenance_checklist")
 
 
 @router.post("/enviromaint/generate")
-def enviromaint(body: QueryRequest):
-    profile = _load_profile()
+def enviromaint(body: QueryRequest, user=Depends(get_current_user)): 
+    profile = _load_profile(user.id)
     client, err = _get_client()
     if err: return _err(err)
     q = body.query or ""
     veh = _find_vehicle_any(q)
     kb = f" VEHICLE SPECS: {vehicle_context(veh)}." if veh else ""
-    system = f"Climate-aware maintenance advisor. Shop: {_shop_ctx(profile)}.{kb} Provide: ENVIRONMENT IMPACT (how climate stresses this vehicle), ADJUSTED INTERVALS (OEM modified for climate), SEASONAL CHECKLIST, COMMON CLIMATE FAILURES."
+    system = f"Climate-aware maintenance advisor for US-based auto repair shops. US vehicles, US market specifications, and US climate zones only — reference US regions (Northeast, Midwest, South, Southwest, Pacific Northwest, etc.) and do not use non-US standards or specs. Shop: {_shop_ctx(profile)}.{kb} Provide: ENVIRONMENT IMPACT (how climate stresses this vehicle), ADJUSTED INTERVALS (OEM modified for climate), SEASONAL CHECKLIST, COMMON CLIMATE FAILURES."
     text, err = _call_claude(client, system, q or "Describe the vehicle and environment (city/state, climate, driving conditions).")
     if err: return _err(err)
     return _ok(text, "climate_maintenance_plan")
@@ -411,8 +425,8 @@ def enviromaint(body: QueryRequest):
 # ── Marketing endpoints ──────────────────────────────────────────────────────
 
 @router.post("/social-media/generate")
-def social_media(body: SocialMediaRequest):
-    profile = _load_profile()
+def social_media(body: SocialMediaRequest, user=Depends(get_current_user)): 
+    profile = _load_profile(user.id)
     shop_name = profile.get("shop_name", "our shop")
     phone     = profile.get("phone", "")
     tag       = _hashtag(shop_name)
@@ -447,8 +461,8 @@ def social_media(body: SocialMediaRequest):
 
 
 @router.post("/cta-copy/generate")
-def cta_copy(body: CTACopyRequest):
-    profile = _load_profile()
+def cta_copy(body: CTACopyRequest, user=Depends(get_current_user)): 
+    profile = _load_profile(user.id)
     shop_name = profile.get("shop_name", "us")
     phone     = profile.get("phone", "")
     kw = dict(shop_name=shop_name, phone=phone, service=body.service_type or "auto repair")
@@ -481,8 +495,8 @@ def cta_copy(body: CTACopyRequest):
 
 
 @router.post("/promo-builder/generate")
-def promo_builder(body: PromoRequest):
-    profile = _load_profile()
+def promo_builder(body: PromoRequest, user=Depends(get_current_user)): 
+    profile = _load_profile(user.id)
     shop_name = profile.get("shop_name", "our shop")
     phone     = profile.get("phone", "")
     offer     = body.offer or "special offer"
@@ -517,8 +531,8 @@ def promo_builder(body: PromoRequest):
 
 
 @router.post("/blog-post/generate")
-def blog_post(body: BlogRequest):
-    profile = _load_profile()
+def blog_post(body: BlogRequest, user=Depends(get_current_user)): 
+    profile = _load_profile(user.id)
     client, err = _get_client()
     if err: return _err(err)
     shop_name = profile.get("shop_name", "our shop")

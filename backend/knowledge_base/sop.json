@@ -1,0 +1,6 @@
+{
+  "_description": "Standard Operating Procedures (SOP) Knowledge Base",
+  "note": "These are now managed dynamically per-shop via Supabase. Local defaults cleared.",
+  "procedures": {},
+  "process_aliases": {}
+}

@@ -7,7 +7,10 @@ import os
 import sys
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from auth import get_current_user
+from supabase_client import supabase
+
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -33,7 +36,7 @@ class ServiceHistoryRequest(BaseModel):
 
 
 @router.post("/service-history/generate", response_model=ModuleResponse)
-def generate_service_history(body: ServiceHistoryRequest):
+def generate_service_history(body: ServiceHistoryRequest, user=Depends(get_current_user)): 
     try:
         from service_history import generate_report
 

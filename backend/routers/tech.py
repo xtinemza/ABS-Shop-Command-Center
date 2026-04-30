@@ -6,7 +6,10 @@ import os
 import sys
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from auth import get_current_user
+from supabase_client import supabase
+
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -30,7 +33,7 @@ class TechSummaryRequest(BaseModel):
 
 
 @router.post("/tech/summary", response_model=ModuleResponse)
-def tech_summary(body: TechSummaryRequest):
+def tech_summary(body: TechSummaryRequest, user=Depends(get_current_user)): 
     try:
         from tech_productivity import generate_summary
 

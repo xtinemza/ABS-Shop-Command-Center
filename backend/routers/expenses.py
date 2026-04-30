@@ -8,7 +8,10 @@ import os
 import sys
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from auth import get_current_user
+from supabase_client import supabase
+
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -45,7 +48,7 @@ class ExpenseReportRequest(BaseModel):
 
 
 @router.post("/expenses/log", response_model=ModuleResponse)
-def log_expense(body: ExpenseLogRequest):
+def log_expense(body: ExpenseLogRequest, user=Depends(get_current_user)): 
     try:
         from expenses import categorize_expenses
         from datetime import datetime
@@ -153,7 +156,7 @@ def log_expense(body: ExpenseLogRequest):
 
 
 @router.post("/expenses/report", response_model=ModuleResponse)
-def expense_report(body: ExpenseReportRequest):
+def expense_report(body: ExpenseLogRequest, user=Depends(get_current_user)): 
     try:
         from expenses import generate_expense_report
         from datetime import datetime

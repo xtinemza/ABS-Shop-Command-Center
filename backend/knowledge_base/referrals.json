@@ -1,0 +1,78 @@
+{
+  "_description": "Referral Tracking — reward tiers, program rules, notification templates, ID format",
+
+  "program_defaults": {
+    "referrer_reward": "$25 off next service",
+    "referee_reward": "$25 off first service",
+    "minimum_spend_to_qualify": 50,
+    "reward_validity_days": 180,
+    "reward_type": "discount",
+    "combine_with_other_offers": false
+  },
+
+  "reward_tiers": {
+    "standard": {
+      "label": "Standard Referral",
+      "referrals_required": 1,
+      "referrer_reward": "$25 off",
+      "referee_reward": "$25 off first visit"
+    },
+    "super_referrer": {
+      "label": "Super Referrer (3+ referrals)",
+      "referrals_required": 3,
+      "referrer_reward": "$50 off or free oil change",
+      "note": "Upgrade customer to super referrer status automatically at 3 successful referrals."
+    },
+    "champion": {
+      "label": "Referral Champion (10+ referrals)",
+      "referrals_required": 10,
+      "referrer_reward": "Free annual inspection + $25/referral ongoing",
+      "note": "Recognize publicly on social media (with permission)."
+    }
+  },
+
+  "referral_id_format": "R-{year}-{sequence}",
+  "referral_id_example": "R-2026-031",
+
+  "reward_statuses": ["pending", "issued", "redeemed", "expired", "voided"],
+
+  "qualification_rules": [
+    "Referee must complete a paid service of $50 or more.",
+    "Referee must be a new customer — no prior service history at the shop.",
+    "Referrer reward is issued after referee's first paid visit is complete.",
+    "Rewards cannot be transferred or exchanged for cash.",
+    "One referral reward per household per calendar year for the referee."
+  ],
+
+  "notification_templates": {
+    "referrer_reward_issued_sms": "Hi [FirstName]! [RefereeName] just came in — your $25 referral reward is ready. Use it on your next visit. Thanks for spreading the word! — [ShopName]",
+    "referee_welcome_sms": "Hi [FirstName]! Welcome to [ShopName]. You've got $25 off your first service, courtesy of [ReferrerName]. Call us at [Phone] to book!",
+    "reward_expiry_reminder_sms": "Hi [FirstName], your $25 referral reward from [ShopName] expires in 30 days. Book your next service at [Phone] before [ExpiryDate]!"
+  },
+
+  "tracking_fields": [
+    "referral_id",
+    "referrer_name",
+    "referrer_phone",
+    "referee_name",
+    "referee_phone",
+    "date_referred",
+    "date_referee_visited",
+    "reward_status",
+    "reward_issued_date",
+    "reward_redeemed_date",
+    "notes"
+  ],
+
+  "reporting": {
+    "report_sections": [
+      "total_referrals_by_period",
+      "referrals_by_referrer",
+      "conversion_rate",
+      "rewards_issued_vs_redeemed",
+      "top_referrers",
+      "estimated_revenue_from_referrals"
+    ],
+    "note": "A referral program with a 20%+ conversion rate is considered high-performing for independent shops."
+  }
+}

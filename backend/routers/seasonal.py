@@ -6,7 +6,10 @@ import os
 import sys
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from auth import get_current_user
+from supabase_client import supabase
+
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -31,7 +34,7 @@ class SeasonalRequest(BaseModel):
 
 
 @router.post("/seasonal/generate", response_model=ModuleResponse)
-def generate_seasonal(body: SeasonalRequest):
+def generate_seasonal(body: SeasonalRequest, user=Depends(get_current_user)): 
     try:
         from seasonal import generate_campaign
 

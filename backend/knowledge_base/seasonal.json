@@ -1,0 +1,126 @@
+{
+  "_description": "Seasonal Campaigns — campaign calendar, seasonal services, offer fragments, messaging hooks",
+
+  "seasons": {
+    "winter": {
+      "label": "Winter Prep",
+      "months": [10, 11, 12],
+      "campaign_window": "October – December",
+      "hook": "Winter is coming — is your car ready?",
+      "primary_services": [
+        "Battery test and replacement",
+        "Winter tires or all-season check",
+        "Coolant freeze-point test",
+        "4WD/AWD system check",
+        "Wiper blade replacement (winter blades)",
+        "Heating system inspection",
+        "Brake inspection (cold weather increases stopping distance)"
+      ],
+      "upsell_tips": [
+        "Bundle battery test with coolant check — both fail in the cold.",
+        "Offer a winter inspection package at a flat price.",
+        "Remind customers that AAA's #1 winter call-out is battery failure."
+      ],
+      "offer_fragment": "Get ready for winter — battery, coolant, and wiper check for just $[PRICE].",
+      "urgency_note": "First cold snap of the season drives the most calls — campaign before October 15."
+    },
+    "spring": {
+      "label": "Spring Refresh",
+      "months": [3, 4, 5],
+      "campaign_window": "March – May",
+      "hook": "Spring clean for your car — shake off the winter.",
+      "primary_services": [
+        "Tire swap (winter to all-season)",
+        "Undercarriage wash and inspection (road salt damage)",
+        "Brake inspection (salt and moisture damage)",
+        "Wiper blade replacement",
+        "AC system pre-season check",
+        "Alignment check (potholes from winter roads)",
+        "Fluid top-off and inspection"
+      ],
+      "upsell_tips": [
+        "Lead with alignment — potholes are top of mind in spring.",
+        "Pair AC check with cabin air filter — 'breathe clean this spring.'",
+        "Undercarriage inspection is a great trust-builder — show photos."
+      ],
+      "offer_fragment": "Spring checkup special — alignment, brakes, and fluids. Book before [DATE].",
+      "urgency_note": "Campaign in March before spring break travel season."
+    },
+    "summer": {
+      "label": "Summer Road Trip Ready",
+      "months": [6, 7, 8],
+      "campaign_window": "June – August",
+      "hook": "Road trip season is here — don't break down miles from home.",
+      "primary_services": [
+        "AC performance check and recharge",
+        "Cooling system inspection (radiator, hoses, thermostat)",
+        "Tire pressure and tread check (heat increases blowout risk)",
+        "Belt and hose inspection (heat accelerates wear)",
+        "Battery test (heat is the #1 battery killer)",
+        "Oil change (hot weather increases oil breakdown)"
+      ],
+      "upsell_tips": [
+        "AC + cooling system bundle — both fail in summer heat.",
+        "Offer a 'road trip ready' package targeting families.",
+        "Tire blowout risk in heat — pair with rotation and pressure check."
+      ],
+      "offer_fragment": "Summer road trip special — AC check, fluids, and tire inspection. Ready in 90 minutes.",
+      "urgency_note": "Launch by Memorial Day weekend — biggest road trip kickoff."
+    },
+    "fall": {
+      "label": "Fall Pre-Winter Check",
+      "months": [9, 10],
+      "campaign_window": "September – October",
+      "hook": "Don't wait until the first freeze to find out something's wrong.",
+      "primary_services": [
+        "Battery and charging system test",
+        "Tire inspection and rotation",
+        "Brake inspection",
+        "Coolant system check",
+        "Heating system test",
+        "Wiper and visibility check",
+        "Lights inspection (days getting shorter)"
+      ],
+      "upsell_tips": [
+        "Fall is the pre-winter season — frame it as insurance against winter breakdowns.",
+        "Back-to-school angle works for families in September.",
+        "Lights check is a quick win that builds trust."
+      ],
+      "offer_fragment": "Fall safety inspection — 20-point check for just $[PRICE]. Book in October.",
+      "urgency_note": "September campaigns catch customers before they forget about car care."
+    },
+    "holiday": {
+      "label": "Holiday & Year-End",
+      "months": [11, 12],
+      "campaign_window": "November – December",
+      "hook": "Safe travels for the holidays — give the gift of a reliable car.",
+      "primary_services": [
+        "Holiday road trip inspection package",
+        "Gift certificates for services",
+        "Pre-travel brake and tire check",
+        "Wiper replacement before winter driving"
+      ],
+      "upsell_tips": [
+        "Offer gift certificates — popular with families buying for new drivers.",
+        "Holiday travel framing reduces price resistance.",
+        "Year-end oil change is a quick capture before January slowdown."
+      ],
+      "offer_fragment": "Holiday travel ready — inspection special through December [DATE].",
+      "urgency_note": "Gift certificate push in the first two weeks of December."
+    }
+  },
+
+  "channel_specs": {
+    "sms": { "max_chars": 160, "include": ["offer", "expiry", "CTA", "shop phone"] },
+    "email": { "sections": ["subject", "hero_headline", "service_list", "offer_details", "cta_button", "footer"] },
+    "social_media": { "platforms": ["Facebook", "Instagram", "Google Business"], "include_hashtags_on": ["Instagram"] }
+  },
+
+  "offer_expiry_defaults": {
+    "winter": "November 30",
+    "spring": "April 30",
+    "summer": "August 31",
+    "fall": "October 31",
+    "holiday": "December 24"
+  }
+}

@@ -8,7 +8,10 @@ import os
 import sys
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from auth import get_current_user
+from supabase_client import supabase
+
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -48,7 +51,7 @@ class WarrantyReportRequest(BaseModel):
 
 
 @router.post("/warranty/claims", response_model=ModuleResponse)
-def warranty_claims(body: WarrantyClaimsRequest):
+def warranty_claims(body: WarrantyClaimsRequest, user=Depends(get_current_user)): 
     try:
         from warranty import track_claims
         from datetime import datetime
@@ -179,7 +182,7 @@ def warranty_claims(body: WarrantyClaimsRequest):
 
 
 @router.post("/warranty/report", response_model=ModuleResponse)
-def warranty_report(body: WarrantyReportRequest):
+def warranty_report(body: WarrantyClaimsRequest, user=Depends(get_current_user)): 
     try:
         from warranty import generate_warranty_report
 

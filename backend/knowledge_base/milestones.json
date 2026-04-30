@@ -1,0 +1,65 @@
+{
+  "_description": "Customer Milestones — milestone types, thresholds, outreach timing, message templates",
+
+  "milestone_types": {
+    "anniversary": {
+      "label": "Customer Anniversary",
+      "definition": "Years since the customer's first recorded service at the shop.",
+      "thresholds_years": [1, 2, 3, 5, 10],
+      "major_milestone_years": [5, 10],
+      "note": "Major milestones (5yr, 10yr) warrant a phone call in addition to SMS/email."
+    },
+    "visit_count": {
+      "label": "Visit Milestone",
+      "definition": "Total number of completed service visits.",
+      "thresholds": [5, 10, 25, 50],
+      "major_milestone_visits": [25, 50],
+      "note": "Celebrate with a loyalty reward at 10th and 25th visit."
+    },
+    "mileage": {
+      "label": "Mileage Milestone",
+      "definition": "Notable mileage markers on the customer's vehicle.",
+      "thresholds_miles": [50000, 100000, 150000, 200000],
+      "major_milestone_miles": [100000, 200000],
+      "note": "100k and 200k are significant — customer is proud and open to a major service conversation."
+    }
+  },
+
+  "reward_defaults": {
+    "1_year_anniversary": "$10 off next service",
+    "5_year_anniversary": "$25 off or free oil change",
+    "10_year_anniversary": "Free oil change + thank-you gift card ($25)",
+    "10th_visit": "$15 off",
+    "25th_visit": "Free oil change",
+    "100k_miles": "$20 off any service",
+    "200k_miles": "Free multi-point inspection"
+  },
+
+  "outreach_channels": {
+    "sms": { "use_for": ["1yr", "2yr", "3yr", "5_visits", "10_visits", "50k_miles", "100k_miles"] },
+    "email": { "use_for": ["all milestones — send in addition to SMS for major milestones"] },
+    "phone_script": { "use_for": ["5yr", "10yr", "25_visits", "50_visits", "200k_miles"] }
+  },
+
+  "message_templates": {
+    "anniversary_1yr_sms": "Hi [FirstName]! It's been 1 year since your first visit to [ShopName] — thank you for trusting us with your [Vehicle]. Here's $10 off your next service. Call [Phone] to book!",
+    "anniversary_5yr_sms": "Hi [FirstName], 5 years with [ShopName] — you're family now! 🎉 Thank you for your loyalty. Enjoy a free oil change on us. Call [Phone] to redeem.",
+    "10th_visit_sms": "Hi [FirstName]! That's your 10th visit to [ShopName] — congrats and thank you! You've earned $15 off your next service. [Phone]",
+    "100k_miles_sms": "Hi [FirstName]! Your [Vehicle] just hit 100,000 miles — that's a milestone worth celebrating! Come see us for a complimentary inspection + $20 off any service. [ShopName] [Phone]",
+    "phone_script_opener": "Hi, may I speak with [FirstName]? This is [AdvisorName] from [ShopName]. I just wanted to call personally — you've been with us for [X] years and we really appreciate your loyalty..."
+  },
+
+  "timing_rules": [
+    "Send anniversary messages within 7 days of the anniversary date.",
+    "Send visit-count messages within 24 hours of the qualifying visit.",
+    "Send mileage messages at the next service visit when mileage is confirmed.",
+    "Never send a milestone message more than 30 days after the milestone occurred.",
+    "Do not send a milestone message if the customer has an open complaint."
+  ],
+
+  "sms_rules": {
+    "max_chars": 160,
+    "opt_out_footer": "Reply STOP to unsubscribe",
+    "avoid_hours": "before 8:00 AM or after 8:00 PM"
+  }
+}

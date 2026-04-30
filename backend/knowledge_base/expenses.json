@@ -1,0 +1,96 @@
+{
+  "_description": "Expense Reports — category taxonomy, payment methods, report periods, budget benchmarks",
+
+  "categories": {
+    "parts_and_supplies": {
+      "label": "Parts & Supplies",
+      "subcategories": ["OEM parts", "aftermarket parts", "shop supplies", "chemicals and fluids", "tires (resale)"],
+      "typical_pct_of_revenue": "35–50%"
+    },
+    "labor": {
+      "label": "Labor (Technicians & Staff)",
+      "subcategories": ["technician wages", "service advisor wages", "shop manager", "overtime", "payroll taxes"],
+      "typical_pct_of_revenue": "25–35%"
+    },
+    "facility": {
+      "label": "Facility",
+      "subcategories": ["rent or mortgage", "utilities (electric, gas, water)", "property insurance", "security", "janitorial"],
+      "typical_pct_of_revenue": "8–12%"
+    },
+    "equipment": {
+      "label": "Equipment & Tools",
+      "subcategories": ["equipment purchase", "equipment lease", "tool maintenance", "calibration services", "small tools"],
+      "typical_pct_of_revenue": "2–5%"
+    },
+    "marketing": {
+      "label": "Marketing & Advertising",
+      "subcategories": ["Google Ads", "social media", "mailers", "sponsorships", "website", "SEO"],
+      "typical_pct_of_revenue": "2–5%"
+    },
+    "software_and_subscriptions": {
+      "label": "Software & Subscriptions",
+      "subcategories": ["shop management software", "accounting software", "diagnostic subscriptions", "communication tools"],
+      "typical_pct_of_revenue": "1–2%"
+    },
+    "insurance": {
+      "label": "Insurance",
+      "subcategories": ["general liability", "garage keepers", "workers comp", "commercial auto", "umbrella policy"],
+      "typical_pct_of_revenue": "2–4%"
+    },
+    "professional_services": {
+      "label": "Professional Services",
+      "subcategories": ["accounting/bookkeeping", "legal", "HR/payroll services", "consulting"],
+      "typical_pct_of_revenue": "1–2%"
+    },
+    "waste_and_environmental": {
+      "label": "Waste & Environmental",
+      "subcategories": ["used oil disposal", "tire recycling", "hazmat disposal", "environmental compliance fees"],
+      "typical_pct_of_revenue": "0.5–1%"
+    },
+    "miscellaneous": {
+      "label": "Miscellaneous",
+      "subcategories": ["bank fees", "merchant processing fees", "uniforms", "training", "travel"],
+      "typical_pct_of_revenue": "1–3%"
+    }
+  },
+
+  "payment_methods": [
+    "check",
+    "ach_transfer",
+    "credit_card",
+    "debit_card",
+    "cash",
+    "wire_transfer",
+    "financing"
+  ],
+
+  "reporting_periods": {
+    "month": { "label": "Monthly", "common_use": "Cash flow tracking, payroll reconciliation" },
+    "quarter": { "label": "Quarterly", "common_use": "Tax estimates, budget vs. actual review" },
+    "year": { "label": "Annual", "common_use": "Tax filing, lender reporting, year-over-year comparison" }
+  },
+
+  "report_sections": [
+    "total_expenses_by_period",
+    "expenses_by_category",
+    "expenses_by_vendor",
+    "month_over_month_trend",
+    "budget_vs_actual",
+    "largest_single_expenses",
+    "recurring_vs_one_time"
+  ],
+
+  "budget_benchmarks": {
+    "gross_profit_target_pct": 50,
+    "net_profit_target_pct": 15,
+    "parts_cost_of_parts_revenue_max_pct": 50,
+    "labor_cost_of_labor_revenue_max_pct": 35,
+    "note": "These are independent shop industry benchmarks. Adjust for your market and business model."
+  },
+
+  "tax_notes": {
+    "note": "Always consult a licensed accountant for tax treatment.",
+    "common_deductible": ["parts", "tools", "equipment (Section 179)", "rent", "utilities", "marketing", "insurance", "professional services"],
+    "depreciation_items": ["lifts", "scan tools", "tire equipment", "computers"]
+  }
+}

@@ -6,7 +6,10 @@ import os
 import sys
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from auth import get_current_user
+from supabase_client import supabase
+
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -34,7 +37,7 @@ class MilestoneRequest(BaseModel):
 
 
 @router.post("/milestones/generate", response_model=ModuleResponse)
-def generate_milestone(body: MilestoneRequest):
+def generate_milestone(body: MilestoneRequest, user=Depends(get_current_user)): 
     try:
         from milestones import generate_outreach
 

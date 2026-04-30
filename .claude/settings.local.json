@@ -29,7 +29,12 @@
       "Bash(findstr LISTENING)",
       "Bash(taskkill /PID 4240 /F)",
       "PowerShell(Stop-Process -Id 4240 -Force)",
-      "Bash(read dir *)"
+      "Bash(read dir *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git commit -m 'Fix Netlify deploy — serve preview/ as static site, no build step *)",
+      "Bash(netlify --version)"
     ]
   }
 }

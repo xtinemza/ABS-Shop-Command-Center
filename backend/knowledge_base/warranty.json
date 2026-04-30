@@ -1,0 +1,70 @@
+{
+  "_description": "Warranty Tracker — warranty periods by service type, claim statuses, age thresholds, reporting",
+
+  "default_warranty": {
+    "parts_months": 12,
+    "parts_miles": 12000,
+    "labor_months": 12,
+    "note": "Apply these defaults when no service-specific warranty is defined."
+  },
+
+  "service_specific_warranties": {
+    "oil_change": { "months": 3, "miles": 3000, "note": "Covers oil consumption defect only; excludes external leaks." },
+    "brake_pads": { "months": 12, "miles": 12000, "note": "Excludes pads worn by glazing from overheating or improper use." },
+    "brake_rotors": { "months": 12, "miles": 12000 },
+    "battery": { "months": 24, "miles": null, "note": "Pro-rated after 12 months. Requires load test failure for replacement." },
+    "alternator": { "months": 12, "miles": 12000 },
+    "starter": { "months": 12, "miles": 12000 },
+    "timing_belt": { "months": 24, "miles": 24000 },
+    "water_pump": { "months": 12, "miles": 12000 },
+    "radiator": { "months": 12, "miles": 12000 },
+    "cv_axle": { "months": 12, "miles": 12000 },
+    "wheel_bearing": { "months": 12, "miles": 12000 },
+    "struts_shocks": { "months": 12, "miles": 12000 },
+    "tire_installation": { "months": 0, "miles": 0, "note": "Tire manufacturer warranty applies — not the shop's warranty." },
+    "ac_compressor": { "months": 12, "miles": 12000, "note": "Void if system was not flushed and recharged at time of repair." },
+    "transmission_rebuild": { "months": 24, "miles": 24000 },
+    "engine_rebuild": { "months": 24, "miles": 24000 }
+  },
+
+  "claim_statuses": {
+    "open": ["submitted", "in_review", "parts_on_order", "repair_scheduled"],
+    "closed": ["resolved_repaired", "resolved_replaced", "denied", "customer_declined", "voided"]
+  },
+
+  "denial_reasons": [
+    "Customer-induced damage (accident, misuse, improper fluid)",
+    "Wear and tear beyond the warranty period",
+    "Non-related failure (part that failed is not what was warrantied)",
+    "Vehicle modified in a way that caused or contributed to failure",
+    "Maintenance not performed as required (e.g., oil changes skipped)"
+  ],
+
+  "age_flag_thresholds": {
+    "approaching_expiry_days": 30,
+    "overdue_days": 0,
+    "note": "Flag any open claim approaching expiry at 30 days. Claims past expiry should be reviewed before closing."
+  },
+
+  "claim_id_format": "WC-{year}-{sequence}",
+  "claim_id_example": "WC-2026-047",
+
+  "reporting_periods": ["month", "quarter", "year"],
+
+  "report_sections": [
+    "total_claims_opened",
+    "total_claims_closed",
+    "claims_by_service_type",
+    "claim_denial_rate",
+    "average_days_to_resolution",
+    "warranty_cost_total",
+    "open_claims_list"
+  ],
+
+  "documentation_rules": [
+    "Every warranty claim must have a repair order number linked to the original service.",
+    "Photo-document the failure before any teardown.",
+    "Record the mileage at time of failure claim.",
+    "Retain parts replaced under warranty for 30 days in case supplier disputes."
+  ]
+}

@@ -1,0 +1,3560 @@
+{
+  "toyota camry": {
+    "name": "Toyota Camry (2018-2023)",
+    "engines": [
+      "2.5L 4-cyl A25A-FKS",
+      "3.5L V6 2GR-FKS"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "4.8 qt (2.5L) / 6.4 qt (3.5L)",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK DILKAR6A11GS",
+    "torque": {
+      "Lug Nuts": "76 ft-lb",
+      "Drain Plug": "30 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs (2.5L)": "60,000 mi",
+      "Transmission Fluid": "60,000 mi",
+      "Coolant Flush": "100,000 mi"
+    },
+    "known_issues": [
+      "Oil consumption >1 qt/5k mi (2.5L pre-2021 build)",
+      "Sunroof drain clogs leading to interior leaks",
+      "Catalytic converter theft risk \u2014 high target vehicle"
+    ]
+  },
+  "honda accord": {
+    "name": "Honda Accord (2018-2022)",
+    "engines": [
+      "1.5L Turbo L15B7",
+      "2.0L Turbo K20C4"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "3.4 qt (1.5T) / 5.1 qt (2.0T)",
+    "coolant": "Honda Blue Type 2",
+    "spark_plug": "NGK ILZKR7B11GS",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "29 ft-lb",
+      "Caliper Bolts (front)": "37 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi (1.5T) / 5,000 mi (2.0T)",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "30,000 mi",
+      "Coolant Flush": "60,000 mi"
+    },
+    "known_issues": [
+      "1.5T oil dilution in cold climates \u2014 monitor closely",
+      "CVT judder at low speeds on some 2018-2019 units",
+      "Bluetooth connectivity drops after software updates"
+    ]
+  },
+  "ford f-150": {
+    "name": "Ford F-150 (2018-2023)",
+    "engines": [
+      "5.0L V8 Coyote",
+      "2.7L EcoBoost V6",
+      "3.5L EcoBoost V6"
+    ],
+    "oil": "5W-30 (5.0L) / 5W-30 (EcoBoost)",
+    "oil_cap": "7.7 qt (5.0L) / 6.0 qt (2.7T)",
+    "coolant": "Ford Orange VC-3-B",
+    "spark_plug": "Motorcraft SP-537 (5.0L)",
+    "torque": {
+      "Lug Nuts": "150 ft-lb",
+      "Drain Plug": "19 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi (dino) / 10,000 mi (syn)",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "Transmission Fluid": "150,000 mi (normal) / 60,000 mi (towing)",
+      "Transfer Case Fluid": "150,000 mi"
+    },
+    "known_issues": [
+      "EcoBoost carbon buildup on intake valves (walnut blast at 60k)",
+      "Panoramic roof wind noise on 2019-2021",
+      "Tailgate latch sticking in cold weather"
+    ]
+  },
+  "chevrolet silverado": {
+    "name": "Chevrolet Silverado 1500 (2019-2023)",
+    "engines": [
+      "5.3L V8 L84",
+      "6.2L V8 L87"
+    ],
+    "oil": "0W-20 Full Synthetic (AFM)",
+    "oil_cap": "6.0 qt (5.3L) / 8.0 qt (6.2L)",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-164",
+    "torque": {
+      "Lug Nuts": "140 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "32 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "100,000 mi",
+      "Transmission Fluid": "45,000 mi (towing) / 100,000 mi (normal)"
+    },
+    "known_issues": [
+      "AFM/DFM lifter failures on 5.3L \u2014 watch for tick at startup",
+      "Oil consumption with active fuel management enabled",
+      "Trailer brake controller sensitivity complaints"
+    ]
+  },
+  "toyota tacoma": {
+    "name": "Toyota Tacoma (2016-2023)",
+    "engines": [
+      "2.7L 4-cyl 2TR-FE",
+      "3.5L V6 2GR-FKS"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "5.5 qt (2.7L) / 6.2 qt (3.5L)",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK ILFR5E11 (3.5L)",
+    "torque": {
+      "Lug Nuts": "85 ft-lb",
+      "Drain Plug": "27 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi (2.7L) / 10,000 mi (3.5L)",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "Differential Fluid": "30,000 mi (4WD)"
+    },
+    "known_issues": [
+      "Frame rust concerns on older units in salt-belt states",
+      "Infotainment system slow response on early 2016-2018",
+      "Rear leaf spring squeaks common \u2014 lube or replace bushings"
+    ]
+  },
+  "honda civic": {
+    "name": "Honda Civic (2016-2021)",
+    "engines": [
+      "1.5L Turbo L15B7",
+      "2.0L NA R20C1"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "3.4 qt (1.5T) / 3.7 qt (2.0L)",
+    "coolant": "Honda Blue Type 2",
+    "spark_plug": "NGK SILZKR7B11GS",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "29 ft-lb",
+      "Caliper Bolts (front)": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi (1.5T) / 5,000 mi (2.0L)",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "30,000 mi",
+      "Coolant Flush": "60,000 mi"
+    },
+    "known_issues": [
+      "1.5T oil dilution \u2014 especially cold starts in northern climates",
+      "AC compressor failure on 2016-2018 1.5T",
+      "Adhesive-mounted trim panels separating in heat"
+    ]
+  },
+  "ram 1500": {
+    "name": "Ram 1500 (2019-2023)",
+    "engines": [
+      "5.7L HEMI V8",
+      "3.6L Pentastar V6",
+      "3.0L EcoDiesel V6"
+    ],
+    "oil": "5W-20 (HEMI) / 5W-20 (V6)",
+    "oil_cap": "7.0 qt (HEMI) / 5.9 qt (V6)",
+    "coolant": "HOAT Orange",
+    "spark_plug": "Champion RC12ECC (HEMI)",
+    "torque": {
+      "Lug Nuts": "130 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "32 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "8,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "30,000 mi (HEMI)",
+      "Transmission Fluid": "60,000 mi",
+      "Transfer Case": "60,000 mi"
+    },
+    "known_issues": [
+      "HEMI tick on startup \u2014 common MDS lifter wear",
+      "Uconnect system freezes requiring battery reset",
+      "EcoDiesel 3.0L NOx emission recall \u2014 verify completion"
+    ]
+  },
+  "toyota corolla": {
+    "name": "Toyota Corolla (2020-2023)",
+    "engines": [
+      "2.0L 4-cyl M20A-FKS",
+      "1.8L Hybrid 2ZR-FXE"
+    ],
+    "oil": "0W-16 Full Synthetic",
+    "oil_cap": "4.4 qt (2.0L) / 3.9 qt (Hybrid)",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK ILKAR7L11",
+    "torque": {
+      "Lug Nuts": "76 ft-lb",
+      "Drain Plug": "27 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "120,000 mi",
+      "Hybrid Battery Check": "Annual (Hybrid)"
+    },
+    "known_issues": [
+      "Rearview camera delay on cold starts",
+      "Road noise from rear wheel wells \u2014 install additional deadening",
+      "Hybrid battery warranty \u2014 10 yr / 150k in ZEV states"
+    ]
+  },
+  "honda cr-v": {
+    "name": "Honda CR-V (2017-2022)",
+    "engines": [
+      "1.5L Turbo L15B7",
+      "2.4L NA K24W (2017)"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "3.4 qt",
+    "coolant": "Honda Blue Type 2",
+    "spark_plug": "NGK ILZKR7B11GS",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "29 ft-lb",
+      "Caliper Bolts": "37 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "AWD Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "1.5T oil dilution \u2014 worst on 2017-2018 in cold climates",
+      "Infotainment screen delamination on 2017-2019",
+      "CVT shudder at highway merge speeds"
+    ]
+  },
+  "ford escape": {
+    "name": "Ford Escape (2020-2023)",
+    "engines": [
+      "1.5L EcoBoost 3-cyl",
+      "2.0L EcoBoost 4-cyl"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "4.4 qt (1.5L) / 5.7 qt (2.0L)",
+    "coolant": "Ford Orange VC-3-B",
+    "spark_plug": "Motorcraft SP-534",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "19 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "60,000 mi"
+    },
+    "known_issues": [
+      "1.5L 3-cyl coolant intrusion into cylinder \u2014 check TSB 21-2316",
+      "PHEV range degradation in cold weather",
+      "Reverse camera pixelation on 2020-2021"
+    ]
+  },
+  "toyota camry 2002": {
+    "name": "Toyota Camry (2002-2011)",
+    "engines": [
+      "2.4L 4-cyl 2AZ-FE",
+      "3.0L V6 1MZ-FE (2002-2006)",
+      "3.5L V6 2GR-FE (2007-2011)"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "4.5 qt (2AZ-FE) / 5.0 qt (V6)",
+    "coolant": "Toyota Red LLC",
+    "spark_plug": "NGK IFR6A-11 (2AZ-FE)",
+    "torque": {
+      "Lug Nuts": "76 ft-lb",
+      "Drain Plug": "33 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "30,000 mi (std) / 60,000 mi (platinum)",
+      "Timing Belt (V6)": "90,000 mi",
+      "Coolant Flush": "60,000 mi"
+    },
+    "known_issues": [
+      "2AZ-FE severe oil consumption \u2014 class action settlement, check every fill-up",
+      "VVT-i oil hose failure on 2AZ-FE causing sudden oil loss",
+      "1MZ-FE/2GR-FE rear main seal leak and PS hose leak at high mileage"
+    ]
+  },
+  "toyota camry 2012": {
+    "name": "Toyota Camry (2012-2017)",
+    "engines": [
+      "2.5L 4-cyl 2AR-FE",
+      "3.5L V6 2GR-FE"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "4.8 qt (2.5L) / 6.4 qt (3.5L)",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK ILTR5A-13G (2.5L)",
+    "torque": {
+      "Lug Nuts": "76 ft-lb",
+      "Drain Plug": "30 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi (conv) / 10,000 mi (syn)",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "Transmission Fluid": "60,000 mi",
+      "Coolant Flush": "100,000 mi"
+    },
+    "known_issues": [
+      "2AR-FE oil consumption \u2014 monitor closely, same family as 2AZ-FE",
+      "V6 2GR-FE valve cover gasket seepage at high mileage",
+      "Radio/infotainment freezes on 2012-2014 \u2014 software update available"
+    ]
+  },
+  "toyota rav4": {
+    "name": "Toyota RAV4 (2013-2018)",
+    "engines": [
+      "2.5L 4-cyl 2AR-FE",
+      "2.5L Hybrid 2AR-FXE"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "4.8 qt (gas) / 4.2 qt (hybrid)",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK ILFR5L11",
+    "torque": {
+      "Lug Nuts": "76 ft-lb",
+      "Drain Plug": "27 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi (conv) / 10,000 mi (syn)",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "AWD Rear Diff Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "2AR-FE oil consumption \u2014 check every oil change",
+      "AC musty odor from evaporator in humid climates",
+      "Rear differential clutch shudder on AWD models"
+    ]
+  },
+  "toyota rav4 2019": {
+    "name": "Toyota RAV4 (2019-2024)",
+    "engines": [
+      "2.5L 4-cyl A25A-FKS",
+      "2.5L Hybrid A25A-FXS"
+    ],
+    "oil": "0W-16 Full Synthetic",
+    "oil_cap": "4.8 qt",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK ILZKAR7B11GS",
+    "torque": {
+      "Lug Nuts": "76 ft-lb",
+      "Drain Plug": "30 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "AWD Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "Hybrid battery warranty 10yr/150k in CARB states",
+      "AC blower motor noise at low fan speed",
+      "Panoramic moonroof rattle on rough roads"
+    ]
+  },
+  "toyota prius": {
+    "name": "Toyota Prius (2010-2015)",
+    "engines": [
+      "1.8L Hybrid 2ZR-FXE"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "4.4 qt",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK FK20HR11",
+    "torque": {
+      "Lug Nuts": "76 ft-lb",
+      "Drain Plug": "27 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "120,000 mi",
+      "Inverter Coolant Flush": "100,000 mi"
+    },
+    "known_issues": [
+      "Inverter coolant pump failure \u2014 replace proactively at 80k",
+      "HV battery cell degradation \u2014 check 12V aux battery annually",
+      "Brake actuator assembly failure (soft pedal) \u2014 TSB exists"
+    ]
+  },
+  "toyota prius 2016": {
+    "name": "Toyota Prius (2016-2022)",
+    "engines": [
+      "1.8L Hybrid 2ZR-FXE"
+    ],
+    "oil": "0W-16 Full Synthetic",
+    "oil_cap": "4.4 qt",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK ILKAR7L11GS",
+    "torque": {
+      "Lug Nuts": "76 ft-lb",
+      "Drain Plug": "27 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "120,000 mi",
+      "Inverter Coolant": "100,000 mi"
+    },
+    "known_issues": [
+      "HV battery pack degradation after 150k \u2014 monitor with Techstream",
+      "12V aux battery failure common after 5 years",
+      "Oil consumption in 2ZR-FXE at high mileage \u2014 check regularly"
+    ]
+  },
+  "toyota highlander": {
+    "name": "Toyota Highlander (2014-2019)",
+    "engines": [
+      "2.7L 4-cyl 1AR-FE",
+      "3.5L V6 2GR-FKS"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "4.9 qt (2.7L) / 6.4 qt (3.5L)",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK ILZKAR7B11GS (3.5L)",
+    "torque": {
+      "Lug Nuts": "76 ft-lb",
+      "Drain Plug": "27 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi (2.7L) / 10,000 mi (3.5L)",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "AWD Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "2.7L 1AR-FE oil consumption noted by owners",
+      "3rd-row seat track binding over time",
+      "AC evaporator musty odor \u2014 use Toyota AC cleaner spray"
+    ]
+  },
+  "toyota 4runner": {
+    "name": "Toyota 4Runner (2003-2023)",
+    "engines": [
+      "4.0L V6 1GR-FE"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "5.5 qt",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK ILFR6A11",
+    "torque": {
+      "Lug Nuts": "83 ft-lb",
+      "Drain Plug": "27 ft-lb",
+      "Caliper Bolts": "91 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi (conv) / 10,000 mi (syn)",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "Front/Rear Diff Fluid": "30,000 mi (4WD)",
+      "Transfer Case Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "Frame rust \u2014 inspect undercarriage annually in salt-belt states",
+      "Rear main seal and cam tower oil leaks at high mileage",
+      "Front lower ball joint wear \u2014 inspect at every tire rotation"
+    ]
+  },
+  "toyota tundra": {
+    "name": "Toyota Tundra (2007-2021)",
+    "engines": [
+      "5.7L V8 3UR-FE",
+      "4.6L V8 1UR-FE"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "8.0 qt (5.7L) / 7.1 qt (4.6L)",
+    "coolant": "Toyota Red LLC",
+    "spark_plug": "NGK DILKAR7C11GS",
+    "torque": {
+      "Lug Nuts": "83 ft-lb",
+      "Drain Plug": "29 ft-lb",
+      "Caliper Bolts": "90 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi (conv) / 10,000 mi (syn)",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "Front Diff Fluid": "30,000 mi (4WD)",
+      "Rear Diff Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "Frame rust recall on 2000-2003 \u2014 verify repair on used units",
+      "Secondary air injection pump failure (P0418) \u2014 common at 80k",
+      "Cam tower front oil leak on high-mileage 5.7L"
+    ]
+  },
+  "honda civic 2001": {
+    "name": "Honda Civic (2001-2015)",
+    "engines": [
+      "1.7L D17A2",
+      "1.8L R18A1",
+      "2.0L K20Z3 (Si)"
+    ],
+    "oil": "5W-20 Full Synthetic",
+    "oil_cap": "3.7 qt (1.7L/1.8L) / 4.4 qt (2.0L)",
+    "coolant": "Honda Blue Type 2",
+    "spark_plug": "NGK IZFR6K13",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "29 ft-lb",
+      "Caliper Bolts (front)": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "30,000 mi (std) / 100,000 mi (iridium)",
+      "Coolant Flush": "60,000 mi",
+      "Transmission Fluid": "30,000 mi (manual)"
+    },
+    "known_issues": [
+      "D17A2 timing chain tensioner rattle on cold starts (2001-2005)",
+      "R18A1 oil consumption at high mileage \u2014 check level monthly",
+      "Rust around rear wheel arches in northern states"
+    ]
+  },
+  "honda pilot": {
+    "name": "Honda Pilot (2009-2022)",
+    "engines": [
+      "3.5L V6 J35A9",
+      "3.5L V6 J35Y4"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "4.5 qt (J35A9) / 5.0 qt (J35Y4)",
+    "coolant": "Honda Blue Type 2",
+    "spark_plug": "NGK IZFR6K13",
+    "torque": {
+      "Lug Nuts": "94 ft-lb",
+      "Drain Plug": "29 ft-lb",
+      "Caliper Bolts (front)": "53 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "30,000 mi (std) / 90,000 mi (iridium)",
+      "AWD VTM-4 Fluid": "30,000 mi",
+      "Coolant Flush": "60,000 mi"
+    },
+    "known_issues": [
+      "VCM cylinder deactivation causes vibration and premature engine mounts \u2014 consider VCMuzzler",
+      "Power steering hose leak at rack (2009-2015)",
+      "3rd-row seat folding mechanism binding"
+    ]
+  },
+  "honda odyssey": {
+    "name": "Honda Odyssey (2011-2017)",
+    "engines": [
+      "3.5L V6 J35A6",
+      "3.5L V6 J35Y5"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "4.5 qt",
+    "coolant": "Honda Blue Type 2",
+    "spark_plug": "NGK ILZKR7B11GS",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "29 ft-lb",
+      "Caliper Bolts (front)": "53 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "30,000 mi (std) / 90,000 mi (iridium)",
+      "Transmission Fluid": "30,000 mi (severe) / 90,000 mi"
+    },
+    "known_issues": [
+      "VCM issues causing vibration \u2014 engine mounts wear prematurely",
+      "AC condenser corrosion and leak on front bumper units",
+      "Power sliding door actuator failure"
+    ]
+  },
+  "ford f-150 2009": {
+    "name": "Ford F-150 (2009-2017)",
+    "engines": [
+      "5.0L V8 Coyote",
+      "3.5L EcoBoost V6",
+      "2.7L EcoBoost V6",
+      "3.7L V6"
+    ],
+    "oil": "5W-20 (5.0L/3.7L) / 5W-30 (EcoBoost)",
+    "oil_cap": "7.7 qt (5.0L) / 6.0 qt (EcoBoost)",
+    "coolant": "Ford Orange VC-3-B",
+    "spark_plug": "Motorcraft SP-520 (5.0L)",
+    "torque": {
+      "Lug Nuts": "150 ft-lb",
+      "Drain Plug": "19 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi (dino) / 10,000 mi (syn)",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "60,000 mi (Coyote/EcoBoost)",
+      "Transmission Fluid": "150,000 mi (normal) / 60,000 mi (towing)"
+    },
+    "known_issues": [
+      "3.5T EcoBoost carbon buildup on intake valves \u2014 walnut blast at 60k",
+      "Spark plug blowout on 2-valve 5.4L (pre-2011) \u2014 torque to spec",
+      "Cam phaser rattle on 5.0L Coyote at startup (oil pressure related)"
+    ]
+  },
+  "ford explorer": {
+    "name": "Ford Explorer (2011-2019)",
+    "engines": [
+      "3.5L V6 Ti-VCT",
+      "2.0L EcoBoost 4-cyl",
+      "3.5L EcoBoost V6"
+    ],
+    "oil": "5W-20 (3.5L NA/2.0T) / 5W-30 (3.5T)",
+    "oil_cap": "6.0 qt (3.5L) / 5.7 qt (2.0T)",
+    "coolant": "Ford Orange VC-3-B",
+    "spark_plug": "Motorcraft SP-520 (3.5L)",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "19 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "PTU Fluid": "30,000 mi (AWD)"
+    },
+    "known_issues": [
+      "Exhaust fume intrusion into cabin \u2014 NHTSA recall; inspect rear lift gate seal",
+      "PTU (Power Transfer Unit) failure from neglected fluid changes",
+      "2.0T EcoBoost carbon buildup on intake valves"
+    ]
+  },
+  "ford mustang": {
+    "name": "Ford Mustang GT (2005-2014)",
+    "engines": [
+      "4.6L V8 3V",
+      "5.0L V8 Coyote (2011+)"
+    ],
+    "oil": "5W-20 Full Synthetic",
+    "oil_cap": "6.0 qt (4.6L) / 8.0 qt (5.0L)",
+    "coolant": "Ford Orange VC-3-B",
+    "spark_plug": "Motorcraft SP-479 (4.6L) / SP-520 (5.0L)",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "17 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "30,000 mi (4.6L std) / 60,000 mi (5.0L iridium)",
+      "Rear Axle Fluid": "30,000 mi (severe) / 75,000 mi",
+      "Coolant Flush": "100,000 mi"
+    },
+    "known_issues": [
+      "4.6L 3V spark plug thread failure \u2014 use proper extraction kit, do not force",
+      "Rear axle seal leaks on 8.8\" axle at high mileage",
+      "IRS axle halfshaft CV boot tears on 2011-2014 Coyote GT"
+    ]
+  },
+  "chevrolet silverado 2007": {
+    "name": "Chevrolet Silverado 1500 (2007-2018)",
+    "engines": [
+      "5.3L V8 LC9/L83",
+      "4.3L V6 LV3",
+      "6.2L V8 L86"
+    ],
+    "oil": "5W-30 (2007-2013) / 0W-20 AFM (2014-2018)",
+    "oil_cap": "6.0 qt (5.3L/6.2L) / 4.5 qt (4.3L)",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-103 (5.3L)",
+    "torque": {
+      "Lug Nuts": "140 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "32 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "100,000 mi",
+      "Transmission Fluid": "45,000 mi (towing) / 100,000 mi (normal)"
+    },
+    "known_issues": [
+      "AFM lifter failure on 5.3L L83/LY5 \u2014 tick at startup, especially at 80k+",
+      "Oil consumption with active fuel management \u2014 add catch can",
+      "Throttle body carbon buildup causing idle surge (5.3L)"
+    ]
+  },
+  "chevrolet equinox": {
+    "name": "Chevrolet Equinox (2010-2017)",
+    "engines": [
+      "2.4L 4-cyl LAF/LE5",
+      "3.0L V6 LFW"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "5.0 qt (2.4L) / 5.5 qt (3.0L)",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-110 (2.4L)",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "32 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "100,000 mi",
+      "Coolant Flush": "150,000 mi"
+    },
+    "known_issues": [
+      "2.4L LAF timing chain wear \u2014 rattle on cold starts, replace chain kit at first sign",
+      "2.4L oil and coolant consumption (2010-2012) \u2014 check TSBs",
+      "Rear hatch strut failure common after 5 years"
+    ]
+  },
+  "chevrolet tahoe": {
+    "name": "Chevrolet Tahoe (2015-2020)",
+    "engines": [
+      "5.3L V8 L83",
+      "6.2L V8 L86"
+    ],
+    "oil": "0W-20 Full Synthetic (AFM)",
+    "oil_cap": "8.0 qt",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-164",
+    "torque": {
+      "Lug Nuts": "140 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "32 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "100,000 mi",
+      "Transmission Fluid": "45,000 mi (severe) / 100,000 mi",
+      "Transfer Case Fluid": "50,000 mi"
+    },
+    "known_issues": [
+      "AFM/DFM lifter failures \u2014 same issue as Silverado 5.3L",
+      "Oil consumption with cylinder deactivation enabled",
+      "Front brake squeal from factory pads \u2014 upgrade to ceramic"
+    ]
+  },
+  "nissan altima": {
+    "name": "Nissan Altima (2007-2018)",
+    "engines": [
+      "2.5L 4-cyl QR25DE",
+      "3.5L V6 VQ35DE"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "4.9 qt (2.5L) / 5.1 qt (3.5L)",
+    "coolant": "Nissan Blue Long Life",
+    "spark_plug": "NGK DIFR5B37 (2.5L)",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts (front)": "28 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "105,000 mi (iridium)",
+      "CVT Fluid": "30,000 mi (severe) / 60,000 mi"
+    },
+    "known_issues": [
+      "CVT transmission failure \u2014 most common issue, change fluid every 30k",
+      "QR25DE oil consumption at high mileage \u2014 check level every fill-up",
+      "Radiator cracking at ATF cooler fitting (2007-2012) \u2014 inspect before overheat"
+    ]
+  },
+  "nissan rogue": {
+    "name": "Nissan Rogue (2014-2020)",
+    "engines": [
+      "2.5L 4-cyl QR25DE"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "5.2 qt",
+    "coolant": "Nissan Blue Long Life",
+    "spark_plug": "NGK DIFR5B37",
+    "torque": {
+      "Lug Nuts": "83 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "28 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "105,000 mi",
+      "CVT Fluid": "30,000 mi (severe) / 60,000 mi"
+    },
+    "known_issues": [
+      "CVT whine and shudder \u2014 Nissan extended warranty on some years, check coverage",
+      "Timing chain stretch causing P0011/P0014 codes on QR25DE",
+      "Brake pad wear faster than expected \u2014 inspect every 15k"
+    ]
+  },
+  "nissan frontier": {
+    "name": "Nissan Frontier (2005-2021)",
+    "engines": [
+      "2.5L 4-cyl QR25DE",
+      "4.0L V6 VQ40DE"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "4.2 qt (2.5L) / 5.8 qt (4.0L)",
+    "coolant": "Nissan Blue Long Life",
+    "spark_plug": "NGK DILKAR7A11 (4.0L)",
+    "torque": {
+      "Lug Nuts": "98 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "28 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "60,000 mi (4.0L std) / 105,000 mi (iridium)",
+      "Differential Fluid": "30,000 mi (4WD)",
+      "Transfer Case Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "4.0L VQ40DE timing chain guide failure \u2014 rattle/knock; replace guides at 100k+",
+      "Radiator cracking and coolant mixing with ATF (known 2005-2012)",
+      "Front lower control arm bushing wear causing pull and wander"
+    ]
+  },
+  "jeep wrangler": {
+    "name": "Jeep Wrangler JK (2007-2018)",
+    "engines": [
+      "3.8L V6 EGH (2007-2011)",
+      "3.6L V6 Pentastar (2012-2018)"
+    ],
+    "oil": "5W-20 (3.8L) / 0W-20 (3.6L)",
+    "oil_cap": "6.0 qt",
+    "coolant": "HOAT Orange",
+    "spark_plug": "Champion RC12ECC (3.8L) / NGK LZKER6AP11 (3.6L)",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts (front slider)": "11 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "30,000 mi (3.8L) / 60,000 mi (3.6L)",
+      "Front/Rear Diff Fluid": "30,000 mi",
+      "Transfer Case Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "Death wobble \u2014 worn track bar bushings, ball joints, or steering stabilizer",
+      "D30/D44 axle seal leaks common after off-road use",
+      "3.6L Pentastar cam phaser rattle on cold start \u2014 oil pressure related"
+    ]
+  },
+  "jeep grand cherokee": {
+    "name": "Jeep Grand Cherokee (2011-2021)",
+    "engines": [
+      "3.6L V6 Pentastar",
+      "5.7L HEMI V8",
+      "3.0L EcoDiesel V6"
+    ],
+    "oil": "0W-20 (3.6L) / 5W-20 (HEMI)",
+    "oil_cap": "5.9 qt (3.6L) / 7.0 qt (HEMI)",
+    "coolant": "HOAT Orange",
+    "spark_plug": "NGK LZKER6AP11 (3.6L) / Champion RC12ECC (HEMI)",
+    "torque": {
+      "Lug Nuts": "110 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "32 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "8,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "30,000 mi (HEMI) / 60,000 mi (3.6L)",
+      "Transfer Case Fluid": "60,000 mi",
+      "Differential Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "TIPM failure \u2014 causes intermittent starting/stalling/fan issues",
+      "Transfer case shudder and NVH under acceleration",
+      "3.6L Pentastar cam phaser rattle \u2014 maintain strict oil change intervals"
+    ]
+  },
+  "subaru outback": {
+    "name": "Subaru Outback (2010-2019)",
+    "engines": [
+      "2.5L H4 FB25",
+      "3.6L H6 EZ36"
+    ],
+    "oil": "0W-20 Full Synthetic (FB25) / 5W-30 (EZ36)",
+    "oil_cap": "5.1 qt (FB25) / 6.9 qt (EZ36)",
+    "coolant": "Subaru Blue Long Life",
+    "spark_plug": "NGK ILZKR7B11GS (FB25)",
+    "torque": {
+      "Lug Nuts": "89 ft-lb",
+      "Drain Plug": "31 ft-lb",
+      "Caliper Bolts": "20 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "6,000 mi (conv) / 7,500 mi (syn)",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "Differential Fluid (rear)": "30,000 mi",
+      "Coolant Flush": "60,000 mi"
+    },
+    "known_issues": [
+      "FB25 oil consumption 2011-2014 \u2014 Subaru extended warranty to 100k, check eligibility",
+      "EZ36 valve cover gasket oil leaks at high mileage",
+      "AWD rear coupling wear \u2014 vibration at highway speeds if fluid neglected"
+    ]
+  },
+  "hyundai elantra": {
+    "name": "Hyundai Elantra (2011-2022)",
+    "engines": [
+      "1.8L 4-cyl NU MPI",
+      "2.0L 4-cyl NU MPI",
+      "1.4L Turbo G4LD (2017+)"
+    ],
+    "oil": "5W-20 (2011-2016) / 0W-20 (2017+)",
+    "oil_cap": "4.2 qt",
+    "coolant": "Hyundai/Kia Pink Long Life",
+    "spark_plug": "NGK ILZKR7B10E",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "29 ft-lb",
+      "Caliper Bolts (front)": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "30,000 mi (std) / 97,000 mi (iridium)",
+      "Coolant Flush": "60,000 mi"
+    },
+    "known_issues": [
+      "Theta II 2.0L engine knock/rod bearing failure \u2014 check NHTSA recall by VIN",
+      "Oil consumption in 2011-2014 NU engines \u2014 class action settlement",
+      "Transmission mount wear causing vibration at idle (DCT models)"
+    ]
+  },
+  "dodge charger": {
+    "name": "Dodge Charger / Challenger (2011-2023)",
+    "engines": [
+      "3.6L V6 Pentastar",
+      "5.7L HEMI V8",
+      "6.4L HEMI SRT V8"
+    ],
+    "oil": "0W-20 (3.6L) / 5W-20 (5.7L/6.4L)",
+    "oil_cap": "5.9 qt (3.6L) / 7.0 qt (5.7L/6.4L)",
+    "coolant": "HOAT Orange",
+    "spark_plug": "NGK LZKER6AP11 (3.6L) / Champion RC12ECC (5.7L)",
+    "torque": {
+      "Lug Nuts": "130 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts (front slider)": "17 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "8,000 mi (3.6L) / 6,000 mi (HEMI)",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "30,000 mi (HEMI) / 60,000 mi (3.6L)",
+      "Transmission Fluid": "60,000 mi",
+      "Differential Fluid (5.7L/6.4L)": "60,000 mi"
+    },
+    "known_issues": [
+      "HEMI tick on cold start \u2014 MDS lifter wear; check oil level and weight",
+      "TIPM electrical issues causing cooling fan failures and stalling",
+      "3.6L Pentastar cam phaser rattle \u2014 no extended cold idling"
+    ]
+  },
+  "dodge challenger": {
+    "name": "Dodge Challenger (2008-2023)",
+    "engines": [
+      "3.6L V6",
+      "5.7L V8",
+      "6.4L V8",
+      "6.2L Hellcat V8"
+    ],
+    "oil": "0W-20 / 5W-20 / 0W-40",
+    "oil_cap": "7.0 qt (V8)",
+    "coolant": "OAT Purple",
+    "spark_plug": "Champion REC12MCC4",
+    "torque": {
+      "Lug Nuts": "130 ft-lb (V8)",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "30 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "6,000 mi",
+      "Differential Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "HEMI tick",
+      "Driveshaft carrier bearing failure"
+    ]
+  },
+  "acura mdx": {
+    "name": "Acura MDX (2014-2020)",
+    "engines": [
+      "3.5L V6 J35Y5",
+      "3.0L V6 Hybrid"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "5.7 qt",
+    "coolant": "Honda Blue Type 2",
+    "spark_plug": "NGK ILZKR7B11GS",
+    "torque": {
+      "Lug Nuts": "94 ft-lb",
+      "Drain Plug": "29 ft-lb",
+      "Caliper Bolts": "53 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "100,000 mi",
+      "Timing Belt": "100,000 mi",
+      "AWD Fluid (VTM-4)": "30,000 mi"
+    },
+    "known_issues": [
+      "9-speed transmission hard shifting (2016+) \u2014 software update may help",
+      "Timing belt tensioner ticking noise on cold starts",
+      "VCM issues causing oil consumption and fouled spark plugs"
+    ]
+  },
+  "acura tlx": {
+    "name": "Acura TLX (2015-2020)",
+    "engines": [
+      "2.4L 4-cyl K24W7",
+      "3.5L V6 J35Y6"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "4.4 qt (2.4L) / 4.5 qt (3.5L)",
+    "coolant": "Honda Blue Type 2",
+    "spark_plug": "NGK ILZKR7B11 (3.5L)",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "29 ft-lb",
+      "Caliper Bolts": "50 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "100,000 mi",
+      "Timing Belt (V6)": "100,000 mi",
+      "Transmission Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "9-speed ZF transmission (V6) jerky shifts \u2014 check for recalls/updates",
+      "2.4L direct injection carbon buildup on intake valves",
+      "Connecting rod bearing wear on some V6 models (NHTSA recall)"
+    ]
+  },
+  "honda hr-v": {
+    "name": "Honda HR-V (2016-2022)",
+    "engines": [
+      "1.8L 4-cyl R18Z9"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "3.9 qt",
+    "coolant": "Honda Blue Type 2",
+    "spark_plug": "NGK DILZKR7B11GS",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "29 ft-lb",
+      "Caliper Bolts": "24 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "100,000 mi",
+      "CVT Fluid": "30,000 mi",
+      "AWD Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "CVT belt slip/failure \u2014 covered under extended warranty on some years",
+      "Start button failure causing no-start conditions",
+      "Window seals degrading causing wind noise"
+    ]
+  },
+  "honda ridgeline": {
+    "name": "Honda Ridgeline (2017-2023)",
+    "engines": [
+      "3.5L V6 J35Y6"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "5.7 qt",
+    "coolant": "Honda Blue Type 2",
+    "spark_plug": "NGK ILZKR7B11GS",
+    "torque": {
+      "Lug Nuts": "94 ft-lb",
+      "Drain Plug": "29 ft-lb",
+      "Caliper Bolts": "53 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "100,000 mi",
+      "Timing Belt": "100,000 mi",
+      "AWD Fluid (VTM-4)": "15,000 mi (first) / 30,000 mi"
+    },
+    "known_issues": [
+      "Water leak in rear cabin from roof seam or sliding window",
+      "6-speed transmission shudder (2017-2019) \u2014 requires fluid triple-flush",
+      "Emissions system problem warning (fuel injector replacement common)"
+    ]
+  },
+  "alfa romeo giulia": {
+    "name": "Alfa Romeo Giulia (2017-2023)",
+    "engines": [
+      "2.0L Turbo 4-cyl",
+      "2.9L Twin-Turbo V6 (Quadrifoglio)"
+    ],
+    "oil": "0W-30 Full Synthetic (2.0T) / 5W-40 (2.9L)",
+    "oil_cap": "5.5 qt (2.0T) / 7.6 qt (2.9L)",
+    "coolant": "OAT Purple",
+    "spark_plug": "NGK ILKAR7D10G (2.0T)",
+    "torque": {
+      "Lug Nuts": "89 ft-lb",
+      "Drain Plug": "15 ft-lb",
+      "Caliper Bolts": "40 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi (2.0T) / 6,000 mi (2.9L)",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "30,000 mi (2.9L) / 60,000 mi (2.0T)",
+      "Brake Fluid Flush": "20,000 mi"
+    },
+    "known_issues": [
+      "Electrical gremlins (infotainment, random dash lights) \u2014 battery voltage sensitivity",
+      "Radiator leaks on 2.0T models at end tanks",
+      "Relay failures causing no-start conditions (check passenger footwell panel)"
+    ]
+  },
+  "alfa romeo stelvio": {
+    "name": "Alfa Romeo Stelvio (2018-2023)",
+    "engines": [
+      "2.0L Turbo 4-cyl",
+      "2.9L Twin-Turbo V6 (Quadrifoglio)"
+    ],
+    "oil": "0W-30 Full Synthetic (2.0T)",
+    "oil_cap": "5.5 qt (2.0T)",
+    "coolant": "OAT Purple",
+    "spark_plug": "NGK ILKAR7D10G (2.0T)",
+    "torque": {
+      "Lug Nuts": "89 ft-lb",
+      "Drain Plug": "15 ft-lb",
+      "Caliper Bolts": "40 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "AWD Transfer Case Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "OEM battery weakness causing multiple spurious fault codes",
+      "Sunroof drains clogging leading to interior water ingress",
+      "Early models had infotainment freezing issues \u2014 requires software update"
+    ]
+  },
+  "fiat 500": {
+    "name": "Fiat 500 (2012-2019)",
+    "engines": [
+      "1.4L 4-cyl MultiAir",
+      "1.4L Turbo (Abarth)"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "4.0 qt",
+    "coolant": "OAT Orange",
+    "spark_plug": "NGK SIKR9A7 (Abarth)",
+    "torque": {
+      "Lug Nuts": "63 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "8,000 mi",
+      "Cabin Air Filter": "16,000 mi",
+      "Spark Plugs": "30,000 mi",
+      "Timing Belt": "150,000 mi / 15 yrs"
+    },
+    "known_issues": [
+      "MultiAir brick failure from neglected oil changes or wrong viscosity",
+      "Wheel bearing failure at relatively low mileage",
+      "Ignition coil failure causing misfires (especially on Turbo/Abarth)"
+    ]
+  },
+  "audi a4": {
+    "name": "Audi A4 (B8/B9 2009-2023)",
+    "engines": [
+      "2.0L TFSI 4-cyl"
+    ],
+    "oil": "5W-40 Full Synthetic (VW 502 00 / 504 00)",
+    "oil_cap": "4.9 qt (B8) / 5.5 qt (B9)",
+    "coolant": "G12++ / G13 Pink",
+    "spark_plug": "NGK PFR7S8EG (B8)",
+    "torque": {
+      "Lug Nuts": "90 ft-lb",
+      "Drain Plug": "22 ft-lb",
+      "Caliper Bolts": "22 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "40,000 mi",
+      "DSG Transmission Fluid": "40,000 mi",
+      "Brake Fluid Flush": "2 years regardless of mileage"
+    },
+    "known_issues": [
+      "B8 (2009-2012) severe oil consumption \u2014 piston ring defect",
+      "Timing chain tensioner failure on B8 2.0T \u2014 catastrophic engine damage risk",
+      "Water pump/thermostat housing leaks (plastic housing warping)"
+    ]
+  },
+  "audi q5": {
+    "name": "Audi Q5 (2009-2023)",
+    "engines": [
+      "2.0L TFSI 4-cyl",
+      "3.0L TFSI V6",
+      "3.2L V6"
+    ],
+    "oil": "5W-40 Full Synthetic (VW 502 00)",
+    "oil_cap": "4.9 qt (2.0T) / 7.2 qt (3.0T)",
+    "coolant": "G13 Pink",
+    "spark_plug": "NGK PFR7S8EG (2.0T)",
+    "torque": {
+      "Lug Nuts": "103 ft-lb",
+      "Drain Plug": "22 ft-lb",
+      "Caliper Bolts": "22 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "40,000 mi (2.0T) / 55,000 mi (3.0T)",
+      "DSG Fluid": "40,000 mi (if equipped)",
+      "Brake Fluid": "Every 2 years"
+    },
+    "known_issues": [
+      "2.0T timing chain tensioner and oil consumption issues (early models)",
+      "3.0T supercharger intercooler core leaks",
+      "Panoramic sunroof frame creaking and drain leaks"
+    ]
+  },
+  "volkswagen jetta": {
+    "name": "Volkswagen Jetta (2011-2023)",
+    "engines": [
+      "1.4L TSI",
+      "1.8L TSI",
+      "2.0L TSI (GLI)"
+    ],
+    "oil": "5W-30 / 5W-40 Full Synthetic (VW 502 00 / 508 00)",
+    "oil_cap": "4.2 qt (1.4L) / 6.0 qt (1.8L)",
+    "coolant": "G12++ / G13 Pink",
+    "spark_plug": "NGK PZFR6R (1.4L)",
+    "torque": {
+      "Lug Nuts": "88 ft-lb",
+      "Drain Plug": "22 ft-lb",
+      "Caliper Bolts": "22 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "40,000 mi (1.8L) / 60,000 mi (1.4L)",
+      "Brake Fluid Flush": "Every 2 years",
+      "DSG Fluid (GLI)": "40,000 mi"
+    },
+    "known_issues": [
+      "1.4L TSI oil burning \u2014 check level every 1k miles",
+      "Clock spring failure causing airbag light and loss of steering controls",
+      "Ignition coil packs failure under load (misfire)"
+    ]
+  },
+  "volkswagen tiguan": {
+    "name": "Volkswagen Tiguan (2009-2023)",
+    "engines": [
+      "2.0L TSI 4-cyl"
+    ],
+    "oil": "5W-40 Full Synthetic (VW 502 00)",
+    "oil_cap": "4.9 qt (Gen 1) / 6.0 qt (Gen 2)",
+    "coolant": "G13 Pink",
+    "spark_plug": "NGK PFR7S8EG",
+    "torque": {
+      "Lug Nuts": "103 ft-lb",
+      "Drain Plug": "22 ft-lb",
+      "Caliper Bolts": "22 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "40,000 mi",
+      "Haldex AWD Fluid": "30,000 mi",
+      "Brake Fluid Flush": "Every 2 years"
+    },
+    "known_issues": [
+      "Gen 1 (2009-2017) timing chain tensioner failure",
+      "Water pump and thermostat housing leaks common around 60k miles",
+      "Carbon buildup on intake valves \u2014 requires manual cleaning (walnut blast)"
+    ]
+  },
+  "bmw 3 series": {
+    "name": "BMW 3 Series (F30/G20 2012-2023)",
+    "engines": [
+      "2.0L Turbo N20/B48",
+      "3.0L Turbo N55/B58"
+    ],
+    "oil": "0W-20 or 5W-30 Full Synthetic (BMW LL-01 / LL-14 FE+)",
+    "oil_cap": "5.3 qt (B48) / 6.9 qt (B58)",
+    "coolant": "BMW Blue / HT-12 Green",
+    "spark_plug": "NGK SILZKBR8D8S",
+    "torque": {
+      "Lug Nuts": "103 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "22 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi (factory) / 5,000 mi (enthusiast)",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "Brake Fluid Flush": "Every 2 years"
+    },
+    "known_issues": [
+      "N20 (2012-2015) timing chain guide failure \u2014 listen for whine",
+      "Oil filter housing gasket leaks (N55/B58)",
+      "Charge pipe failure on N55 and B58 under heavy boost (upgraded part recommended)"
+    ]
+  },
+  "bmw x5": {
+    "name": "BMW X5 (F15/G05 2014-2023)",
+    "engines": [
+      "3.0L Turbo I6 N55/B58",
+      "4.4L Twin-Turbo V8 N63"
+    ],
+    "oil": "5W-30 Full Synthetic (BMW LL-01)",
+    "oil_cap": "6.9 qt (I6) / 9.0 qt (V8)",
+    "coolant": "BMW Blue / HT-12 Green",
+    "spark_plug": "NGK SILZKBR8D8S (I6)",
+    "torque": {
+      "Lug Nuts": "103 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "Transfer Case Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "N63 V8 severe oil consumption and valve stem seal failure",
+      "Air suspension rear bag leaks causing vehicle to sag when parked",
+      "Water pump failure on N55 engines around 80k miles"
+    ]
+  },
+  "mini cooper": {
+    "name": "MINI Cooper (F56 2014-2023)",
+    "engines": [
+      "1.5L 3-cyl Turbo B38",
+      "2.0L 4-cyl Turbo B48"
+    ],
+    "oil": "0W-20 Full Synthetic (BMW LL-14 FE+)",
+    "oil_cap": "4.5 qt (1.5L) / 5.3 qt (2.0L)",
+    "coolant": "BMW Blue / HT-12 Green",
+    "spark_plug": "NGK SILZKGR8B8S",
+    "torque": {
+      "Lug Nuts": "103 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "22 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "Brake Fluid Flush": "Every 2 years"
+    },
+    "known_issues": [
+      "Upper engine mount failure on B38/B48 \u2014 look for leaking black fluid",
+      "Evap purge valve ticking noise or failure",
+      "Clutch premature wear on manual transmission models"
+    ]
+  },
+  "buick enclave": {
+    "name": "Buick Enclave (2008-2023)",
+    "engines": [
+      "3.6L V6 LY7 / LFY"
+    ],
+    "oil": "5W-30 Full Synthetic (Dexos1 Gen2)",
+    "oil_cap": "5.5 qt (LY7) / 6.0 qt (LFY)",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-109",
+    "torque": {
+      "Lug Nuts": "140 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "32 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "22,500 mi",
+      "Spark Plugs": "97,500 mi",
+      "Transmission Fluid": "45,000 mi (severe)",
+      "Coolant Flush": "150,000 mi / 5 yrs"
+    },
+    "known_issues": [
+      "3.6L timing chain stretch (especially 2008-2012) if oil changes neglected",
+      "Transmission wave plate failure (6T75) on early models",
+      "Water pump leaks and power steering rack seal leaks"
+    ]
+  },
+  "buick encore": {
+    "name": "Buick Encore (2013-2022)",
+    "engines": [
+      "1.4L Turbo LUJ/LUV",
+      "1.4L Turbo LE2"
+    ],
+    "oil": "5W-30 Full Synthetic (Dexos1 Gen2)",
+    "oil_cap": "4.2 qt",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-121",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "10 ft-lb (LUJ)",
+      "Caliper Bolts": "21 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "22,500 mi",
+      "Spark Plugs": "60,000 mi",
+      "AWD Fluid": "45,000 mi"
+    },
+    "known_issues": [
+      "PCV valve failure built into the valve cover \u2014 requires entire cover replacement",
+      "Turbocharger wastegate cracking or underboost codes",
+      "Coolant leaks from water outlet housing and coolant return pipe"
+    ]
+  },
+  "cadillac escalade": {
+    "name": "Cadillac Escalade (2015-2023)",
+    "engines": [
+      "6.2L V8 L86",
+      "6.2L V8 L87"
+    ],
+    "oil": "0W-20 Full Synthetic (Dexos1 Gen2/Gen3)",
+    "oil_cap": "8.0 qt",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-114",
+    "torque": {
+      "Lug Nuts": "140 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "32 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "22,500 mi",
+      "Spark Plugs": "97,500 mi",
+      "Transmission Fluid": "45,000 mi",
+      "Transfer Case Fluid": "45,000 mi"
+    },
+    "known_issues": [
+      "Magnetic ride control shock failure \u2014 expensive to replace, check for leaks",
+      "8-speed transmission shudder (2015-2017) \u2014 fluid flush/mobil 1 update needed",
+      "AFM/DFM lifter collapse causing misfires and engine tick"
+    ]
+  },
+  "cadillac cts": {
+    "name": "Cadillac CTS (2008-2019)",
+    "engines": [
+      "3.0L V6 LF1",
+      "3.6L V6 LFX",
+      "2.0L Turbo LTG",
+      "6.2L V8 LSA (CTS-V)"
+    ],
+    "oil": "5W-30 Full Synthetic (Dexos1)",
+    "oil_cap": "6.0 qt (V6) / 5.0 qt (2.0T)",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-109 (V6)",
+    "torque": {
+      "Lug Nuts": "110 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "32 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "22,500 mi",
+      "Spark Plugs": "60,000 mi (2.0T) / 97,500 mi (V6)",
+      "Transmission Fluid": "45,000 mi"
+    },
+    "known_issues": [
+      "3.6L timing chain stretch if oil changes ignored",
+      "CUE infotainment screen cracking/delamination (frequent replacement)",
+      "AWD transfer case front driveshaft failure"
+    ]
+  },
+  "gmc sierra 1500": {
+    "name": "GMC Sierra 1500 (2014-2023)",
+    "engines": [
+      "5.3L V8 L83/L84",
+      "6.2L V8 L86/L87"
+    ],
+    "oil": "0W-20 Full Synthetic (Dexos1)",
+    "oil_cap": "8.0 qt",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-114",
+    "torque": {
+      "Lug Nuts": "140 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "32 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "22,500 mi",
+      "Spark Plugs": "97,500 mi",
+      "Transmission Fluid": "45,000 mi",
+      "Transfer Case Fluid": "45,000 mi"
+    },
+    "known_issues": [
+      "Lifter failure (AFM/DFM) causing tick and misfires",
+      "Transmission torque converter shudder (8-speed automatic)",
+      "Vacuum pump failure reducing braking assist"
+    ]
+  },
+  "gmc acadia": {
+    "name": "GMC Acadia (2007-2023)",
+    "engines": [
+      "3.6L V6 LY7/LLT/LGX",
+      "2.5L 4-cyl LCV"
+    ],
+    "oil": "5W-30 Full Synthetic (Dexos1)",
+    "oil_cap": "5.5 qt (LY7) / 6.0 qt (LGX)",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-109 (LY7)",
+    "torque": {
+      "Lug Nuts": "140 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "32 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "22,500 mi",
+      "Spark Plugs": "97,500 mi",
+      "Transmission Fluid": "45,000 mi"
+    },
+    "known_issues": [
+      "Shift to Park warning message \u2014 microswitch failure in shifter assembly",
+      "3.6L timing chain stretch (2007-2012 models primarily)",
+      "Water pump leak and steering gear noise"
+    ]
+  },
+  "chevrolet traverse": {
+    "name": "Chevrolet Traverse (2009-2023)",
+    "engines": [
+      "3.6L V6 LLT/LFY"
+    ],
+    "oil": "5W-30 Full Synthetic (Dexos1)",
+    "oil_cap": "5.5 qt (LLT) / 6.0 qt (LFY)",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-109",
+    "torque": {
+      "Lug Nuts": "140 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "32 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "22,500 mi",
+      "Spark Plugs": "97,500 mi",
+      "Transmission Fluid": "45,000 mi"
+    },
+    "known_issues": [
+      "Timing chain stretch on older 3.6L engines",
+      "Evap purge solenoid failure causing rough idle after fill-up",
+      "Shift to Park issue on 2018+ models"
+    ]
+  },
+  "chevrolet malibu": {
+    "name": "Chevrolet Malibu (2016-2023)",
+    "engines": [
+      "1.5L Turbo LFV",
+      "2.0L Turbo LTG"
+    ],
+    "oil": "0W-20 Full Synthetic (1.5L) / 5W-30 (2.0L)",
+    "oil_cap": "4.2 qt (1.5L) / 5.0 qt (2.0L)",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-121",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "21 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "22,500 mi",
+      "Spark Plugs": "60,000 mi",
+      "Transmission Fluid": "45,000 mi"
+    },
+    "known_issues": [
+      "Shift to Park message \u2014 requires shifter assembly replacement or microswitch fix",
+      "1.5L piston failure (LSPI) \u2014 ensure Dexos1 Gen2/Gen3 oil is used",
+      "Vacuum pump leaking oil"
+    ]
+  },
+  "chrysler 300": {
+    "name": "Chrysler 300 (2011-2023)",
+    "engines": [
+      "3.6L V6 Pentastar",
+      "5.7L V8 HEMI"
+    ],
+    "oil": "0W-20 (3.6L) / 5W-20 (5.7L)",
+    "oil_cap": "5.9 qt (3.6L) / 7.0 qt (5.7L)",
+    "coolant": "OAT Purple",
+    "spark_plug": "Champion RER8ZWYCB4 (3.6L) / Champion REC12MCC4 (5.7L)",
+    "torque": {
+      "Lug Nuts": "130 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "24 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "8,000 mi (3.6L) / 6,000 mi (5.7L)",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "100,000 mi (3.6L) / 30,000 mi (5.7L)",
+      "AWD Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "Uconnect screen delamination (bubbling screen) on 2017+ 8.4-inch displays",
+      "3.6L cam phaser/rocker arm failure (ticking noise)",
+      "HEMI lifter failure on 5.7L"
+    ]
+  },
+  "chrysler pacifica": {
+    "name": "Chrysler Pacifica (2017-2023)",
+    "engines": [
+      "3.6L V6 Pentastar",
+      "3.6L V6 Hybrid PHEV"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "5.0 qt",
+    "coolant": "OAT Purple",
+    "spark_plug": "Champion RER8ZWYCB4",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "8,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "100,000 mi",
+      "Coolant Flush": "150,000 mi / 10 yrs"
+    },
+    "known_issues": [
+      "PHEV hybrid battery coolant heater failure (causes CEL and no electric mode)",
+      "Dual-screen rear entertainment system glitches",
+      "Auto start/stop system dual-battery failure causing electrical issues"
+    ]
+  },
+  "dodge durango": {
+    "name": "Dodge Durango (2011-2023)",
+    "engines": [
+      "3.6L V6 Pentastar",
+      "5.7L V8 HEMI"
+    ],
+    "oil": "0W-20 (3.6L) / 5W-20 (5.7L)",
+    "oil_cap": "5.9 qt (3.6L) / 7.0 qt (5.7L)",
+    "coolant": "OAT Purple",
+    "spark_plug": "Champion RER8ZWYCB4 (3.6L)",
+    "torque": {
+      "Lug Nuts": "110 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "24 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "8,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "100,000 mi (3.6L) / 30,000 mi (5.7L)",
+      "Transfer Case": "60,000 mi"
+    },
+    "known_issues": [
+      "Water pump failure on 3.6L or 5.7L leading to overheat",
+      "Racetrack tail light assembly led failure (water intrusion)",
+      "TIPM issues causing fuel pump relay failure (crank no start)"
+    ]
+  },
+  "dodge grand caravan": {
+    "name": "Dodge Grand Caravan (2008-2020)",
+    "engines": [
+      "3.3L V6",
+      "3.8L V6",
+      "3.6L V6 Pentastar (2011+)"
+    ],
+    "oil": "5W-20 (3.8L) / 5W-20 (3.6L)",
+    "oil_cap": "6.0 qt",
+    "coolant": "HOAT Orange (to 2012) / OAT Purple (2013+)",
+    "spark_plug": "Champion RER8ZWYCB4 (3.6L)",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "8,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "100,000 mi",
+      "Transmission Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "Premature brake wear (caliper seizing and rotor warping)",
+      "3.6L cylinder head failure (P0302/P0304/P0306 misfire) on 2011-2013 models",
+      "HVAC blend door actuator failure clicking noise behind dash"
+    ]
+  },
+  "jeep cherokee": {
+    "name": "Jeep Cherokee (KL 2014-2023)",
+    "engines": [
+      "2.4L 4-cyl Tigershark",
+      "3.2L V6 Pentastar",
+      "2.0L Turbo 4-cyl"
+    ],
+    "oil": "0W-20 (2.4L/3.2L) / 5W-30 (2.0T)",
+    "oil_cap": "5.5 qt (2.4L) / 5.9 qt (3.2L) / 5.0 qt (2.0T)",
+    "coolant": "OAT Purple",
+    "spark_plug": "Champion RER8ZWYCB4 (3.2L)",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "8,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "100,000 mi (V6) / 30,000 mi (2.4L)",
+      "PTU/RDM Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "2.4L Tigershark severe oil consumption causing stalling",
+      "9-speed transmission hard shifting / failing to find gears (software updates required)",
+      "PTU failure on 4x4 models \u2014 replace fluid proactively"
+    ]
+  },
+  "jeep renegade": {
+    "name": "Jeep Renegade (2015-2023)",
+    "engines": [
+      "1.4L Turbo 4-cyl",
+      "2.4L 4-cyl Tigershark",
+      "1.3L Turbo 4-cyl"
+    ],
+    "oil": "5W-40 (1.4T) / 0W-20 (2.4L) / 0W-30 (1.3T)",
+    "oil_cap": "4.0 qt (1.4T) / 5.5 qt (2.4L)",
+    "coolant": "OAT Purple",
+    "spark_plug": "NGK SIKR9A7 (1.4T)",
+    "torque": {
+      "Lug Nuts": "89 ft-lb",
+      "Drain Plug": "15 ft-lb",
+      "Caliper Bolts": "22 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "8,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "30,000 mi",
+      "AWD Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "2.4L engine oil consumption issue (same as Cherokee/Compass)",
+      "Cooling fan resistor failure causing overheating",
+      "MySky roof panels rattling or jamming"
+    ]
+  },
+  "ram promaster": {
+    "name": "Ram ProMaster (2014-2023)",
+    "engines": [
+      "3.6L V6 Pentastar",
+      "3.0L EcoDiesel I4"
+    ],
+    "oil": "5W-20 (3.6L)",
+    "oil_cap": "5.9 qt",
+    "coolant": "OAT Purple",
+    "spark_plug": "Champion RER8ZWYCB4 (3.6L)",
+    "torque": {
+      "Lug Nuts": "118 ft-lb (1500) / 145 ft-lb (2500)",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "30 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "100,000 mi",
+      "Transmission Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "Transmission failure under heavy payload (62TE transmission)",
+      "Headlight bulb burning out frequently due to poor connection",
+      "Squeaking rear leaf springs / bushing wear"
+    ]
+  },
+  "ford focus": {
+    "name": "Ford Focus (2012-2018)",
+    "engines": [
+      "2.0L 4-cyl Ti-VCT",
+      "2.0L EcoBoost (ST)",
+      "1.0L EcoBoost 3-cyl"
+    ],
+    "oil": "5W-20 (2.0L NA) / 5W-30 (EcoBoost)",
+    "oil_cap": "4.5 qt (2.0L NA) / 5.7 qt (ST)",
+    "coolant": "Ford Orange VC-3-B",
+    "spark_plug": "Motorcraft SP-530",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "21 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "100,000 mi",
+      "Coolant Flush": "100,000 mi"
+    },
+    "known_issues": [
+      "DPS6 PowerShift automatic transmission shudder/failure \u2014 massive class action",
+      "Purge valve failure causing fuel tank deformation (NHTSA recall)",
+      "Motor mounts failure causing severe idle vibration"
+    ]
+  },
+  "ford fusion": {
+    "name": "Ford Fusion (2013-2020)",
+    "engines": [
+      "2.5L 4-cyl",
+      "1.5L EcoBoost",
+      "2.0L EcoBoost",
+      "2.0L Hybrid"
+    ],
+    "oil": "5W-20 (2.5L/Hybrid) / 5W-30 (EcoBoost)",
+    "oil_cap": "5.7 qt (1.5L) / 5.7 qt (2.0L)",
+    "coolant": "Ford Orange VC-3-B",
+    "spark_plug": "Motorcraft SP-534 (EcoBoost)",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "21 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "100,000 mi",
+      "PTU Fluid (AWD)": "30,000 mi"
+    },
+    "known_issues": [
+      "1.5L and 2.0L EcoBoost coolant intrusion into cylinders \u2014 requires short block replacement",
+      "Transmission harsh shifts (6F35) \u2014 fluid flush every 30k recommended",
+      "Swollen lug nuts (two-piece design) \u2014 replace with solid aftermarket lug nuts"
+    ]
+  },
+  "ford bronco": {
+    "name": "Ford Bronco (2021-2024)",
+    "engines": [
+      "2.3L EcoBoost I4",
+      "2.7L EcoBoost V6",
+      "3.0L EcoBoost V6 (Raptor)"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "6.2 qt (2.3L) / 7.0 qt (2.7L)",
+    "coolant": "Ford Yellow VC-13-G",
+    "spark_plug": "Motorcraft SP-578 (2.3L)",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "46 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "Transfer Case Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "2.7L EcoBoost dropped valves on early build 2021 models",
+      "Hardtop (MIC) roof delamination and noise issues",
+      "10-speed transmission clunky shifts at low speeds"
+    ]
+  },
+  "lincoln navigator": {
+    "name": "Lincoln Navigator (2015-2023)",
+    "engines": [
+      "3.5L EcoBoost V6"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "6.0 qt",
+    "coolant": "Ford Orange VC-3-B / Yellow VC-13-G",
+    "spark_plug": "Motorcraft SP-580",
+    "torque": {
+      "Lug Nuts": "150 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "41 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "Transmission Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "Cam phaser rattle on cold start (same as F-150 3.5L)",
+      "Power running boards failing to deploy or retract",
+      "Air suspension compressor failure or leaking airbags"
+    ]
+  },
+  "hyundai sonata": {
+    "name": "Hyundai Sonata (2011-2019)",
+    "engines": [
+      "2.4L 4-cyl Theta II",
+      "2.0L Turbo 4-cyl Theta II"
+    ],
+    "oil": "5W-20 (2.4L) / 5W-30 (2.0T)",
+    "oil_cap": "4.8 qt",
+    "coolant": "Hyundai Green",
+    "spark_plug": "NGK ILZKR7B11 (2.4L)",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "24 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "97,500 mi (2.4L) / 45,000 mi (2.0T)",
+      "Coolant Flush": "60,000 mi"
+    },
+    "known_issues": [
+      "Theta II rod bearing failure causing engine knock and seizure (lifetime warranty extension)",
+      "Steering column flex coupler failure causing clunking noise when turning",
+      "Starter lever failing causing intermittent no-crank"
+    ]
+  },
+  "hyundai santa fe": {
+    "name": "Hyundai Santa Fe (2013-2023)",
+    "engines": [
+      "2.4L 4-cyl",
+      "3.3L V6",
+      "2.0L Turbo",
+      "2.5L 4-cyl (2021+)"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "5.0 qt (2.4L) / 6.0 qt (3.3L)",
+    "coolant": "Hyundai Pink/Green",
+    "spark_plug": "NGK SILZKR7B11 (3.3L)",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "24 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "6,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "97,500 mi",
+      "AWD Fluid": "37,500 mi (severe)"
+    },
+    "known_issues": [
+      "Theta II 2.4L/2.0T engine failure risk",
+      "AWD coupling failure causing binding during tight turns",
+      "ABS module recall risk of fire (park outside until fixed)"
+    ]
+  },
+  "kia sorento": {
+    "name": "Kia Sorento (2011-2020)",
+    "engines": [
+      "2.4L 4-cyl",
+      "3.3L V6",
+      "2.0L Turbo"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "5.0 qt (2.4L) / 6.0 qt (3.3L)",
+    "coolant": "Kia Green",
+    "spark_plug": "NGK SILZKR7B11 (3.3L)",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "24 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi (Turbo) / 7,500 mi (V6)",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "97,500 mi",
+      "AWD Fluid": "37,500 mi (severe)"
+    },
+    "known_issues": [
+      "Theta II 2.4L engine rod bearing failure",
+      "3.3L V6 head bolt stripping (coolant consumption/overheating)",
+      "Door lock actuators failing"
+    ]
+  },
+  "kia telluride": {
+    "name": "Kia Telluride (2020-2024)",
+    "engines": [
+      "3.8L V6 Lambda II"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "6.9 qt",
+    "coolant": "Kia Pink",
+    "spark_plug": "NGK SILZKR8E9G",
+    "torque": {
+      "Lug Nuts": "88 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "24 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "97,500 mi",
+      "AWD Transfer Case": "60,000 mi"
+    },
+    "known_issues": [
+      "Windshield cracks easily from rock chips",
+      "Tow hitch wiring harness recall (fire risk)",
+      "Vibration at highway speeds due to driveshaft or tire balance sensitivity"
+    ]
+  },
+  "lexus rx350": {
+    "name": "Lexus RX350 (2010-2022)",
+    "engines": [
+      "3.5L V6 2GR-FE / 2GR-FKS"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "6.4 qt (2010-2015) / 5.8 qt (2016+)",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK FK20HR11",
+    "torque": {
+      "Lug Nuts": "76 ft-lb",
+      "Drain Plug": "30 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "10,000 mi",
+      "Engine Air Filter": "30,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "AWD Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "Timing cover oil leak (expensive labor to reseal)",
+      "Water pump failure weeping coolant from weep hole",
+      "Infotainment screen delamination or trackpad failure"
+    ]
+  },
+  "lexus es350": {
+    "name": "Lexus ES350 (2013-2023)",
+    "engines": [
+      "3.5L V6 2GR-FE / 2GR-FKS"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "6.4 qt / 5.8 qt",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK FK20HR11",
+    "torque": {
+      "Lug Nuts": "76 ft-lb",
+      "Drain Plug": "30 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "10,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "Brake Fluid Flush": "30,000 mi / 3 yrs"
+    },
+    "known_issues": [
+      "Timing cover seepage similar to RX350",
+      "HVAC blend door actuator clicking noise behind dash",
+      "Sunroof rattle on rough roads"
+    ]
+  },
+  "toyota sienna": {
+    "name": "Toyota Sienna (2011-2020)",
+    "engines": [
+      "3.5L V6 2GR-FE / 2GR-FKS"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "6.4 qt",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK FK20HR11",
+    "torque": {
+      "Lug Nuts": "76 ft-lb",
+      "Drain Plug": "30 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "Transfer Case (AWD)": "30,000 mi"
+    },
+    "known_issues": [
+      "Power sliding door cable snapping or motor failure",
+      "VVT-i gear rattle on cold start",
+      "Water pump failure leading to overheating"
+    ]
+  },
+  "toyota sequoia": {
+    "name": "Toyota Sequoia (2008-2022)",
+    "engines": [
+      "5.7L V8 3UR-FE",
+      "4.6L V8 1UR-FE"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "7.9 qt (5.7L)",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK DILKAR7C11GS",
+    "torque": {
+      "Lug Nuts": "97 ft-lb",
+      "Drain Plug": "30 ft-lb",
+      "Caliper Bolts": "73 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "120,000 mi",
+      "Front/Rear Diff Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "Cam tower oil leaks",
+      "Secondary air injection pump failure (limp mode)",
+      "Rear air suspension bag leaks on Platinum trim"
+    ]
+  },
+  "nissan sentra": {
+    "name": "Nissan Sentra (2013-2019)",
+    "engines": [
+      "1.8L 4-cyl MRA8DE",
+      "1.6L Turbo MR16DDT"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "4.2 qt",
+    "coolant": "Nissan Blue Long Life",
+    "spark_plug": "NGK DILKAR6A11",
+    "torque": {
+      "Lug Nuts": "83 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "20 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "105,000 mi",
+      "CVT Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "CVT transmission failure \u2014 shudder, hesitation, total failure",
+      "Mass air flow sensor failure causing poor idle",
+      "Brake switch failure causing brake lights not to work or no-start"
+    ]
+  },
+  "nissan pathfinder": {
+    "name": "Nissan Pathfinder (2013-2020)",
+    "engines": [
+      "3.5L V6 VQ35DE / VQ35DD"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "5.1 qt",
+    "coolant": "Nissan Blue Long Life",
+    "spark_plug": "NGK DILKAR6A11",
+    "torque": {
+      "Lug Nuts": "83 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "30 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "105,000 mi",
+      "CVT Fluid": "30,000 mi",
+      "AWD Transfer Case": "30,000 mi"
+    },
+    "known_issues": [
+      "CVT judder and premature failure (especially 2013-2014 models)",
+      "Radiator cooling fan motor failure causing overheat at idle",
+      "Timing chain rattle on cold start (VQ35DE)"
+    ]
+  },
+  "infiniti q50": {
+    "name": "Infiniti Q50 (2014-2023)",
+    "engines": [
+      "3.7L V6 VQ37VHR",
+      "3.0L Twin-Turbo V6 VR30DDTT"
+    ],
+    "oil": "5W-30 Full Synthetic (3.7L) / 0W-20 (3.0T)",
+    "oil_cap": "5.2 qt (3.7L) / 5.7 qt (3.0T)",
+    "coolant": "Nissan Blue Long Life",
+    "spark_plug": "NGK DILKAR7B11 (3.7L)",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "32 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "105,000 mi",
+      "AWD Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "3.0T serpentine belt shredding/slipping (requires alignment bracket update)",
+      "3.0T turbocharger failure (wastegate rattle / oil in intake)",
+      "InTouch dual-screen infotainment system lag and freezing"
+    ]
+  },
+  "subaru forester": {
+    "name": "Subaru Forester (2014-2023)",
+    "engines": [
+      "2.5L H4 FB25",
+      "2.0L Turbo FA20F"
+    ],
+    "oil": "0W-20 Full Synthetic (FB25)",
+    "oil_cap": "5.1 qt",
+    "coolant": "Subaru Blue Super Coolant",
+    "spark_plug": "NGK SILZKAR7B11",
+    "torque": {
+      "Lug Nuts": "89 ft-lb",
+      "Drain Plug": "31 ft-lb",
+      "Caliper Bolts": "20 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "6,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "CVT Fluid": "60,000 mi",
+      "Front/Rear Diff Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "FB25 oil consumption (2014-2015 especially)",
+      "Rear coil spring breaking or sagging under load",
+      "CVT valve body solenoid failure"
+    ]
+  },
+  "subaru crosstrek": {
+    "name": "Subaru Crosstrek (2013-2023)",
+    "engines": [
+      "2.0L H4 FB20",
+      "2.5L H4 FB25 (2021+)"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "5.1 qt",
+    "coolant": "Subaru Blue Super Coolant",
+    "spark_plug": "NGK SILZKAR7B11",
+    "torque": {
+      "Lug Nuts": "89 ft-lb",
+      "Drain Plug": "31 ft-lb",
+      "Caliper Bolts": "20 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "6,000 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "60,000 mi",
+      "CVT Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "Rear wheel bearing failure causing humming noise at highway speeds",
+      "CVT failure (valve body issues) on early models",
+      "Oil consumption on early FB20 engines"
+    ]
+  },
+  "mazda cx-5": {
+    "name": "Mazda CX-5 (2013-2023)",
+    "engines": [
+      "2.0L Skyactiv-G",
+      "2.5L Skyactiv-G",
+      "2.5L Turbo"
+    ],
+    "oil": "0W-20 Full Synthetic (NA) / 5W-30 (Turbo)",
+    "oil_cap": "4.8 qt (2.5L)",
+    "coolant": "Mazda FL22 Green",
+    "spark_plug": "NGK PE5S-18-110",
+    "torque": {
+      "Lug Nuts": "80-108 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi (severe) / 7,500 mi (normal)",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "40,000 mi (Turbo) / 75,000 mi (NA)",
+      "Rear Diff Fluid (AWD)": "30,000 mi"
+    },
+    "known_issues": [
+      "Infotainment screen ghost touch (random clicking when stopped)",
+      "Cylinder head cracking on 2018-2019 2.5L models (coolant loss)",
+      "Daytime running light LED strip failure"
+    ]
+  },
+  "mazda 3": {
+    "name": "Mazda3 (2014-2023)",
+    "engines": [
+      "2.0L Skyactiv-G",
+      "2.5L Skyactiv-G",
+      "2.5L Turbo (2021+)"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "4.4 qt (2.0L) / 4.8 qt (2.5L)",
+    "coolant": "Mazda FL22 Green",
+    "spark_plug": "NGK PE5S-18-110",
+    "torque": {
+      "Lug Nuts": "80-108 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi (severe) / 7,500 mi (normal)",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "75,000 mi",
+      "Brake Fluid Flush": "Every 2 years"
+    },
+    "known_issues": [
+      "Infotainment system rebooting randomly",
+      "Premature brake wear on rear calipers (electronic parking brake sticking)",
+      "Thin paint chips easily on front bumper/hood"
+    ]
+  },
+  "mercedes c-class": {
+    "name": "Mercedes-Benz C-Class (W204/W205 2008-2021)",
+    "engines": [
+      "2.0L Turbo 4-cyl M274",
+      "3.0L V6 M272",
+      "3.0L BiTurbo V6 M276"
+    ],
+    "oil": "5W-40 Full Synthetic (MB 229.5)",
+    "oil_cap": "7.4 qt (2.0L) / 8.5 qt (V6)",
+    "coolant": "MB Pink / Blue",
+    "spark_plug": "NGK SILZKFR8D7S (2.0L)",
+    "torque": {
+      "Lug Nuts": "96 ft-lb",
+      "Drain Plug": "22 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi / 1 yr",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "50,000 mi",
+      "Transmission Fluid": "60,000 mi",
+      "Brake Fluid Flush": "Every 2 years"
+    },
+    "known_issues": [
+      "M274 2.0L wrist pin failure (engine knock/rattle) on 2015 models",
+      "PCV valve oil separator failure causing oil in intake",
+      "Panoramic sunroof track binding and motor failure"
+    ]
+  },
+  "mercedes e-class": {
+    "name": "Mercedes-Benz E-Class (W212/W213 2010-2023)",
+    "engines": [
+      "3.5L V6 M272/M276",
+      "2.0L Turbo M274",
+      "3.0L BiTurbo V6 M276"
+    ],
+    "oil": "5W-40 Full Synthetic (MB 229.5)",
+    "oil_cap": "6.9 qt (M276)",
+    "coolant": "MB Pink / Blue",
+    "spark_plug": "NGK PLKR7B8E",
+    "torque": {
+      "Lug Nuts": "96 ft-lb",
+      "Drain Plug": "22 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi / 1 yr",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "50,000 mi",
+      "Transmission Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "Faded wood trim interior (especially burl walnut) \u2014 UV degradation",
+      "AirMATIC suspension air strut failure (vehicle sinks when parked)",
+      "Blind spot assist sensor failure due to water intrusion in rear bumper"
+    ]
+  },
+  "mercedes gle": {
+    "name": "Mercedes-Benz GLE / M-Class (W166/V167 2012-2023)",
+    "engines": [
+      "3.5L V6 M276",
+      "3.0L BiTurbo V6",
+      "2.0L Turbo"
+    ],
+    "oil": "5W-40 Full Synthetic (MB 229.5)",
+    "oil_cap": "7.4 qt",
+    "coolant": "MB Pink",
+    "spark_plug": "NGK PLKR7B8E (3.5L)",
+    "torque": {
+      "Lug Nuts": "110 ft-lb",
+      "Drain Plug": "22 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi / 1 yr",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "50,000 mi",
+      "Transmission Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "M276 chain tensioner rattle on startup (check valves needed)",
+      "Nox sensor failure on diesel BlueTEC models",
+      "Active curve system hydraulic fluid leaks"
+    ]
+  },
+  "porsche macan": {
+    "name": "Porsche Macan (2015-2023)",
+    "engines": [
+      "2.0L Turbo",
+      "3.0L Twin-Turbo V6",
+      "3.6L Twin-Turbo V6"
+    ],
+    "oil": "0W-40 Full Synthetic (Porsche A40)",
+    "oil_cap": "5.5 qt (2.0L) / 8.5 qt (3.0L)",
+    "coolant": "Porsche Pink G40",
+    "spark_plug": "Bosch Double Platinum",
+    "torque": {
+      "Lug Nuts": "118 ft-lb",
+      "Drain Plug": "22 ft-lb",
+      "Caliper Bolts": "63 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "40,000 mi",
+      "PDK Transmission Fluid": "40,000 mi",
+      "Brake Fluid Flush": "Every 2 years"
+    },
+    "known_issues": [
+      "Timing cover oil leaks on V6 engines (requires engine out for fix)",
+      "Transfer case failure (shuddering on acceleration) \u2014 extended warranty issued",
+      "PDK transmission mechatronics unit failure"
+    ]
+  },
+  "porsche cayenne": {
+    "name": "Porsche Cayenne (958 2011-2018)",
+    "engines": [
+      "3.6L V6",
+      "4.8L V8",
+      "3.0L Supercharged V6 Hybrid"
+    ],
+    "oil": "0W-40 Full Synthetic (Porsche A40)",
+    "oil_cap": "7.3 qt (3.6L) / 9.5 qt (4.8L)",
+    "coolant": "Porsche Pink G40",
+    "spark_plug": "Bosch Double Platinum",
+    "torque": {
+      "Lug Nuts": "118 ft-lb",
+      "Drain Plug": "37 ft-lb",
+      "Caliper Bolts": "104 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "40,000 mi",
+      "Transfer Case Fluid": "40,000 mi"
+    },
+    "known_issues": [
+      "Coolant pipes ungluing and blowing out from engine (especially V8)",
+      "Transfer case failure causing skipping/jerking under load",
+      "Drive shaft center support bearing failure"
+    ]
+  },
+  "volvo xc90": {
+    "name": "Volvo XC90 (2016-2023)",
+    "engines": [
+      "2.0L Turbo/Supercharged 4-cyl T5/T6",
+      "2.0L PHEV T8"
+    ],
+    "oil": "5W-30 Full Synthetic (Volvo VCC RBS0-2AE 0W-20 for newer)",
+    "oil_cap": "6.2 qt",
+    "coolant": "Volvo Green",
+    "spark_plug": "Volvo OEM Platinum",
+    "torque": {
+      "Lug Nuts": "103 ft-lb",
+      "Drain Plug": "28 ft-lb",
+      "Caliper Bolts": "40 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "40,000 mi (T6/T8)",
+      "Brake Fluid Flush": "Every 2 years"
+    },
+    "known_issues": [
+      "Supercharger failure/rattling on T6 models",
+      "Air suspension compressor failure or line leaks",
+      "Sensus infotainment system extreme lag on startup (early 2016-2017)"
+    ]
+  },
+  "volvo xc60": {
+    "name": "Volvo XC60 (2010-2017)",
+    "engines": [
+      "3.2L I6",
+      "3.0L Turbo I6 T6",
+      "2.0L Turbo 4-cyl Drive-E"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "7.2 qt (3.0L T6) / 6.2 qt (2.0L)",
+    "coolant": "Volvo Green",
+    "spark_plug": "Volvo OEM Platinum",
+    "torque": {
+      "Lug Nuts": "103 ft-lb",
+      "Drain Plug": "28 ft-lb",
+      "Caliper Bolts": "40 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Cabin Air Filter": "20,000 mi",
+      "Spark Plugs": "75,000 mi (T6)",
+      "Haldex AWD Fluid": "40,000 mi"
+    },
+    "known_issues": [
+      "3.0L T6 serpentine belt failure causing belt to get sucked into engine timing cover",
+      "Oil consumption on early 2.0L Drive-E engines (piston rings)",
+      "Windshield leaking water onto CEM (Central Electronic Module)"
+    ]
+  },
+  "mitsubishi outlander": {
+    "name": "Mitsubishi Outlander (2014-2021)",
+    "engines": [
+      "2.4L 4-cyl",
+      "3.0L V6",
+      "2.0L PHEV"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "4.9 qt (2.4L)",
+    "coolant": "Mitsubishi Blue Super Long Life",
+    "spark_plug": "NGK DILFR5A11",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "29 ft-lb",
+      "Caliper Bolts": "20 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Cabin Air Filter": "15,000 mi",
+      "Spark Plugs": "100,000 mi",
+      "CVT Fluid": "30,000 mi (severe)",
+      "AWD Transfer Case": "30,000 mi"
+    },
+    "known_issues": []
+  },
+  "audi a6": {
+    "name": "Audi A6 (2012-2023)",
+    "engines": [
+      "2.0L TFSI 4-cyl",
+      "3.0L TFSI Supercharged V6",
+      "3.0L Turbo V6 (C8)"
+    ],
+    "oil": "5W-40 Full Synthetic",
+    "oil_cap": "4.9 qt (2.0L) / 7.2 qt (3.0L)",
+    "coolant": "G12++ / G13 Pink",
+    "spark_plug": "NGK PFR7S8EG",
+    "torque": {
+      "Lug Nuts": "90 ft-lb",
+      "Drain Plug": "22 ft-lb",
+      "Caliper Bolts": "22 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Spark Plugs": "40,000 mi"
+    },
+    "known_issues": [
+      "3.0T PCV valve and thermostat failure",
+      "2.0T timing chain stretch"
+    ]
+  },
+  "audi q7": {
+    "name": "Audi Q7 (2007-2023)",
+    "engines": [
+      "3.0L TFSI Supercharged V6",
+      "3.0L TDI V6"
+    ],
+    "oil": "5W-40 Full Synthetic",
+    "oil_cap": "7.2 qt",
+    "coolant": "G12++ / G13 Pink",
+    "spark_plug": "NGK PFR7S8EG",
+    "torque": {
+      "Lug Nuts": "118 ft-lb",
+      "Drain Plug": "22 ft-lb",
+      "Caliper Bolts": "30 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Spark Plugs": "55,000 mi"
+    },
+    "known_issues": [
+      "Tire wear due to alignment",
+      "3.0L TDI HPFP failure"
+    ]
+  },
+  "volkswagen golf": {
+    "name": "Volkswagen Golf / GTI (2010-2023)",
+    "engines": [
+      "2.0L TSI 4-cyl",
+      "1.8L TSI"
+    ],
+    "oil": "5W-40 Full Synthetic",
+    "oil_cap": "6.0 qt (2.0L)",
+    "coolant": "G13 Pink",
+    "spark_plug": "NGK PFR7S8EG",
+    "torque": {
+      "Lug Nuts": "88 ft-lb",
+      "Drain Plug": "22 ft-lb",
+      "Caliper Bolts": "22 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "DSG Fluid": "40,000 mi"
+    },
+    "known_issues": [
+      "Water pump failure",
+      "Carbon buildup on intake valves"
+    ]
+  },
+  "volkswagen passat": {
+    "name": "Volkswagen Passat (2012-2022)",
+    "engines": [
+      "2.5L 5-cyl",
+      "1.8L TSI",
+      "2.0L TSI",
+      "3.6L VR6"
+    ],
+    "oil": "5W-40 Full Synthetic",
+    "oil_cap": "6.0 qt",
+    "coolant": "G13 Pink",
+    "spark_plug": "NGK PFR7S8EG",
+    "torque": {
+      "Lug Nuts": "88 ft-lb",
+      "Drain Plug": "22 ft-lb",
+      "Caliper Bolts": "22 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Spark Plugs": "40,000 mi"
+    },
+    "known_issues": [
+      "1.8L TSI oil burning",
+      "Heater core clogging"
+    ]
+  },
+  "volkswagen atlas": {
+    "name": "Volkswagen Atlas (2018-2024)",
+    "engines": [
+      "2.0L TSI",
+      "3.6L VR6"
+    ],
+    "oil": "0W-20 (2.0L) / 5W-40 (3.6L)",
+    "oil_cap": "6.0 qt",
+    "coolant": "G13 Pink",
+    "spark_plug": "NGK ILZKR7A",
+    "torque": {
+      "Lug Nuts": "103 ft-lb",
+      "Drain Plug": "22 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Haldex Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "Water pump failure on VR6"
+    ]
+  },
+  "bmw 5 series": {
+    "name": "BMW 5 Series (F10/G30 2011-2023)",
+    "engines": [
+      "2.0L Turbo",
+      "3.0L Turbo",
+      "4.4L V8"
+    ],
+    "oil": "0W-20 / 5W-30 Full Synthetic",
+    "oil_cap": "5.3 qt / 6.9 qt",
+    "coolant": "BMW Blue / HT-12 Green",
+    "spark_plug": "NGK SILZKBR8D8S",
+    "torque": {
+      "Lug Nuts": "103 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "22 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Spark Plugs": "60,000 mi"
+    },
+    "known_issues": [
+      "N63 V8 oil consumption/valve stem seals",
+      "Oil filter housing leak"
+    ]
+  },
+  "bmw x3": {
+    "name": "BMW X3 (F25/G01 2011-2023)",
+    "engines": [
+      "2.0L Turbo",
+      "3.0L Turbo"
+    ],
+    "oil": "0W-20 / 5W-30 Full Synthetic",
+    "oil_cap": "5.3 qt / 6.9 qt",
+    "coolant": "BMW Blue / HT-12 Green",
+    "spark_plug": "NGK SILZKBR8D8S",
+    "torque": {
+      "Lug Nuts": "103 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "22 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Transfer Case": "60,000 mi"
+    },
+    "known_issues": [
+      "N20 timing chain guide plastic breaking"
+    ]
+  },
+  "mercedes s-class": {
+    "name": "Mercedes-Benz S-Class (W222 2014-2020)",
+    "engines": [
+      "3.0L BiTurbo V6",
+      "4.7L BiTurbo V8"
+    ],
+    "oil": "5W-40 Full Synthetic",
+    "oil_cap": "8.5 qt (V8)",
+    "coolant": "MB Pink / Blue",
+    "spark_plug": "NGK PLKR7B8E",
+    "torque": {
+      "Lug Nuts": "110 ft-lb",
+      "Drain Plug": "22 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Transmission Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "AirMATIC suspension failure",
+      "M278 timing chain issues"
+    ]
+  },
+  "mercedes glc": {
+    "name": "Mercedes-Benz GLC (X253 2016-2022)",
+    "engines": [
+      "2.0L Turbo 4-cyl"
+    ],
+    "oil": "5W-40 Full Synthetic",
+    "oil_cap": "7.4 qt",
+    "coolant": "MB Pink",
+    "spark_plug": "NGK SILZKFR8D7S",
+    "torque": {
+      "Lug Nuts": "96 ft-lb",
+      "Drain Plug": "22 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Transmission Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "Tire skipping at full lock cold",
+      "M274 wrist pin issue"
+    ]
+  },
+  "ford f-250": {
+    "name": "Ford F-250 Super Duty (2011-2023)",
+    "engines": [
+      "6.2L V8 Gas",
+      "6.7L Power Stroke V8 Diesel",
+      "7.3L V8 Gas"
+    ],
+    "oil": "5W-20 (6.2L) / 5W-40 (6.7L Diesel)",
+    "oil_cap": "7.0 qt (6.2L) / 13.0 qt (6.7L)",
+    "coolant": "Ford Yellow VC-13-G",
+    "spark_plug": "Motorcraft SP-526",
+    "torque": {
+      "Lug Nuts": "165 ft-lb",
+      "Drain Plug": "19 ft-lb",
+      "Caliper Bolts": "46 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi (Gas)",
+      "Fuel Filters (Diesel)": "15,000 mi"
+    },
+    "known_issues": [
+      "Death wobble",
+      "6.7L CP4 HPFP failure"
+    ]
+  },
+  "ford edge": {
+    "name": "Ford Edge (2011-2023)",
+    "engines": [
+      "3.5L V6",
+      "2.0L EcoBoost",
+      "2.7L EcoBoost"
+    ],
+    "oil": "5W-20 / 5W-30",
+    "oil_cap": "6.0 qt",
+    "coolant": "Ford Orange VC-3-B",
+    "spark_plug": "Motorcraft SP-520",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "PTU Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "PTU overheating/failure",
+      "Water pump failure on 3.5L"
+    ]
+  },
+  "ford transit": {
+    "name": "Ford Transit (2015-2023)",
+    "engines": [
+      "3.7L V6",
+      "3.5L EcoBoost",
+      "3.2L Power Stroke Diesel"
+    ],
+    "oil": "5W-20 / 5W-30",
+    "oil_cap": "6.0 qt",
+    "coolant": "Ford Orange VC-3-B",
+    "spark_plug": "Motorcraft SP-520",
+    "torque": {
+      "Lug Nuts": "150 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "35 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Transmission Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "Guibo driveshaft flex coupling cracking",
+      "Fast rear brake wear"
+    ]
+  },
+  "ford expedition": {
+    "name": "Ford Expedition (2015-2024)",
+    "engines": [
+      "3.5L EcoBoost V6"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "6.0 qt",
+    "coolant": "Ford Orange VC-3-B",
+    "spark_plug": "Motorcraft SP-580",
+    "torque": {
+      "Lug Nuts": "150 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "41 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Spark Plugs": "60,000 mi"
+    },
+    "known_issues": [
+      "Cam phaser rattle",
+      "10-speed harsh shifts"
+    ]
+  },
+  "ford mustang mach-e": {
+    "name": "Ford Mustang Mach-E (2021-2024)",
+    "engines": [
+      "Standard/Extended EV"
+    ],
+    "oil": "N/A",
+    "oil_cap": "N/A",
+    "coolant": "Ford Yellow VC-13-G",
+    "spark_plug": "N/A",
+    "torque": {
+      "Lug Nuts": "150 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Cabin Filter": "20,000 mi",
+      "Brake Fluid": "3 years"
+    },
+    "known_issues": [
+      "HV battery main contactor failure",
+      "PaaK connectivity issues"
+    ]
+  },
+  "chevrolet suburban": {
+    "name": "Chevrolet Suburban (2015-2024)",
+    "engines": [
+      "5.3L V8",
+      "6.2L V8",
+      "3.0L Duramax Diesel"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "8.0 qt",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-114",
+    "torque": {
+      "Lug Nuts": "140 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "32 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Transmission Fluid": "45,000 mi"
+    },
+    "known_issues": [
+      "AFM/DFM lifter collapse",
+      "Torque converter shudder"
+    ]
+  },
+  "chevrolet cruze": {
+    "name": "Chevrolet Cruze (2011-2019)",
+    "engines": [
+      "1.4L Turbo",
+      "1.8L 4-cyl"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "4.2 qt",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-121",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "10 ft-lb",
+      "Caliper Bolts": "21 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Transmission Fluid": "45,000 mi"
+    },
+    "known_issues": [
+      "PCV valve failure",
+      "Coolant leaks",
+      "Cracked pistons (LSPI)"
+    ]
+  },
+  "chevrolet impala": {
+    "name": "Chevrolet Impala (2014-2020)",
+    "engines": [
+      "2.5L 4-cyl",
+      "3.6L V6"
+    ],
+    "oil": "5W-20 / 5W-30",
+    "oil_cap": "5.0 qt / 6.0 qt",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-109",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "24 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Transmission Fluid": "45,000 mi"
+    },
+    "known_issues": [
+      "Shift to Park microswitch failure",
+      "3.6L timing chain stretch"
+    ]
+  },
+  "chevrolet colorado": {
+    "name": "Chevrolet Colorado / GMC Canyon (2015-2022)",
+    "engines": [
+      "2.5L 4-cyl",
+      "3.6L V6",
+      "2.8L Duramax"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "6.0 qt",
+    "coolant": "Dex-Cool Orange",
+    "spark_plug": "ACDelco 41-109",
+    "torque": {
+      "Lug Nuts": "140 ft-lb",
+      "Drain Plug": "18 ft-lb",
+      "Caliper Bolts": "30 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Transmission Fluid": "45,000 mi"
+    },
+    "known_issues": [
+      "8-speed shudder",
+      "Torque converter failure"
+    ]
+  },
+  "honda fit": {
+    "name": "Honda Fit (2009-2020)",
+    "engines": [
+      "1.5L 4-cyl L15A7/L15B1"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "3.8 qt",
+    "coolant": "Honda Blue Type 2",
+    "spark_plug": "NGK DILZKR7B11GS",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "29 ft-lb",
+      "Caliper Bolts": "24 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Transmission Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "Direct injection fuel injector failure",
+      "VTC actuator rattle"
+    ]
+  },
+  "jeep compass": {
+    "name": "Jeep Compass (2017-2023)",
+    "engines": [
+      "2.4L Tigershark 4-cyl"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "5.5 qt",
+    "coolant": "OAT Purple",
+    "spark_plug": "Champion REA8MCX",
+    "torque": {
+      "Lug Nuts": "89 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "8,000 mi",
+      "PTU Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "2.4L oil consumption",
+      "Dual battery failure"
+    ]
+  },
+  "jeep gladiator": {
+    "name": "Jeep Gladiator (JT 2020-2024)",
+    "engines": [
+      "3.6L V6 Pentastar",
+      "3.0L EcoDiesel"
+    ],
+    "oil": "0W-20 / 5W-40",
+    "oil_cap": "5.0 qt / 8.5 qt",
+    "coolant": "OAT Purple",
+    "spark_plug": "NGK LZKER6AP11",
+    "torque": {
+      "Lug Nuts": "130 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "20 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "8,000 mi",
+      "Transfer Case Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "Death wobble",
+      "Aluminum steering box flex"
+    ]
+  },
+  "dodge journey": {
+    "name": "Dodge Journey (2009-2020)",
+    "engines": [
+      "2.4L 4-cyl",
+      "3.6L V6"
+    ],
+    "oil": "5W-20 / 0W-20",
+    "oil_cap": "4.5 qt / 5.9 qt",
+    "coolant": "OAT Purple",
+    "spark_plug": "Champion RER8ZWYCB4",
+    "torque": {
+      "Lug Nuts": "100 ft-lb",
+      "Drain Plug": "20 ft-lb",
+      "Caliper Bolts": "26 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "8,000 mi",
+      "Transmission Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "Premature brake wear",
+      "Heater core clogging"
+    ]
+  },
+  "ram 2500": {
+    "name": "Ram 2500/3500 (2010-2023)",
+    "engines": [
+      "6.4L V8 HEMI",
+      "6.7L Cummins Diesel"
+    ],
+    "oil": "0W-40 (Gas) / 15W-40 (Diesel)",
+    "oil_cap": "7.0 qt / 12.0 qt",
+    "coolant": "OAT Purple",
+    "spark_plug": "Champion RE14MCC4",
+    "torque": {
+      "Lug Nuts": "130 ft-lb",
+      "Drain Plug": "37 ft-lb",
+      "Caliper Bolts": "44 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "15,000 mi (Diesel)",
+      "Valve Lash (Cummins)": "150,000 mi"
+    },
+    "known_issues": [
+      "Grid heater bolt failure (Cummins)",
+      "68RFE transmission failure"
+    ]
+  },
+  "subaru impreza": {
+    "name": "Subaru Impreza (2012-2023)",
+    "engines": [
+      "2.0L H4 FB20"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "5.1 qt",
+    "coolant": "Subaru Blue Super Coolant",
+    "spark_plug": "NGK SILZKAR7B11",
+    "torque": {
+      "Lug Nuts": "89 ft-lb",
+      "Drain Plug": "31 ft-lb",
+      "Caliper Bolts": "20 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "6,000 mi",
+      "CVT Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "Oil consumption",
+      "CVT valve body failure"
+    ]
+  },
+  "subaru wrx": {
+    "name": "Subaru WRX (2015-2023)",
+    "engines": [
+      "2.0L Turbo FA20F",
+      "2.4L Turbo FA24F"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "5.4 qt",
+    "coolant": "Subaru Blue Super Coolant",
+    "spark_plug": "NGK ILKAR8H6",
+    "torque": {
+      "Lug Nuts": "89 ft-lb",
+      "Drain Plug": "31 ft-lb",
+      "Caliper Bolts": "20 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "6,000 mi",
+      "Manual Trans Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "FA20 rod failure if lugged",
+      "Carbon buildup"
+    ]
+  },
+  "subaru ascent": {
+    "name": "Subaru Ascent (2019-2024)",
+    "engines": [
+      "2.4L Turbo FA24F"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "4.8 qt",
+    "coolant": "Subaru Blue Super Coolant",
+    "spark_plug": "NGK ILKAR8H6",
+    "torque": {
+      "Lug Nuts": "89 ft-lb",
+      "Drain Plug": "31 ft-lb",
+      "Caliper Bolts": "20 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "6,000 mi",
+      "CVT Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "CVT chain slip recall",
+      "Tailgate strut failure"
+    ]
+  },
+  "subaru legacy": {
+    "name": "Subaru Legacy (2010-2023)",
+    "engines": [
+      "2.5L H4",
+      "3.6L H6",
+      "2.4L Turbo"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "5.1 qt",
+    "coolant": "Subaru Blue Super Coolant",
+    "spark_plug": "NGK SILZKAR7B11",
+    "torque": {
+      "Lug Nuts": "89 ft-lb",
+      "Drain Plug": "31 ft-lb",
+      "Caliper Bolts": "20 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "6,000 mi",
+      "CVT Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "CVT chain slip/shudder",
+      "Oil consumption"
+    ]
+  },
+  "kia forte": {
+    "name": "Kia Forte (2014-2023)",
+    "engines": [
+      "2.0L 4-cyl Nu",
+      "1.6L Turbo"
+    ],
+    "oil": "5W-20 Full Synthetic",
+    "oil_cap": "4.2 qt",
+    "coolant": "Kia Green",
+    "spark_plug": "NGK SILZKR7B11",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "24 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Spark Plugs": "97,500 mi"
+    },
+    "known_issues": [
+      "Nu 2.0L rod bearing failure",
+      "Ignition coil packs failure"
+    ]
+  },
+  "hyundai palisade": {
+    "name": "Hyundai Palisade (2020-2024)",
+    "engines": [
+      "3.8L V6"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "6.9 qt",
+    "coolant": "Hyundai Pink",
+    "spark_plug": "NGK SILZKR8E9G",
+    "torque": {
+      "Lug Nuts": "88 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "24 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "AWD Transfer Case": "60,000 mi"
+    },
+    "known_issues": [
+      "Wind noise from windows",
+      "Tow hitch wiring fire risk"
+    ]
+  },
+  "hyundai tucson": {
+    "name": "Hyundai Tucson (2016-2024)",
+    "engines": [
+      "2.0L 4-cyl",
+      "1.6L Turbo"
+    ],
+    "oil": "5W-20 / 5W-30",
+    "oil_cap": "4.2 qt",
+    "coolant": "Hyundai Green",
+    "spark_plug": "NGK ILZKR7B10E",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "24 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "6,000 mi",
+      "AWD Fluid": "37,500 mi"
+    },
+    "known_issues": [
+      "1.6L DCT hesitation",
+      "2.0L engine knock/oil consumption"
+    ]
+  },
+  "kia soul": {
+    "name": "Kia Soul (2010-2023)",
+    "engines": [
+      "1.6L 4-cyl",
+      "2.0L 4-cyl"
+    ],
+    "oil": "5W-20 Full Synthetic",
+    "oil_cap": "4.2 qt",
+    "coolant": "Kia Green",
+    "spark_plug": "NGK ILZKR7B10E",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "24 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Spark Plugs": "97,500 mi"
+    },
+    "known_issues": [
+      "Catalytic converter failure causing engine damage",
+      "High oil consumption"
+    ]
+  },
+  "nissan maxima": {
+    "name": "Nissan Maxima (2009-2023)",
+    "engines": [
+      "3.5L V6 VQ35DE"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "5.1 qt",
+    "coolant": "Nissan Blue Long Life",
+    "spark_plug": "NGK DILKAR6A11",
+    "torque": {
+      "Lug Nuts": "83 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "30 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi",
+      "CVT Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "CVT judder and whine",
+      "ABS actuator pump failure"
+    ]
+  },
+  "nissan titan": {
+    "name": "Nissan Titan (2017-2024)",
+    "engines": [
+      "5.6L V8 VK56VD",
+      "5.0L Cummins Diesel"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "6.9 qt",
+    "coolant": "Nissan Blue Long Life",
+    "spark_plug": "NGK DILKAR7B11",
+    "torque": {
+      "Lug Nuts": "98 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "40 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi",
+      "Transmission Fluid": "60,000 mi"
+    },
+    "known_issues": [
+      "Engine knock (cylinder 7 scoring)",
+      "Cummins 5.0L emissions failures"
+    ]
+  },
+  "nissan murano": {
+    "name": "Nissan Murano (2015-2023)",
+    "engines": [
+      "3.5L V6 VQ35DE"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "5.1 qt",
+    "coolant": "Nissan Blue Long Life",
+    "spark_plug": "NGK DILKAR6A11",
+    "torque": {
+      "Lug Nuts": "83 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "30 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi",
+      "CVT Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "CVT transmission shudder",
+      "Power liftgate struts failing"
+    ]
+  },
+  "mazda cx-9": {
+    "name": "Mazda CX-9 (2016-2023)",
+    "engines": [
+      "2.5L Turbo Skyactiv-G"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "5.1 qt",
+    "coolant": "Mazda FL22 Green",
+    "spark_plug": "NGK DILKAR7M8",
+    "torque": {
+      "Lug Nuts": "80-108 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "Rear Diff Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "Cylinder head cracking (2016-2019)",
+      "Brake judder"
+    ]
+  },
+  "lexus is350": {
+    "name": "Lexus IS350 (2006-2023)",
+    "engines": [
+      "3.5L V6 2GR-FSE/FKS"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "6.6 qt",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK FK20HBR11",
+    "torque": {
+      "Lug Nuts": "76 ft-lb",
+      "Drain Plug": "30 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Diff Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "Inner front tire wear",
+      "Water pump weep hole leaking"
+    ]
+  },
+  "lexus nx": {
+    "name": "Lexus NX (2015-2023)",
+    "engines": [
+      "2.0L Turbo",
+      "2.5L Hybrid"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "5.2 qt (2.0T)",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK DILKAR8J9G",
+    "torque": {
+      "Lug Nuts": "76 ft-lb",
+      "Drain Plug": "30 ft-lb",
+      "Caliper Bolts": "25 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "AWD Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "Vacuum pump failure",
+      "Water pump failure"
+    ]
+  },
+  "lexus gx460": {
+    "name": "Lexus GX460 (2010-2023)",
+    "engines": [
+      "4.6L V8 1UR-FE"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "8.2 qt",
+    "coolant": "Toyota Pink SLLC",
+    "spark_plug": "NGK DILKAR7C11GS",
+    "torque": {
+      "Lug Nuts": "83 ft-lb",
+      "Drain Plug": "30 ft-lb",
+      "Caliper Bolts": "90 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Transfer Case Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "Secondary air injection pump failure",
+      "Coolant valley leak"
+    ]
+  },
+  "acura rdx": {
+    "name": "Acura RDX (2013-2023)",
+    "engines": [
+      "3.5L V6",
+      "2.0L Turbo"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "4.5 qt / 5.0 qt",
+    "coolant": "Honda Blue Type 2",
+    "spark_plug": "NGK ILZKR7B11",
+    "torque": {
+      "Lug Nuts": "80 ft-lb",
+      "Drain Plug": "29 ft-lb",
+      "Caliper Bolts": "50 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "7,500 mi",
+      "AWD Fluid": "15,000 mi"
+    },
+    "known_issues": [
+      "VCM vibration (3.5L)",
+      "Infotainment freezing"
+    ]
+  },
+  "infiniti qx60": {
+    "name": "Infiniti QX60 (2014-2023)",
+    "engines": [
+      "3.5L V6"
+    ],
+    "oil": "0W-20 Full Synthetic",
+    "oil_cap": "5.1 qt",
+    "coolant": "Nissan Blue Long Life",
+    "spark_plug": "NGK DILKAR6A11",
+    "torque": {
+      "Lug Nuts": "83 ft-lb",
+      "Drain Plug": "25 ft-lb",
+      "Caliper Bolts": "30 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "5,000 mi",
+      "CVT Fluid": "30,000 mi"
+    },
+    "known_issues": [
+      "CVT judder and premature failure",
+      "Radiator cooling fan module failure"
+    ]
+  },
+  "volvo s60": {
+    "name": "Volvo S60 / V60 (2011-2023)",
+    "engines": [
+      "2.5L Turbo I5",
+      "2.0L Turbo/Supercharged Drive-E"
+    ],
+    "oil": "5W-30 Full Synthetic",
+    "oil_cap": "6.2 qt",
+    "coolant": "Volvo Green",
+    "spark_plug": "Volvo OEM Platinum",
+    "torque": {
+      "Lug Nuts": "103 ft-lb",
+      "Drain Plug": "28 ft-lb",
+      "Caliper Bolts": "40 ft-lb"
+    },
+    "intervals": {
+      "Oil Change": "10,000 mi",
+      "Brake Fluid Flush": "Every 2 years"
+    },
+    "known_issues": [
+      "Drive-E oil consumption",
+      "PCV box failure"
+    ]
+  }
+}

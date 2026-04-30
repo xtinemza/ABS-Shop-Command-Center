@@ -1,6 +1,8 @@
 const gold = "#D4A017"
 
-export default function Header({ shopName }) {
+export default function Header({ profile, onEditPrices, onEditSops }) {
+  const name = profile?.shop_name || "Shop Command Center"
+  const tag = profile?.tagline || "Professional Auto Care"
   return (
     <>
       <div style={{ height: 3, background: `linear-gradient(90deg, transparent, ${gold}, transparent)` }} />
@@ -46,13 +48,11 @@ export default function Header({ shopName }) {
                   fontSize: 30, color: "#F2F2F4",
                   textTransform: "uppercase", letterSpacing: "0.03em",
                   lineHeight: 1, margin: 0,
-                }}>Shop Command Center</h1>
-                {shopName && (
-                  <p style={{
-                    fontSize: 11, color: "#AAA", fontWeight: 600,
-                    letterSpacing: "0.08em", margin: "3px 0 0",
-                  }}>{shopName}</p>
-                )}
+                }}>{name}</h1>
+                <p style={{
+                  fontSize: 11, color: "#AAA", fontWeight: 600,
+                  letterSpacing: "0.08em", margin: "3px 0 0",
+                }}>{tag}</p>
                 <p style={{
                   fontSize: 11, color: gold, fontWeight: 700,
                   letterSpacing: "0.18em", textTransform: "uppercase",
@@ -62,7 +62,27 @@ export default function Header({ shopName }) {
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: 16, marginBottom: 4 }}>
+          <div style={{ display: "flex", gap: 16, marginBottom: 4, alignItems: "center" }}>
+            <div style={{ display: "flex", gap: 12 }}>
+              <button onClick={onEditSops} style={{
+                background: "transparent", border: `1px solid ${gold}44`,
+                color: gold, padding: "8px 16px", borderRadius: 3,
+                fontSize: 11, fontWeight: 700, cursor: "pointer",
+                fontFamily: "'Barlow', sans-serif", letterSpacing: "0.08em",
+                textTransform: "uppercase"
+              }}>
+                📋 EDIT SOPs
+              </button>
+              <button onClick={onEditPrices} style={{
+                background: "transparent", border: `1px solid ${gold}44`,
+                color: gold, padding: "8px 16px", borderRadius: 3,
+                fontSize: 11, fontWeight: 700, cursor: "pointer",
+                fontFamily: "'Barlow', sans-serif", letterSpacing: "0.08em",
+                textTransform: "uppercase"
+              }}>
+                ⚙️ EDIT PRICES
+              </button>
+            </div>
             {[{ n: "13", l: "Core" }, { n: "4", l: "Suggested" }, { n: "5", l: "Categories" }].map((s, i) => (
               <div key={i} style={{
                 textAlign: "center", padding: "8px 18px",

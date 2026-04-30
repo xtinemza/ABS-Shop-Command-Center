@@ -1,0 +1,93 @@
+{
+  "_description": "Equipment Logger — equipment categories, calibration intervals, maintenance schedules, warranty defaults",
+
+  "equipment_categories": [
+    "diagnostic",
+    "lifting",
+    "tire_service",
+    "fluid_service",
+    "electrical",
+    "air_tools",
+    "hand_tools",
+    "safety",
+    "office_and_software"
+  ],
+
+  "calibration_intervals": {
+    "diagnostic": {
+      "scan_tool": { "interval_months": 12, "note": "Check for software/firmware updates quarterly" },
+      "oscilloscope": { "interval_months": 12 },
+      "multimeter": { "interval_months": 12 },
+      "compression_tester": { "interval_months": 24 },
+      "smoke_machine": { "interval_months": 6 }
+    },
+    "lifting": {
+      "two_post_lift": { "interval_months": 12, "regulatory": "ANSI/ALI ALIS standard", "note": "Annual inspection required; keep log on file" },
+      "four_post_lift": { "interval_months": 12, "regulatory": "ANSI/ALI ALIS standard" },
+      "floor_jack": { "interval_months": 6, "note": "Inspect hydraulic seals and rating label" },
+      "jack_stands": { "interval_months": 6, "note": "Check for cracks, ratchet wear, capacity label" }
+    },
+    "tire_service": {
+      "tire_balancer": { "interval_months": 6, "note": "Calibrate with known test wheel; check mounting cone" },
+      "tire_changer": { "interval_months": 12, "note": "Inspect bead breaker, turntable, and duck head" },
+      "torque_wrench": { "interval_months": 12, "note": "Recalibrate per ASME B107.300; do not store under tension" },
+      "tpms_tool": { "interval_months": 12, "note": "Update sensor database annually" }
+    },
+    "fluid_service": {
+      "oil_drain_system": { "interval_months": 6, "note": "Inspect hoses, valves, and waste tank level" },
+      "coolant_flush_machine": { "interval_months": 6 },
+      "ac_recovery_machine": { "interval_months": 12, "regulatory": "EPA 608 equipment certification every 3 years" },
+      "brake_bleeder": { "interval_months": 6 }
+    },
+    "electrical": {
+      "battery_tester": { "interval_months": 6, "note": "Verify against known-good battery" },
+      "battery_charger": { "interval_months": 12 },
+      "arc_welder": { "interval_months": 12 }
+    },
+    "air_tools": {
+      "air_compressor": { "interval_months": 3, "note": "Drain tank monthly; inspect belt and safety valve; change oil per OEM" },
+      "impact_wrench": { "interval_months": 12 },
+      "die_grinder": { "interval_months": 12 }
+    }
+  },
+
+  "maintenance_schedule_defaults": {
+    "air_compressor_oil_change_months": 3,
+    "lift_lubrication_months": 3,
+    "hoist_cable_inspection_months": 6,
+    "fire_extinguisher_inspection_months": 12,
+    "eyewash_station_inspection_weeks": 1
+  },
+
+  "lifecycle_guidelines": {
+    "two_post_lift_years": 20,
+    "scan_tool_years": 5,
+    "tire_balancer_years": 10,
+    "tire_changer_years": 10,
+    "air_compressor_years": 10,
+    "torque_wrench_years": 7,
+    "note": "Replace equipment showing fatigue, cracks, or calibration drift beyond manufacturer tolerance."
+  },
+
+  "depreciation_defaults": {
+    "method": "straight-line",
+    "shop_equipment_years": 7,
+    "computers_and_tools_years": 5,
+    "note": "Consult accountant for tax depreciation schedule (Section 179 may apply)."
+  },
+
+  "warranty_defaults": {
+    "lift": "1–2 years parts, 90 days labor (typical)",
+    "scan_tool": "1 year hardware; software subscription separate",
+    "tire_balancer": "1–2 years",
+    "compressor": "1 year",
+    "hand_tools": "lifetime (most major brands)"
+  },
+
+  "regulatory_references": {
+    "lifts": "ANSI/ALI ALIS — Automotive Lift Institute Safety Standard",
+    "ac_equipment": "EPA Section 608 — technician and equipment certification",
+    "pressure_vessels": "ASME Boiler and Pressure Vessel Code (compressor tanks)",
+    "fire_safety": "NFPA 30B and local fire marshal requirements"
+  }
+}

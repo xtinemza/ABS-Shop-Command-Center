@@ -1,0 +1,148 @@
+{
+  "_description": "Vehicle Inspection Forms — MPI categories, checklist items, severity scale, form types",
+
+  "form_types": {
+    "multi_point": {
+      "label": "Multi-Point Inspection",
+      "description": "Standard inspection performed with every service visit",
+      "sections": ["tires_and_wheels", "brakes", "fluids", "lights_and_electrical", "engine_and_underhood", "suspension_and_steering", "safety_and_interior"]
+    },
+    "pre_purchase": {
+      "label": "Pre-Purchase Inspection",
+      "description": "Comprehensive buyer's-side inspection before vehicle purchase",
+      "sections": ["tires_and_wheels", "brakes", "fluids", "lights_and_electrical", "engine_and_underhood", "suspension_and_steering", "safety_and_interior", "body_and_frame", "test_drive", "advanced_tech"]
+    },
+    "seasonal": {
+      "label": "Seasonal Inspection",
+      "description": "Climate-specific inspection (winter prep or summer prep)",
+      "sections": ["battery_and_charging", "tires_and_wheels", "fluids", "lights_and_electrical", "cooling_or_heating", "wipers_and_visibility"]
+    },
+    "ev_multi_point": {
+      "label": "EV Multi-Point Inspection",
+      "description": "Standard inspection tailored for Electric Vehicles",
+      "sections": ["tires_and_wheels", "brakes", "fluids", "lights_and_electrical", "suspension_and_steering", "safety_and_interior", "ev_and_hybrid", "advanced_tech"]
+    }
+  },
+
+  "severity_scale": {
+    "green": { "label": "Good", "description": "No action needed — within spec" },
+    "yellow": { "label": "Monitor / Due Soon", "description": "Approaching wear limit or service interval — schedule within 60 days" },
+    "red": { "label": "Repair Recommended", "description": "Out of spec or safety concern — advise customer now" }
+  },
+
+  "checklist": {
+    "tires_and_wheels": [
+      { "item": "Tread depth (32nds)", "threshold_yellow": "4/32", "threshold_red": "2/32" },
+      { "item": "Tire pressure vs spec", "threshold_yellow": "±5 PSI", "threshold_red": "±10 PSI" },
+      { "item": "Tire condition (cracking, bulge, cupping)", "visual": true },
+      { "item": "Lug nut condition", "visual": true },
+      { "item": "TPMS sensors functioning", "visual": true }
+    ],
+    "brakes": [
+      { "item": "Front brake pad thickness (mm)", "threshold_yellow": "4mm", "threshold_red": "2mm" },
+      { "item": "Rear brake pad thickness (mm)", "threshold_yellow": "4mm", "threshold_red": "2mm" },
+      { "item": "Rotor thickness vs min spec", "visual": true },
+      { "item": "Rotor surface condition (grooves, heat cracks)", "visual": true },
+      { "item": "Brake fluid level and color", "threshold_red": "brown/black discoloration" },
+      { "item": "Caliper condition and slide pins", "visual": true },
+      { "item": "Brake lines and hoses (cracks, leaks)", "visual": true }
+    ],
+    "fluids": [
+      { "item": "Engine oil — level and condition" },
+      { "item": "Coolant — level and condition (color, pH strip)" },
+      { "item": "Transmission fluid — level and color" },
+      { "item": "Brake fluid — level and color" },
+      { "item": "Power steering fluid — level" },
+      { "item": "Differential fluid — level (if applicable)" },
+      { "item": "Windshield washer fluid — level" }
+    ],
+    "lights_and_electrical": [
+      { "item": "Headlights (low and high beam)" },
+      { "item": "Tail lights and brake lights" },
+      { "item": "Turn signals (front and rear)" },
+      { "item": "Reverse lights" },
+      { "item": "Hazard lights" },
+      { "item": "Interior dash lights and warning indicators" },
+      { "item": "Battery voltage and CCA test", "threshold_red": "<400 CCA or <12.4V at rest" }
+    ],
+    "engine_and_underhood": [
+      { "item": "Air filter condition" },
+      { "item": "Cabin air filter condition" },
+      { "item": "Serpentine belt condition (cracks, fraying)" },
+      { "item": "Coolant hoses (cracking, swelling)" },
+      { "item": "Battery terminals (corrosion)" },
+      { "item": "Oil leaks (valve cover, pan, rear main seal)" },
+      { "item": "Coolant leaks" },
+      { "item": "Check engine light / scan for codes" }
+    ],
+    "suspension_and_steering": [
+      { "item": "Struts / shocks (bounce test, leaks)" },
+      { "item": "CV boots (cracking, grease leaks)" },
+      { "item": "Ball joints (play check)" },
+      { "item": "Tie rod ends (play check)" },
+      { "item": "Sway bar links and bushings" },
+      { "item": "Wheel bearings (play and noise)" },
+      { "item": "Steering rack (play, leaks)" }
+    ],
+    "safety_and_interior": [
+      { "item": "Wiper blades — streaking or chattering" },
+      { "item": "Horn function" },
+      { "item": "Seat belts — retraction and latch" },
+      { "item": "Parking brake hold" },
+      { "item": "AC and heat function" },
+      { "item": "Mirrors — adjustment and condition" }
+    ],
+    "body_and_frame": [
+      { "item": "Frame or unibody — rust, cracks, prior collision damage" },
+      { "item": "Undercarriage — rust and corrosion level" },
+      { "item": "Exhaust system — leaks, holes, hangers" },
+      { "item": "Fuel lines and tank — condition" }
+    ],
+    "test_drive": [
+      { "item": "Transmission shift quality" },
+      { "item": "Brake pedal feel (firmness, pull)" },
+      { "item": "Steering — straight tracking, pull, vibration" },
+      { "item": "Noise — clunks, rattles, squeaks under load" },
+      { "item": "Engine power and acceleration" },
+      { "item": "ABS and stability control — warning lights" }
+    ],
+    "battery_and_charging": [
+      { "item": "Battery age (replace >5 years proactively in cold climates)" },
+      { "item": "Battery voltage and CCA load test", "threshold_red": "<400 CCA" },
+      { "item": "Alternator output", "threshold_range": "13.5–14.7V at idle" },
+      { "item": "Terminal corrosion — clean if needed" }
+    ],
+    "cooling_or_heating": [
+      { "item": "Coolant level and freeze point (winter: down to -34°F recommended)" },
+      { "item": "Heater core output — temperature test" },
+      { "item": "Thermostat — operating temp" },
+      { "item": "Radiator and hoses — leaks and condition" }
+    ],
+    "wipers_and_visibility": [
+      { "item": "Wiper blades — replace if >12 months or streaking" },
+      { "item": "Washer fluid — fill with winter-rated fluid (-20°F)" },
+      { "item": "Defrost (front and rear) — grid test" }
+    ],
+    "ev_and_hybrid": [
+      { "item": "High-voltage battery state of health (SOH)", "threshold_yellow": "<80%", "threshold_red": "<70%" },
+      { "item": "Charging port condition — pins and locking mechanism", "visual": true },
+      { "item": "High-voltage cable shielding integrity (orange cables)", "visual": true },
+      { "item": "Hybrid/EV inverter coolant level" },
+      { "item": "Battery cooling fan filter condition", "visual": true },
+      { "item": "12V auxiliary battery condition", "threshold_red": "<12.0V at rest" },
+      { "item": "Regenerative braking function (road test)" }
+    ],
+    "advanced_tech": [
+      { "item": "Infotainment system software version — check for updates" },
+      { "item": "Forward-facing ADAS camera — glass clear, no cracks" },
+      { "item": "Blind-spot radar sensors — no physical damage to bumper cover" },
+      { "item": "Parking sensors (ultrasonic) — clean, no paint flaking" },
+      { "item": "Backup camera lens clarity" }
+    ]
+  },
+
+  "photo_requirements": {
+    "recommended": ["brake pad thickness", "tire tread depth", "fluid discoloration", "leaks", "belt cracking"],
+    "note": "Photos attached to inspection report increase customer trust and approval rates."
+  }
+}

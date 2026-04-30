@@ -1,0 +1,108 @@
+{
+  "_description": "Parts Inventory — reorder rules, PO templates, stock categories, vendor management",
+
+  "reorder_rules": {
+    "default_reorder_point_multiplier": 1,
+    "default_target_stock_multiplier": 2,
+    "note": "Reorder when quantity on hand hits reorder_point. Target stock = reorder_point × 2.",
+    "high_velocity_parts_multiplier": 3,
+    "note_high_velocity": "For parts used >5x per week, carry 3× reorder point to avoid stockouts."
+  },
+
+  "high_velocity_parts": [
+    "Oil filters (common fitments: Toyota, Honda, Ford, Chevy)",
+    "Engine oil (0W-20, 5W-30 — 5qt jugs)",
+    "Cabin air filters (top 10 fitments for shop's market)",
+    "Wiper blade inserts (most common sizes: 22\", 24\", 26\")",
+    "Brake pads (top 5 fitments)",
+    "Drain plug gaskets / crush washers",
+    "Battery terminal protectors",
+    "Shop supplies (gloves, shop towels, zip ties)"
+  ],
+
+  "part_categories": [
+    "engine_oil_and_filters",
+    "brakes",
+    "tires",
+    "batteries",
+    "belts_and_hoses",
+    "filters_air_and_cabin",
+    "fluids_and_chemicals",
+    "suspension_and_steering",
+    "electrical_components",
+    "exhaust",
+    "cooling_system",
+    "transmission",
+    "shop_supplies",
+    "miscellaneous"
+  ],
+
+  "po_format": {
+    "po_number_format": "PO-{year}-{sequence}",
+    "po_number_example": "PO-2026-089",
+    "required_fields": [
+      "po_number",
+      "vendor_name",
+      "vendor_account",
+      "date_issued",
+      "expected_delivery",
+      "line_items",
+      "subtotal",
+      "shipping",
+      "total"
+    ],
+    "line_item_fields": ["part_number", "description", "qty_ordered", "unit_cost", "line_total"]
+  },
+
+  "vendor_tiers": {
+    "primary": {
+      "label": "Primary Supplier",
+      "note": "First source for all parts orders. Negotiate net-30 terms and volume discounts.",
+      "examples": ["NAPA", "AutoZone Pro", "O'Reilly Professional", "Worldpac", "PartsTech"]
+    },
+    "secondary": {
+      "label": "Secondary Supplier",
+      "note": "Backup when primary is out of stock or for specialty parts.",
+      "examples": ["Rock Auto (plan ahead — no same-day)", "dealer OEM parts counter"]
+    },
+    "dealer": {
+      "label": "OEM Dealer",
+      "note": "Use for warranty-required OEM parts or when aftermarket options have high failure rates.",
+      "markup_note": "OEM parts typically carry a lower markup % due to higher acquisition cost."
+    }
+  },
+
+  "return_policy_defaults": {
+    "new_parts_return_window_days": 30,
+    "core_return_window_days": 30,
+    "note": "Retain cores until credit is confirmed. Never discard a core before supplier confirmation."
+  },
+
+  "low_stock_alert_rules": [
+    "Trigger alert when quantity drops to or below reorder_point.",
+    "Generate a PO suggestion automatically grouping all low-stock items by vendor.",
+    "Flag any item at zero stock immediately — escalate to shop manager.",
+    "Review high-velocity parts weekly; all other parts monthly."
+  ],
+
+  "inventory_audit": {
+    "frequency": "quarterly",
+    "method": "physical count vs. system count",
+    "shrinkage_threshold_pct": 2,
+    "note": "Shrinkage above 2% warrants investigation (damage, theft, miscounts)."
+  },
+
+  "parts_data_schema": {
+    "part_number": "string",
+    "description": "string",
+    "category": "string",
+    "vendor": "string",
+    "unit_cost": "float",
+    "sell_price": "float",
+    "qty_on_hand": "int",
+    "reorder_point": "int",
+    "target_stock": "int",
+    "location": "string (bin/shelf)",
+    "last_ordered": "date"
+  }
+}

@@ -7,7 +7,10 @@ import os
 import sys
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from auth import get_current_user
+from supabase_client import supabase
+
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -34,7 +37,7 @@ class InspectionRequest(BaseModel):
 
 
 @router.post("/inspection/generate", response_model=ModuleResponse)
-def generate_inspection(body: InspectionRequest):
+def generate_inspection(body: InspectionRequest, user=Depends(get_current_user)): 
     try:
         from inspection import generate_forms
 

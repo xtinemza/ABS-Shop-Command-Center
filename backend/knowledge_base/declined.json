@@ -1,0 +1,81 @@
+{
+  "_description": "Declined Services Follow-Up — urgency tiers, follow-up cadence, offer templates",
+
+  "urgency_levels": {
+    "safety_critical": {
+      "label": "Safety Critical",
+      "examples": ["brake failure", "bald tires", "steering component", "wheel bearing", "brake fluid contaminated"],
+      "follow_up_cadence_days": [1, 4, 10],
+      "tone": "Urgent but not alarmist — focus on safety of driver and family",
+      "offer_discount": false,
+      "note": "Do not offer a discount on safety items — it devalues the urgency. Focus on risk."
+    },
+    "high": {
+      "label": "High Priority",
+      "examples": ["timing belt near interval", "coolant leak", "check engine light", "power steering issue"],
+      "follow_up_cadence_days": [3, 10, 21],
+      "tone": "Concerned and helpful — explain risk of further delay",
+      "offer_discount": true,
+      "default_discount": "10% off"
+    },
+    "medium": {
+      "label": "Medium Priority",
+      "examples": ["air filter", "cabin filter", "wiper blades", "transmission service due", "spark plugs"],
+      "follow_up_cadence_days": [7, 21, 45],
+      "tone": "Friendly reminder — protect your investment",
+      "offer_discount": true,
+      "default_discount": "10% off or $15 off"
+    },
+    "low": {
+      "label": "Low Priority",
+      "examples": ["detailing", "wiper fluid top-off", "cosmetic items", "tire shine"],
+      "follow_up_cadence_days": [14, 45],
+      "tone": "Light touch — when you're ready, we're here",
+      "offer_discount": false
+    }
+  },
+
+  "touch_sequence": {
+    "touch_1": {
+      "label": "First Follow-Up",
+      "goal": "Remind customer of declined service, explain why it matters",
+      "channels": ["sms"],
+      "include_price": true
+    },
+    "touch_2": {
+      "label": "Second Follow-Up",
+      "goal": "Add value — include discount offer or seasonal relevance",
+      "channels": ["sms", "email"],
+      "include_price": true,
+      "include_offer": true
+    },
+    "touch_3": {
+      "label": "Third Follow-Up",
+      "goal": "Final nudge — create mild urgency, reiterate risk",
+      "channels": ["email", "phone_script"],
+      "include_price": true,
+      "include_offer": true
+    },
+    "touch_4": {
+      "label": "Final Attempt (Safety Critical only)",
+      "goal": "Document outreach for liability purposes, invite customer to call",
+      "channels": ["phone_script"],
+      "note": "After this touch, archive the declined item — do not continue outreach."
+    }
+  },
+
+  "message_rules": [
+    "Always name the specific service — never say 'work we recommended'.",
+    "Include the original estimate price in follow-up #1 and #2.",
+    "For safety items, describe the risk in plain language — not technical terms.",
+    "Never imply the customer made a bad decision for declining. Be understanding.",
+    "Always include a one-action CTA: call, reply, or click to book."
+  ],
+
+  "offer_rules": {
+    "never_discount": ["safety_critical"],
+    "max_discount_pct": 15,
+    "offer_expiry_days": 14,
+    "combine_with_other_offers": false
+  }
+}

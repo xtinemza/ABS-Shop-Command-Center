@@ -1,0 +1,90 @@
+{
+  "_description": "Technician Productivity — KPI definitions, benchmark targets, report structure, period types",
+
+  "kpis": {
+    "billed_hours": {
+      "label": "Billed Hours",
+      "definition": "Total labor hours invoiced to customers in the period.",
+      "unit": "hours",
+      "benchmark_per_tech_per_day": 6.5,
+      "note": "8-hour shift; 6.5 billed is strong. Below 5 indicates inefficiency or scheduling gaps."
+    },
+    "efficiency_pct": {
+      "label": "Efficiency %",
+      "definition": "Billed hours divided by clocked hours, expressed as a percentage.",
+      "formula": "billed_hours / clocked_hours * 100",
+      "benchmark_pct": 100,
+      "excellent_pct": 120,
+      "note": "100% = tech bills exactly what they clock. 120%+ means they beat flat-rate time. Below 80% needs coaching."
+    },
+    "productivity_pct": {
+      "label": "Productivity %",
+      "definition": "Billed hours divided by available hours (scheduled shift hours).",
+      "formula": "billed_hours / available_hours * 100",
+      "benchmark_pct": 85,
+      "note": "Accounts for non-billable time (training, comebacks, shop duties)."
+    },
+    "revenue_per_tech": {
+      "label": "Revenue per Technician",
+      "definition": "Total labor revenue attributed to each technician in the period.",
+      "unit": "dollars",
+      "benchmark_daily": 780,
+      "note": "At $120/hr labor rate × 6.5 billed hours = $780/day target."
+    },
+    "comeback_rate": {
+      "label": "Comeback Rate",
+      "definition": "Percentage of repairs returned within 30 days for the same complaint.",
+      "formula": "comebacks / total_jobs * 100",
+      "benchmark_pct": 2,
+      "note": "Industry acceptable is under 2%. Above 5% requires quality process review."
+    },
+    "average_repair_order": {
+      "label": "Average Repair Order (ARO)",
+      "definition": "Total revenue divided by number of repair orders.",
+      "unit": "dollars",
+      "benchmark_range": "$300–$500",
+      "note": "Low ARO may indicate undertelling or failing to present inspection findings."
+    },
+    "inspection_presentation_rate": {
+      "label": "Inspection Presentation Rate",
+      "definition": "Percentage of MPI findings presented to the customer vs. total MPI items found.",
+      "benchmark_pct": 95,
+      "note": "If techs find issues but advisors don't present them, revenue is left on the table."
+    }
+  },
+
+  "report_periods": ["day", "week", "month"],
+
+  "report_sections": [
+    "summary_by_technician",
+    "total_billed_hours",
+    "efficiency_and_productivity_pct",
+    "revenue_generated",
+    "comeback_count",
+    "top_performer",
+    "needs_attention"
+  ],
+
+  "technician_data_schema": {
+    "tech_name": "string",
+    "period": "day | week | month",
+    "billed_hours": "float",
+    "clocked_hours": "float",
+    "jobs_completed": "int",
+    "comebacks": "int",
+    "labor_revenue": "float"
+  },
+
+  "labor_rate_defaults": {
+    "standard": 120,
+    "diagnostic_only": 130,
+    "note": "Use shop's actual rate from shop_profile.json if available."
+  },
+
+  "coaching_triggers": {
+    "efficiency_below_pct": 80,
+    "comeback_rate_above_pct": 5,
+    "billed_hours_below_per_day": 5,
+    "note": "Flag these in the report summary so the manager sees them immediately."
+  }
+}

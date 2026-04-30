@@ -1,0 +1,61 @@
+{
+  "_description": "New Customer Welcome Kit — offer defaults, component list, messaging templates",
+
+  "components": [
+    "welcome_letter",
+    "first_visit_discount",
+    "referral_offer",
+    "service_menu_summary",
+    "shop_hours_and_contact",
+    "what_to_expect"
+  ],
+
+  "default_offers": {
+    "first_visit_discount": {
+      "amount": "10%",
+      "cap": "$50",
+      "validity_days": 90,
+      "applicable_to": "Any service $75 or more",
+      "exclude": "Cannot be combined with other offers"
+    },
+    "referral_reward": {
+      "referrer_reward": "$25 off next service",
+      "referee_reward": "$25 off first service",
+      "validity_days": 180,
+      "minimum_spend": "$50"
+    }
+  },
+
+  "what_to_expect_bullets": [
+    "A thorough multi-point inspection with every service — no charge.",
+    "A written estimate before any work begins. No surprise charges.",
+    "Text or call updates when your vehicle is ready.",
+    "A 12-month / 12,000-mile warranty on parts and labor (where applicable).",
+    "Transparent pricing — we'll show you the parts we used."
+  ],
+
+  "tone_guidelines": {
+    "voice": "Warm, local, trustworthy — like a neighbor who happens to know cars.",
+    "avoid": ["corporate-sounding language", "excessive jargon", "pushy upsell tone"],
+    "must_include": ["shop name", "owner name or team reference", "phone number", "shop address"]
+  },
+
+  "letter_structure": [
+    "Greeting by first name",
+    "Thank them for choosing the shop",
+    "One sentence on what makes the shop different",
+    "List what to expect (3-5 bullets)",
+    "Present first-visit discount offer",
+    "Present referral offer",
+    "Close with invitation to call anytime",
+    "Sign-off with shop name and phone"
+  ],
+
+  "delivery_channels": ["printed_handout", "email_pdf", "sms_link"],
+
+  "follow_up_timing": {
+    "post_first_visit_days": 3,
+    "channel": "sms",
+    "message": "Check in, ask if everything is running well, remind them of the referral offer"
+  }
+}

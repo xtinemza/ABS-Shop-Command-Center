@@ -37,7 +37,10 @@ export default function SetupWizard({ onComplete }) {
     shop_name: "",
     owner_name: "",
     phone: "",
-    address: "",
+    street: "",
+    city: "",
+    state: "",
+    zip: "",
     hours: "",
     services: "",
     business_type: "",
@@ -53,8 +56,12 @@ export default function SetupWizard({ onComplete }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.shop_name || !form.owner_name || !form.phone || !form.address) {
+    if (!form.shop_name || !form.owner_name || !form.phone || !form.street || !form.city || !form.state || !form.zip) {
       setError("Please fill in all required fields.")
+      return
+    }
+    if (!/^\d{5}$/.test(form.zip)) {
+      setError("Please enter a valid 5-digit US Zip Code.")
       return
     }
     setLoading(true)
@@ -124,9 +131,32 @@ export default function SetupWizard({ onComplete }) {
             <Field label="Phone Number" required>
               <input style={inputStyle} value={form.phone} onChange={set("phone")} placeholder="e.g. (303) 555-1234" />
             </Field>
-            <Field label="Address" required>
-              <input style={inputStyle} value={form.address} onChange={set("address")} placeholder="e.g. 1234 Main St, Denver, CO 80201" />
+            <Field label="Street Address" required>
+              <input style={inputStyle} value={form.street} onChange={set("street")} placeholder="e.g. 1234 Main St" />
             </Field>
+            
+            <div style={{ display: "flex", gap: 12 }}>
+              <div style={{ flex: 2 }}>
+                <Field label="City" required>
+                  <input style={inputStyle} value={form.city} onChange={set("city")} placeholder="e.g. Denver" />
+                </Field>
+              </div>
+              <div style={{ flex: 1 }}>
+                <Field label="State" required>
+                  <select style={inputStyle} value={form.state} onChange={set("state")}>
+                    <option value="">Select...</option>
+                    {["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"].map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </Field>
+              </div>
+              <div style={{ flex: 1 }}>
+                <Field label="Zip Code" required>
+                  <input style={inputStyle} value={form.zip} onChange={set("zip")} placeholder="e.g. 80201" maxLength={5} />
+                </Field>
+              </div>
+            </div>
 
             <div style={{ marginTop: 8, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
               <div style={{ width: 3, height: 14, background: gold, borderRadius: 1 }} />

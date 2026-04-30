@@ -1,0 +1,113 @@
+{
+  "_description": "Recall Notifications — NHTSA lookup, urgency rules, notification templates",
+
+  "nhtsa_api": {
+    "complaints_url": "https://api.nhtsa.gov/complaints/complaintsByVehicle",
+    "recalls_url": "https://api.nhtsa.gov/recalls/recallsByVehicle",
+    "recalls_by_vin_url": "https://api.nhtsa.gov/recalls/recallsByVin/{vin}",
+    "note": "Free public API — no key required. VIN lookup is the most accurate method."
+  },
+
+  "urgency_levels": {
+    "safety_critical": {
+      "label": "Safety Recall — Remedy Required",
+      "trigger_keywords": ["crash", "fire", "injury", "death", "rollover", "fuel leak", "brake failure", "steering loss", "airbag"],
+      "customer_action": "Do not drive until remedy is completed — contact dealer immediately.",
+      "shop_action": "Inform customer in person or by phone first. Follow with written notification.",
+      "notification_channels": ["phone_script", "sms", "email"]
+    },
+    "high": {
+      "label": "Important Safety Recall",
+      "trigger_keywords": ["stall", "loss of power", "unintended acceleration", "electrical fire", "seatbelt"],
+      "customer_action": "Schedule remedy with dealer as soon as possible.",
+      "shop_action": "Notify same day. Include remedy steps.",
+      "notification_channels": ["sms", "email"]
+    },
+    "medium": {
+      "label": "Recall — Remedy Recommended",
+      "trigger_keywords": ["corrosion", "software", "sensor", "module", "misfeed", "label"],
+      "customer_action": "Schedule with dealer within 30 days.",
+      "shop_action": "Include in service summary. Add to declined services follow-up if not acted on.",
+      "notification_channels": ["sms", "email"]
+    }
+  },
+
+  "notification_templates": {
+    "sms": {
+      "max_chars": 160,
+      "template": "Hi [FirstName], your [Year] [Make] [Model] has an open safety recall ([CampaignID]): [Summary]. Contact [DealerName] at [DealerPhone] — remedy is FREE. Questions? Call us at [ShopPhone]."
+    },
+    "email": {
+      "subject": "Important: Open Recall on Your [Year] [Make] [Model]",
+      "sections": ["recall_summary", "consequence_plain_language", "remedy_steps", "dealer_contact", "shop_note"]
+    },
+    "shop_note": {
+      "template": "RECALL FLAGGED: [CampaignID] — [Summary]. Customer notified [Date]. Remedy must be performed by authorized dealer.",
+      "add_to": "repair order and service history"
+    }
+  },
+
+  "vin_format": {
+    "length": 17,
+    "valid_chars": "A-H J-N P R-Z 0-9",
+    "invalid_chars": "I O Q",
+    "note": "Always validate VIN length and exclude I, O, Q before NHTSA lookup."
+  },
+
+  "compliance_note": "The shop is not responsible for performing recall repairs — that is the dealer's obligation. The shop's role is notification and documentation. Always advise the customer to contact an authorized dealer.",
+
+  "documentation_rules": [
+    "Record recall notification in the vehicle's service history.",
+    "Note the NHTSA campaign ID, date notified, and channel used.",
+    "If customer declines to act, document that they were informed.",
+    "Re-notify at next service visit if recall remains open."
+  ],
+
+  "notorious_historical_recalls": {
+    "honda_acura": [
+      { "issue": "Takata Airbag Inflators", "models": "Most 2001-2016 models", "urgency": "safety_critical", "note": "Do not drive if 'Alpha' inflator." }
+    ],
+    "toyota_lexus": [
+      { "issue": "Unintended Acceleration / Floor Mats", "models": "2004-2010 Camry, Prius, Lexus ES/IS", "urgency": "safety_critical" },
+      { "issue": "Denso Fuel Pump Failure", "models": "2013-2020 various models", "urgency": "high" }
+    ],
+    "hyundai_kia": [
+      { "issue": "Theta II Engine Fire / Rod Bearing", "models": "2011-2019 Sonata, Optima, Santa Fe, Sorento", "urgency": "safety_critical", "note": "Engine replacement common. Knock sensor update required." },
+      { "issue": "ABS/HECU Module Fire Risk", "models": "2010-2021 various models", "urgency": "safety_critical", "note": "Park outside away from structures." }
+    ],
+    "ford_lincoln": [
+      { "issue": "10R80 Transmission Rollaway", "models": "2017-2020 F-150, Expedition, Mustang", "urgency": "safety_critical" },
+      { "issue": "CP4 High-Pressure Fuel Pump", "models": "2011+ 6.7L Power Stroke F-250/F-350", "urgency": "high" },
+      { "issue": "Mustang Mach-E High Voltage Contactor", "models": "2021-2022 Mach-E", "urgency": "high", "note": "Loss of motive power." }
+    ],
+    "gm_chevy_gmc": [
+      { "issue": "Ignition Switch Shutoff", "models": "2003-2011 Cobalt, Malibu, Impala", "urgency": "safety_critical" },
+      { "issue": "Bolt EV Battery Fire", "models": "2017-2022 Bolt EV/EUV", "urgency": "safety_critical", "note": "Limit charge state, park outside." },
+      { "issue": "Takata Airbag Inflators", "models": "2007-2014 Silverado, Sierra, Tahoe, Suburban", "urgency": "safety_critical" }
+    ],
+    "fca_stellantis": [
+      { "issue": "EcoDiesel EGR Cooler Fire", "models": "2014-2019 Ram 1500, Jeep Grand Cherokee", "urgency": "safety_critical" },
+      { "issue": "Monostable Electronic Shifter Rollaway", "models": "2014-2015 Jeep Grand Cherokee, Chrysler 300", "urgency": "safety_critical" },
+      { "issue": "Ram 2500/3500 Grid Heater Relay Fire", "models": "2021-2023 Ram Heavy Duty Cummins", "urgency": "safety_critical" }
+    ],
+    "subaru": [
+      { "issue": "Valve Spring Failure", "models": "2012-2013 Impreza, Crosstrek, BRZ", "urgency": "high" },
+      { "issue": "Ascent CVT Chain Slip", "models": "2019-2020 Ascent", "urgency": "high" }
+    ],
+    "volkswagen_audi": [
+      { "issue": "Takata Airbag Inflators", "models": "2006-2017 A4, A6, Q5, Passat", "urgency": "safety_critical" },
+      { "issue": "TDI Emissions Defeat Device (Dieselgate)", "models": "2009-2015 2.0L and 3.0L TDI models", "urgency": "high", "note": "Software update and hardware retrofits required." }
+    ],
+    "bmw": [
+      { "issue": "PCV Valve Heater Fire Risk", "models": "2006-2013 3 Series, 5 Series, X3, X5", "urgency": "safety_critical", "note": "Can catch fire even when vehicle is off." },
+      { "issue": "Takata Airbag Inflators", "models": "2000-2015 3 Series, X5", "urgency": "safety_critical" }
+    ],
+    "mercedes_benz": [
+      { "issue": "Brake Booster Corrosion", "models": "2006-2012 ML, GL, R-Class", "urgency": "safety_critical", "note": "Do not drive. Tow to dealer." }
+    ],
+    "nissan_infiniti": [
+      { "issue": "ABS Actuator Leak / Fire", "models": "2015-2019 Murano, Maxima, Pathfinder", "urgency": "safety_critical", "note": "Park outside away from structures." },
+      { "issue": "Takata Airbag Inflators", "models": "2001-2015 various models", "urgency": "safety_critical" }
+    ]
+  }
+}

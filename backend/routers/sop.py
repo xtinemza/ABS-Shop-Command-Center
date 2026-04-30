@@ -6,7 +6,10 @@ import os
 import sys
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from auth import get_current_user
+from supabase_client import supabase
+
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -22,6 +25,26 @@ from utils import capture_output, read_output_files
 
 router = APIRouter()
 
+@router.get("/sop/")
+def get_custom_sops(user=Depends(get_current_user)):
+    try:
+        res = supabase.table("profiles").select("sops").eq("id", user.id).execute()
+        if res.data:
+            return res.data[0].get("sops", {})
+        return {}
+    except Exception as e:
+        return {}
+
+@router.post("/sop/")
+def save_custom_sops(sops: dict, user=Depends(get_current_user)):
+    try:
+        supabase.table("profiles").update({
+            "sops": sops
+        }).eq("id", user.id).execute()
+        return {"success": True}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 
 class SopRequest(BaseModel):
     procedure: Optional[str] = ""      # built-in procedure key, or "all", or ""
@@ -32,7 +55,7 @@ class SopRequest(BaseModel):
 
 
 @router.post("/sop/generate", response_model=ModuleResponse)
-def generate_sop(body: SopRequest):
+def generate_sop(body: SopRequest, user=Depends(get_current_user)):
     try:
         from sop import generate_sop as sop_module
 
@@ -77,9 +100,18 @@ def generate_sop(body: SopRequest):
                 print(f"\nDone - {len(saved)} SOPs saved to output/sop/")
 
             elif procedure:
-                # Resolve aliases
-                key = sop_module.PROCESS_ALIASES.get(procedure, procedure)
-                proc = sop_module.PROCEDURES.get(key)
+                # Fetch custom SOPs from Supabase
+                res = supabase.table("profiles").select("sops").eq("id", user.id).execute()
+                shop_sops = res.data[0].get("sops", {}) if res.data else {}
+                
+                proc = shop_sops.get(procedure)
+                if not proc:
+                    # Fallback to defaults
+                    key = sop_module.PROCESS_ALIASES.get(procedure, procedure)
+                    proc = sop_module.PROCEDURES.get(key)
+                else:
+                    key = procedure
+                    
                 if not proc:
                     print(f"  Unknown procedure: {procedure}")
                     print(f"  Available: {', '.join(sop_module.PROCEDURES.keys())}")

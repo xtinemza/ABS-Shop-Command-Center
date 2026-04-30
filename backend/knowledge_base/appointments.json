@@ -1,0 +1,79 @@
+{
+  "_description": "Appointment Reminders — timing rules, touchpoint stages, channel formatting",
+
+  "touchpoints": {
+    "booking_confirmation": {
+      "label": "Booking Confirmation",
+      "timing": "Immediately after booking",
+      "channels": ["sms", "email"],
+      "purpose": "Confirm date/time, set expectations, provide directions"
+    },
+    "day_before_reminder": {
+      "label": "Day-Before Reminder",
+      "timing": "24 hours before appointment",
+      "channels": ["sms", "email"],
+      "purpose": "Reduce no-shows, remind customer to arrange transport if needed"
+    },
+    "morning_reminder": {
+      "label": "Morning-of Reminder",
+      "timing": "2 hours before appointment",
+      "channels": ["sms"],
+      "purpose": "Last-minute nudge for same-day appointments"
+    },
+    "day_after_thank_you": {
+      "label": "Post-Visit Thank-You",
+      "timing": "24 hours after service completion",
+      "channels": ["sms", "email"],
+      "purpose": "Express gratitude, confirm any follow-up needs"
+    },
+    "review_request": {
+      "label": "Review Request",
+      "timing": "48 hours after service completion",
+      "channels": ["sms", "email"],
+      "purpose": "Capture Google/Yelp review while experience is fresh"
+    }
+  },
+
+  "channel_rules": {
+    "sms": {
+      "max_chars": 160,
+      "opt_out_footer": "Reply STOP to unsubscribe",
+      "avoid_hours": "before 8:00 AM or after 8:00 PM local time",
+      "tone": "Warm, brief, one clear action"
+    },
+    "email": {
+      "subject_max_chars": 60,
+      "body_tone": "Friendly, professional, scannable",
+      "include": ["appointment date/time", "service summary", "shop address", "phone number"],
+      "avoid": "attachments on reminder emails"
+    },
+    "phone_script": {
+      "max_duration_seconds": 60,
+      "tone": "Conversational, not robotic",
+      "include": ["customer first name", "service type", "date/time", "callback number"]
+    }
+  },
+
+  "service_type_notes": {
+    "oil_change": "Mention typical 45-minute wait time.",
+    "brake_service": "Advise customer to arrange a ride — vehicle may need to stay.",
+    "diagnostic": "Set expectation that diagnosis alone may take 1–2 hours before repair quote.",
+    "transmission": "Always suggest drop-off; job typically takes a full day.",
+    "tire_rotation": "Can be combined with oil change — mention if applicable.",
+    "general_repair": "Confirm if parts need to be ordered ahead of visit."
+  },
+
+  "no_show_policy": {
+    "grace_period_minutes": 15,
+    "follow_up_timing": "30 minutes after missed appointment",
+    "follow_up_channel": "sms",
+    "reschedule_offer": true
+  },
+
+  "reminder_best_practices": [
+    "Always include the shop phone number so customers can call to reschedule.",
+    "Never send more than 2 messages per appointment window.",
+    "Personalize with customer first name and vehicle year/make/model when available.",
+    "Include a one-tap link to reschedule or confirm when platform supports it."
+  ]
+}

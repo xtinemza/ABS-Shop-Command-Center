@@ -994,36 +994,11 @@ function SHead({title,badge}){
 }
 
 /* ── OPERATIONS HUB DATA ── */
-const OPS_PARTS=[
-  {id:1,part:'Brake Pads - Ceramic Front',partNum:'BP-CER-001',qty:3,min:4,cost:35.00,vendor:'AutoZone Commercial',vendorPhone:'(800) 288-6966',status:'low'},
-  {id:2,part:'Oil Filter - Standard',partNum:'OF-STD-010',qty:24,min:8,cost:6.50,vendor:"O'Reilly Auto Parts",vendorPhone:'(800) 755-6759',status:'ok'},
-  {id:3,part:'Brake Rotors - Front Pair',partNum:'BR-FRT-003',qty:0,min:2,cost:78.00,vendor:'AutoZone Commercial',vendorPhone:'(800) 288-6966',status:'out'},
-  {id:4,part:'Serpentine Belt - Universal',partNum:'SB-UNI-005',qty:6,min:3,cost:22.00,vendor:'NAPA Auto Parts',vendorPhone:'(800) 535-3738',status:'ok'},
-  {id:5,part:'Cabin Air Filter',partNum:'CAF-STD-008',qty:5,min:4,cost:12.00,vendor:"O'Reilly Auto Parts",vendorPhone:'(800) 755-6759',status:'ok'},
-  {id:6,part:'Wiper Blades - 22in',partNum:'WB-22-012',qty:2,min:4,cost:8.50,vendor:'AutoZone Commercial',vendorPhone:'(800) 288-6966',status:'low'},
-];
-const OPS_EQUIP=[
-  {id:1,name:'BendPak XPR-10AS 2-Post Lift',type:'Vehicle Lift',serial:'BP-2022-4819',lastService:'2024-08-15',nextDue:'2024-11-15',status:'due',calibration:null},
-  {id:2,name:'Hunter HawkEye Elite Aligner',type:'Alignment Machine',serial:'HE-2023-0092',lastService:'2024-10-01',nextDue:'2025-01-01',status:'ok',calibration:'2025-03-01'},
-  {id:3,name:'Snap-on SOLUS Edge Scanner',type:'Diagnostic Scanner',serial:'SN-2024-1187',lastService:'2024-09-20',nextDue:'2024-12-20',status:'ok',calibration:null},
-  {id:4,name:'Coats 70X Tire Changer',type:'Tire Machine',serial:'CT-2021-3301',lastService:'2024-03-10',nextDue:'2024-06-10',status:'overdue',calibration:null},
-  {id:5,name:'Robinair 34988 AC Machine',type:'AC Recovery Unit',serial:'RB-2023-0445',lastService:'2024-07-01',nextDue:'2025-01-01',status:'ok',calibration:'2025-07-01'},
-];
-const OPS_EXP=[
-  {id:1,date:'2024-11-15',desc:'Brake pads bulk order',amount:1450.00,category:'parts',vendor:'AutoZone Commercial'},
-  {id:2,date:'2024-11-14',desc:'Monthly rent',amount:3200.00,category:'rent',vendor:'Property Management Co'},
-  {id:3,date:'2024-11-14',desc:'Electric bill',amount:485.00,category:'utilities',vendor:'Houston Energy'},
-  {id:4,date:'2024-11-13',desc:'Google Ads - November',amount:750.00,category:'marketing',vendor:'Google'},
-  {id:5,date:'2024-11-12',desc:'Snap-on tool cart',amount:2100.00,category:'tools_equipment',vendor:'Snap-on'},
-  {id:6,date:'2024-11-11',desc:'Oil disposal pickup',amount:175.00,category:'waste_disposal',vendor:'Clean Harbors'},
-  {id:7,date:'2024-11-10',desc:'ASE training course',amount:350.00,category:'training',vendor:'ASE Online'},
-  {id:8,date:'2024-11-08',desc:'Filters bulk order',amount:680.00,category:'parts',vendor:"O'Reilly Auto Parts"},
-];
-const OPS_WARRANTY=[
-  {id:'WC-001',part:'Alternator - Reman',vendor:"O'Reilly",cost:189.99,vehicle:'2018 Honda Accord',status:'Submitted',days:14,reimbursed:0},
-  {id:'WC-002',part:'Water Pump',vendor:'AutoZone',cost:125.00,vehicle:'2020 Ford F-150',status:'Approved',days:32,reimbursed:125.00},
-  {id:'WC-003',part:'Starter Motor',vendor:'NAPA',cost:210.00,vehicle:'2017 Chevy Silverado',status:'Pending Documentation',days:7,reimbursed:0},
-];
+// All data is per-shop, stored in localStorage — starts empty for each new shop owner
+const calcPartStatus=(qty,min)=>{const q=Number(qty)||0,m=Number(min)||0;return q===0?'out':q<m?'low':'ok';};
+const calcEquipStatus=(nextDue)=>{if(!nextDue)return 'ok';const d=Math.floor((new Date(nextDue)-new Date())/86400000);return d<0?'overdue':d<=30?'due':'ok';};
+const todayStr=()=>new Date().toISOString().slice(0,10);
+const fmtMonth=(d)=>{if(!d)return'';const[y,m]=d.split('-');const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${months[parseInt(m,10)-1]} ${y}`;};
 const CAT_LABELS={parts:'Parts',labor:'Labor',rent:'Rent',utilities:'Utilities',insurance:'Insurance',marketing:'Marketing',tools_equipment:'Tools & Equipment',training:'Training',waste_disposal:'Waste Disposal',office_supplies:'Office',miscellaneous:'Misc'};
 
 /* ── OPS SHARED UI ── */
@@ -1055,247 +1030,343 @@ function OpsTH({children,right}){
 }
 
 /* ── PARTS INVENTORY ── */
-function OpsPartsInventory(){
-  const[showUpload,sShowUpload]=useState(false);
+function OpsPartsInventory({parts,setParts}){
   const[showAdd,sShowAdd]=useState(false);
-  const fileId='ops-parts-file';
-  const outCount=OPS_PARTS.filter(p=>p.status==='out').length;
-  const lowCount=OPS_PARTS.filter(p=>p.status==='low').length;
+  const[editId,sEditId]=useState(null);
+  const[form,sForm]=useState({part:'',partNum:'',qty:'',min:'',cost:'',vendor:'',vendorPhone:''});
+  const[editForm,sEditForm]=useState({});
+  const iS={width:'100%',padding:'8px 10px',borderRadius:3,border:'1px solid #1A1A1E',background:'#0E0E10',color:'#E8E8EA',fontSize:12,fontFamily:"'Barlow',sans-serif"};
+  const outCount=parts.filter(p=>p.status==='out').length;
+  const lowCount=parts.filter(p=>p.status==='low').length;
+  const fld=(k)=>(e)=>sForm(p=>({...p,[k]:e.target.value}));
+  const efld=(k)=>(e)=>sEditForm(p=>({...p,[k]:e.target.value}));
+  const addPart=()=>{
+    if(!form.part.trim())return;
+    const qty=Number(form.qty)||0,min=Number(form.min)||0;
+    setParts(prev=>[...prev,{id:Date.now(),part:form.part.trim(),partNum:form.partNum.trim(),qty,min,cost:Number(form.cost)||0,vendor:form.vendor.trim(),vendorPhone:form.vendorPhone.trim(),status:calcPartStatus(qty,min)}]);
+    sForm({part:'',partNum:'',qty:'',min:'',cost:'',vendor:'',vendorPhone:''});sShowAdd(false);
+  };
+  const deletePart=(id)=>setParts(p=>p.filter(x=>x.id!==id));
+  const startEdit=(p)=>{sEditId(p.id);sEditForm({...p,qty:String(p.qty),min:String(p.min),cost:String(p.cost||0)});};
+  const saveEdit=()=>{
+    const qty=Number(editForm.qty)||0,min=Number(editForm.min)||0;
+    setParts(prev=>prev.map(p=>p.id===editId?{...editForm,id:editId,qty,min,cost:Number(editForm.cost)||0,status:calcPartStatus(qty,min)}:p));
+    sEditId(null);
+  };
   return html`<div style=${{animation:'fadeIn .25s ease'}}>
     ${(outCount>0||lowCount>0)&&html`<div style=${{display:'flex',gap:12,marginBottom:20}}>
-      ${outCount>0&&html`<div style=${{flex:1,padding:'14px 18px',borderRadius:4,background:'#C0392B12',border:'1px solid #C0392B25',display:'flex',alignItems:'center',gap:10}}>
-        <span style=${{fontSize:16}}>🔴</span>
-        <span style=${{fontSize:13,color:'#C0392B',fontWeight:600}}>${outCount} part${outCount>1?'s':''} OUT OF STOCK</span>
-      </div>`}
-      ${lowCount>0&&html`<div style=${{flex:1,padding:'14px 18px',borderRadius:4,background:`${G}08`,border:`1px solid ${G}20`,display:'flex',alignItems:'center',gap:10}}>
-        <span style=${{fontSize:16}}>🟡</span>
-        <span style=${{fontSize:13,color:G,fontWeight:600}}>${lowCount} part${lowCount>1?'s':''} below minimum threshold</span>
-      </div>`}
+      ${outCount>0&&html`<div style=${{flex:1,padding:'14px 18px',borderRadius:4,background:'#C0392B12',border:'1px solid #C0392B25',display:'flex',alignItems:'center',gap:10}}><span style=${{fontSize:16}}>🔴</span><span style=${{fontSize:13,color:'#C0392B',fontWeight:600}}>${outCount} part${outCount>1?'s':''} OUT OF STOCK</span></div>`}
+      ${lowCount>0&&html`<div style=${{flex:1,padding:'14px 18px',borderRadius:4,background:`${G}08`,border:`1px solid ${G}20`,display:'flex',alignItems:'center',gap:10}}><span style=${{fontSize:16}}>🟡</span><span style=${{fontSize:13,color:G,fontWeight:600}}>${lowCount} part${lowCount>1?'s':''} below minimum threshold</span></div>`}
     </div>`}
     <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
-      <div style=${{display:'flex',gap:10}}>
-        <${OpsActionBtn} label="+ ADD PART" onClick=${()=>{sShowAdd(!showAdd);sShowUpload(false);}} active=${showAdd}/>
-        <${OpsActionBtn} label="📄 UPLOAD CSV" onClick=${()=>{sShowUpload(!showUpload);sShowAdd(false);}} active=${showUpload}/>
-        <${OpsActionBtn} label="📋 GENERATE PO" onClick=${()=>{}}/>
-      </div>
-      <div style=${{fontSize:12,color:'#555'}}>${OPS_PARTS.length} parts tracked</div>
+      <${OpsActionBtn} label="+ ADD PART" onClick=${()=>sShowAdd(!showAdd)} active=${showAdd}/>
+      <div style=${{fontSize:12,color:'#555'}}>${parts.length} parts tracked</div>
     </div>
-    ${showUpload&&html`<div style=${{marginBottom:20,padding:24,borderRadius:4,background:'#111113',border:`1px dashed ${G}44`,animation:'fadeIn .2s ease'}}>
-      <div style=${{display:'flex',alignItems:'flex-start',gap:24}}>
-        <div style=${{flex:1}}>
-          <h3 style=${{fontSize:14,color:'#E8E8EA',fontWeight:700,marginBottom:8}}>Upload Parts CSV</h3>
-          <p style=${{fontSize:12,color:'#666',lineHeight:1.6,marginBottom:16}}>Required columns: Part Name, Part Number, Quantity, Min Threshold, Unit Cost, Vendor.</p>
-          <div style=${{padding:28,borderRadius:4,border:'2px dashed #2A2A30',background:'#0E0E10',textAlign:'center',cursor:'pointer'}} onClick=${()=>document.getElementById(fileId)?.click()}>
-            <input id=${fileId} type="file" accept=".csv,.xlsx,.xls" style=${{display:'none'}}/>
-            <div style=${{fontSize:28,marginBottom:8}}>📁</div>
-            <div style=${{fontSize:13,color:'#888',marginBottom:4}}>Drag & drop your CSV, or <span style=${{color:G,fontWeight:600}}>click to browse</span></div>
-            <div style=${{fontSize:11,color:'#444'}}>CSV, XLSX, or XLS — max 5MB</div>
-          </div>
-        </div>
-        <div style=${{width:280,padding:16,borderRadius:4,background:'#0E0E10',border:'1px solid #1A1A1E'}}>
-          <div style=${{fontSize:10,fontWeight:800,color:'#555',letterSpacing:'0.1em',marginBottom:10}}>EXPECTED FORMAT</div>
-          <pre style=${{fontFamily:'monospace',fontSize:10,color:'#888',background:'#0B0B0D',padding:10,borderRadius:3,lineHeight:1.8}}>Part Name,Part #,Qty,Min,Cost,Vendor\nBrake Pads,BP-001,12,4,35.00,AutoZone\nOil Filter,OF-010,24,8,6.50,O'Reilly</pre>
-        </div>
+    ${showAdd&&html`<div style=${{marginBottom:20,padding:20,borderRadius:4,background:'#111113',border:'1px solid #1A1A1E',animation:'fadeIn .2s ease'}}>
+      <div style=${{fontSize:13,color:'#E8E8EA',fontWeight:700,marginBottom:14}}>Add Part</div>
+      <div style=${{display:'flex',gap:10,flexWrap:'wrap',alignItems:'flex-end'}}>
+        <div style=${{flex:'2',minWidth:160}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:5,textTransform:'uppercase'}}>Part Name *</label><input value=${form.part} onChange=${fld('part')} placeholder="Brake Pads - Ceramic Front" style=${iS}/></div>
+        <div style=${{flex:'1',minWidth:110}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:5,textTransform:'uppercase'}}>Part #</label><input value=${form.partNum} onChange=${fld('partNum')} placeholder="BP-CER-001" style=${iS}/></div>
+        <div style=${{flex:'0.5',minWidth:70}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:5,textTransform:'uppercase'}}>Qty</label><input type="number" value=${form.qty} onChange=${fld('qty')} placeholder="12" style=${iS}/></div>
+        <div style=${{flex:'0.5',minWidth:70}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:5,textTransform:'uppercase'}}>Min</label><input type="number" value=${form.min} onChange=${fld('min')} placeholder="4" style=${iS}/></div>
+        <div style=${{flex:'0.5',minWidth:80}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:5,textTransform:'uppercase'}}>Cost ($)</label><input type="number" step="0.01" value=${form.cost} onChange=${fld('cost')} placeholder="35.00" style=${iS}/></div>
+        <div style=${{flex:'1.5',minWidth:140}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:5,textTransform:'uppercase'}}>Vendor</label><input value=${form.vendor} onChange=${fld('vendor')} placeholder="AutoZone Commercial" style=${iS}/></div>
+        <div style=${{flex:'1',minWidth:120}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:5,textTransform:'uppercase'}}>Phone</label><input value=${form.vendorPhone} onChange=${fld('vendorPhone')} placeholder="(800) 288-6966" style=${iS}/></div>
       </div>
-    </div>`}
-    ${showAdd&&html`<div style=${{marginBottom:20,padding:24,borderRadius:4,background:'#111113',border:'1px solid #1A1A1E',animation:'fadeIn .2s ease'}}>
-      <h3 style=${{fontSize:14,color:'#E8E8EA',fontWeight:700,marginBottom:16}}>Add Part</h3>
-      <div style=${{display:'flex',gap:12,flexWrap:'wrap'}}>
-        <${OpsMiniField} label="Part Name" placeholder="Brake Pads - Ceramic Front" flex="2"/>
-        <${OpsMiniField} label="Part Number" placeholder="BP-CER-001" flex="1"/>
-        <${OpsMiniField} label="Qty" placeholder="12" flex="0.5" type="number"/>
-        <${OpsMiniField} label="Min Threshold" placeholder="4" flex="0.5" type="number"/>
-        <${OpsMiniField} label="Unit Cost ($)" placeholder="35.00" flex="0.5" type="number"/>
-        <${OpsMiniField} label="Vendor" placeholder="AutoZone Commercial" flex="1.5"/>
-        <${OpsMiniField} label="Vendor Phone" placeholder="(800) 288-6966" flex="1"/>
-      </div>
-      <div style=${{display:'flex',gap:10,marginTop:16}}>
-        <${OpsGoldBtn} label="ADD PART →"/>
+      <div style=${{display:'flex',gap:10,marginTop:14}}>
+        <${OpsGoldBtn} label="ADD PART →" onClick=${addPart}/>
         <button onClick=${()=>sShowAdd(false)} style=${{padding:'10px 18px',borderRadius:4,border:'1px solid #2A2A30',background:'transparent',color:'#666',fontSize:11,fontWeight:700,cursor:'pointer',letterSpacing:'0.06em'}}>CANCEL</button>
       </div>
     </div>`}
-    <div style=${{borderRadius:4,border:'1px solid #1A1A1E',overflow:'hidden'}}>
+    ${parts.length===0?html`<div style=${{padding:'60px 0',textAlign:'center',border:'2px dashed #1A1A1E',borderRadius:6}}>
+      <div style=${{fontSize:36,marginBottom:12}}>📦</div>
+      <div style=${{fontSize:12,color:'#333',fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase'}}>No parts tracked yet</div>
+      <div style=${{fontSize:11,color:'#2A2A2A',marginTop:6}}>Click + ADD PART to start building your inventory</div>
+    </div>`:html`<div style=${{borderRadius:4,border:'1px solid #1A1A1E',overflow:'hidden'}}>
       <table style=${{width:'100%',borderCollapse:'collapse'}}>
-        <thead><tr style=${{background:'#111113'}}>
-          ${['STATUS','PART NAME','PART #','QTY','MIN','UNIT COST','VENDOR',''].map(h=>html`<${OpsTH} key=${h}>${h}</${OpsTH}>`)}
-        </tr></thead>
+        <thead><tr style=${{background:'#111113'}}>${['STATUS','PART NAME','PART #','QTY','MIN','UNIT COST','VENDOR',''].map(h=>html`<${OpsTH} key=${h}>${h}</${OpsTH}>`)}</tr></thead>
         <tbody>
-          ${OPS_PARTS.map(p=>html`<tr key=${p.id} style=${{borderBottom:'1px solid #141416'}}>
+          ${parts.map(p=>editId===p.id?html`<tr key=${p.id} style=${{borderBottom:'1px solid #141416',background:`${G}06`}}>
+            <td style=${{padding:'8px 10px'}} colspan="2"><input value=${editForm.part} onChange=${efld('part')} style=${iS}/></td>
+            <td style=${{padding:'8px 6px'}}><input value=${editForm.partNum} onChange=${efld('partNum')} style=${iS}/></td>
+            <td style=${{padding:'8px 6px'}}><input type="number" value=${editForm.qty} onChange=${efld('qty')} style=${{...iS,width:60}}/></td>
+            <td style=${{padding:'8px 6px'}}><input type="number" value=${editForm.min} onChange=${efld('min')} style=${{...iS,width:60}}/></td>
+            <td style=${{padding:'8px 6px'}}><input type="number" step="0.01" value=${editForm.cost} onChange=${efld('cost')} style=${{...iS,width:80}}/></td>
+            <td style=${{padding:'8px 6px'}}><input value=${editForm.vendor} onChange=${efld('vendor')} style=${iS}/></td>
+            <td style=${{padding:'8px 6px',whiteSpace:'nowrap'}}>
+              <button onClick=${saveEdit} style=${{padding:'5px 10px',borderRadius:3,border:`1px solid ${G}66`,background:`${G}18`,color:G,fontSize:11,fontWeight:700,cursor:'pointer',marginRight:4}}>Save</button>
+              <button onClick=${()=>sEditId(null)} style=${{padding:'5px 8px',borderRadius:3,border:'1px solid #222',background:'transparent',color:'#555',fontSize:11,cursor:'pointer'}}>×</button>
+            </td>
+          </tr>`:html`<tr key=${p.id} style=${{borderBottom:'1px solid #141416'}}>
             <td style=${{padding:'12px 16px'}}><${OpsStatusBadge} status=${p.status}/></td>
             <td style=${{padding:'12px 16px',fontSize:13,color:'#E8E8EA',fontWeight:600}}>${p.part}</td>
-            <td style=${{padding:'12px 16px',fontSize:12,color:'#666',fontFamily:'monospace'}}>${p.partNum}</td>
+            <td style=${{padding:'12px 16px',fontSize:12,color:'#666',fontFamily:'monospace'}}>${p.partNum||'—'}</td>
             <td style=${{padding:'12px 16px',fontSize:14,fontWeight:700,color:p.status==='out'?'#C0392B':p.status==='low'?G:'#E8E8EA'}}>${p.qty}</td>
             <td style=${{padding:'12px 16px',fontSize:12,color:'#555'}}>${p.min}</td>
-            <td style=${{padding:'12px 16px',fontSize:13,color:'#AAA'}}>$${p.cost.toFixed(2)}</td>
-            <td style=${{padding:'12px 16px',fontSize:12,color:'#666'}}>${p.vendor}</td>
-            <td style=${{padding:'12px 16px'}}><button style=${{padding:'4px 10px',borderRadius:3,border:'1px solid #1A1A1E',background:'transparent',color:'#555',fontSize:11,cursor:'pointer'}}>Edit</button></td>
+            <td style=${{padding:'12px 16px',fontSize:13,color:'#AAA'}}>$${(p.cost||0).toFixed(2)}</td>
+            <td style=${{padding:'12px 16px',fontSize:12,color:'#666'}}>${p.vendor||'—'}</td>
+            <td style=${{padding:'12px 14px',whiteSpace:'nowrap'}}>
+              <button onClick=${()=>startEdit(p)} style=${{padding:'4px 10px',borderRadius:3,border:'1px solid #1A1A1E',background:'transparent',color:'#555',fontSize:11,cursor:'pointer',marginRight:4}}>Edit</button>
+              <button onClick=${()=>deletePart(p.id)} style=${{padding:'4px 8px',borderRadius:3,border:'1px solid #3A1A1A',background:'transparent',color:'#C0392B',fontSize:11,cursor:'pointer'}}>×</button>
+            </td>
           </tr>`)}
         </tbody>
       </table>
-    </div>
+    </div>`}
   </div>`;
 }
 
 /* ── EQUIPMENT LOG ── */
-function OpsEquipmentLog(){
-  const overdue=OPS_EQUIP.filter(e=>e.status==='overdue').length;
-  const due=OPS_EQUIP.filter(e=>e.status==='due').length;
+function OpsEquipmentLog({equip,setEquip}){
+  const iS={width:'100%',padding:'9px 11px',borderRadius:4,border:'1px solid #1A1A1E',background:'#0E0E10',color:'#CCC',fontSize:12,boxSizing:'border-box'};
+  const[showAdd,sShowAdd]=useState(false);
+  const[form,sForm]=useState({name:'',type:'',serial:'',nextDue:'',calibration:''});
+  const fld=(k)=>(e)=>sForm(p=>({...p,[k]:e.target.value}));
+  const addEquip=()=>{
+    if(!form.name.trim())return;
+    const today=todayStr();
+    const status=calcEquipStatus(form.nextDue);
+    setEquip(prev=>[...prev,{id:Date.now(),name:form.name.trim(),type:form.type.trim(),serial:form.serial.trim(),lastService:today,nextDue:form.nextDue||'',calibration:form.calibration||'',status}]);
+    sForm({name:'',type:'',serial:'',nextDue:'',calibration:''});
+    sShowAdd(false);
+  };
+  const logService=(id)=>{
+    const today=todayStr();
+    setEquip(prev=>prev.map(e=>{
+      if(e.id!==id)return e;
+      const nextDueDate=e.nextDue?(()=>{const d=new Date(e.nextDue),ls=new Date(e.lastService||today);const diff=d-ls;return new Date(today).getTime()+diff>0?new Date(new Date(today).getTime()+diff).toISOString().slice(0,10):'':''})():'';
+      return{...e,lastService:today,nextDue:nextDueDate,status:calcEquipStatus(nextDueDate)};
+    }));
+  };
+  const deleteEquip=(id)=>setEquip(prev=>prev.filter(e=>e.id!==id));
+  const overdue=equip.filter(e=>e.status==='overdue').length;
+  const due=equip.filter(e=>e.status==='due').length;
   return html`<div style=${{animation:'fadeIn .25s ease'}}>
     ${(overdue>0||due>0)&&html`<div style=${{marginBottom:20,padding:'14px 18px',borderRadius:4,background:'#C0392B12',border:'1px solid #C0392B25',display:'flex',alignItems:'center',gap:10}}>
       <span style=${{fontSize:16}}>⚠️</span>
       <span style=${{fontSize:13,color:'#C0392B',fontWeight:600}}>${overdue} overdue, ${due} due soon — service required</span>
     </div>`}
     <div style=${{display:'flex',gap:10,marginBottom:20}}>
-      <${OpsActionBtn} label="+ ADD EQUIPMENT" onClick=${()=>{}}/>
-      <${OpsActionBtn} label="📄 UPLOAD CSV" onClick=${()=>{}}/>
-      <${OpsActionBtn} label="📊 COMPLIANCE REPORT" onClick=${()=>{}}/>
+      <${OpsActionBtn} label="+ ADD EQUIPMENT" onClick=${()=>sShowAdd(v=>!v)} active=${showAdd}/>
     </div>
-    <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(340px,1fr))',gap:12}}>
-      ${OPS_EQUIP.map(eq=>html`<div key=${eq.id} style=${{background:'#111113',border:`1px solid ${eq.status==='overdue'?'#C0392B33':eq.status==='due'?`${G}25`:'#1A1A1E'}`,borderRadius:4,padding:'18px 20px'}}>
+    ${showAdd&&html`<div style=${{marginBottom:20,padding:24,borderRadius:4,background:'#111113',border:'1px solid #1A1A1E',animation:'fadeIn .2s ease'}}>
+      <h3 style=${{fontSize:14,color:'#E8E8EA',fontWeight:700,marginBottom:16}}>Add Equipment</h3>
+      <div style=${{display:'flex',gap:12,flexWrap:'wrap'}}>
+        <div style=${{flex:'2',minWidth:160}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Equipment Name *</label><input value=${form.name} onChange=${fld('name')} placeholder="Tire balancer" style=${iS}/></div>
+        <div style=${{flex:'1',minWidth:120}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Type</label><input value=${form.type} onChange=${fld('type')} placeholder="Balancer" style=${iS}/></div>
+        <div style=${{flex:'1',minWidth:120}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Serial #</label><input value=${form.serial} onChange=${fld('serial')} placeholder="SN-00000" style=${iS}/></div>
+        <div style=${{flex:'1',minWidth:140}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Next Service Due</label><input type="date" value=${form.nextDue} onChange=${fld('nextDue')} style=${iS}/></div>
+        <div style=${{flex:'1',minWidth:140}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Calibration Due</label><input type="date" value=${form.calibration} onChange=${fld('calibration')} style=${iS}/></div>
+      </div>
+      <div style=${{display:'flex',gap:10,marginTop:16}}>
+        <${OpsGoldBtn} label="ADD EQUIPMENT →" onClick=${addEquip}/>
+        <button onClick=${()=>sShowAdd(false)} style=${{padding:'10px 18px',borderRadius:4,border:'1px solid #2A2A30',background:'transparent',color:'#666',fontSize:11,fontWeight:700,cursor:'pointer',letterSpacing:'0.06em'}}>CANCEL</button>
+      </div>
+    </div>`}
+    ${equip.length===0?html`<div style=${{textAlign:'center',padding:'60px 20px',color:'#444'}}>
+      <div style=${{fontSize:36,marginBottom:12}}>🔧</div>
+      <div style=${{fontSize:14,fontWeight:600,color:'#555',marginBottom:6}}>No equipment logged yet</div>
+      <div style=${{fontSize:12,color:'#444'}}>Add your lifts, tire equipment, diagnostic tools, and calibration items.</div>
+    </div>`:html`<div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(340px,1fr))',gap:12}}>
+      ${equip.map(eq=>html`<div key=${eq.id} style=${{background:'#111113',border:`1px solid ${eq.status==='overdue'?'#C0392B33':eq.status==='due'?`${G}25`:'#1A1A1E'}`,borderRadius:4,padding:'18px 20px'}}>
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
           <div>
             <div style=${{fontSize:14,fontWeight:700,color:'#E8E8EA'}}>${eq.name}</div>
-            <div style=${{fontSize:11,color:'#555',marginTop:2}}>${eq.type} · Serial: ${eq.serial}</div>
+            <div style=${{fontSize:11,color:'#555',marginTop:2}}>${eq.type||'Equipment'}${eq.serial?' · Serial: '+eq.serial:''}</div>
           </div>
-          <${OpsStatusBadge} status=${eq.status}/>
+          <div style=${{display:'flex',alignItems:'center',gap:8}}>
+            <${OpsStatusBadge} status=${eq.status}/>
+            <button onClick=${()=>deleteEquip(eq.id)} style=${{padding:'3px 8px',borderRadius:3,border:'1px solid #3A1A1A',background:'transparent',color:'#C0392B',fontSize:11,cursor:'pointer'}}>×</button>
+          </div>
         </div>
         <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginTop:12}}>
-          <${OpsDataCell} label="Last Service" value=${eq.lastService}/>
-          <${OpsDataCell} label="Next Due" value=${eq.nextDue} highlight=${eq.status!=='ok'}/>
+          <${OpsDataCell} label="Last Service" value=${eq.lastService||'—'}/>
+          <${OpsDataCell} label="Next Due" value=${eq.nextDue||'—'} highlight=${eq.status!=='ok'}/>
           ${eq.calibration&&html`<${OpsDataCell} label="Calibration Due" value=${eq.calibration}/>`}
         </div>
-        <div style=${{display:'flex',gap:8,marginTop:14}}>
-          <button style=${{flex:1,padding:8,borderRadius:3,border:'1px solid #1A1A1E',background:'#0E0E10',color:'#888',fontSize:11,fontWeight:600,cursor:'pointer',letterSpacing:'0.04em'}}>LOG SERVICE</button>
-          <button style=${{padding:'8px 12px',borderRadius:3,border:'1px solid #1A1A1E',background:'transparent',color:'#555',fontSize:11,cursor:'pointer'}}>Edit</button>
+        <div style=${{marginTop:14}}>
+          <button onClick=${()=>logService(eq.id)} style=${{width:'100%',padding:8,borderRadius:3,border:`1px solid ${G}44`,background:`${G}12`,color:G,fontSize:11,fontWeight:600,cursor:'pointer',letterSpacing:'0.04em'}}>✓ LOG SERVICE TODAY</button>
         </div>
       </div>`)}
-    </div>
+    </div>`}
   </div>`;
 }
 
 /* ── EXPENSE TRACKER ── */
-function OpsExpenseTracker(){
-  const[showUpload,sShowUpload]=useState(false);
+function OpsExpenseTracker({expenses,setExpenses}){
+  const iS={width:'100%',padding:'9px 11px',borderRadius:4,border:'1px solid #1A1A1E',background:'#0E0E10',color:'#CCC',fontSize:12,boxSizing:'border-box'};
   const[showAdd,sShowAdd]=useState(false);
-  const total=OPS_EXP.reduce((s,e)=>s+e.amount,0);
-  const byCat={};OPS_EXP.forEach(e=>{byCat[e.category]=(byCat[e.category]||0)+e.amount;});
+  const[form,sForm]=useState({date:'',amount:'',desc:'',category:'',vendor:''});
+  const fld=(k)=>(e)=>sForm(p=>({...p,[k]:e.target.value}));
+  const addExpense=()=>{
+    if(!form.desc.trim()||!form.amount)return;
+    setExpenses(prev=>[...prev,{id:Date.now(),date:form.date||todayStr(),amount:parseFloat(form.amount)||0,desc:form.desc.trim(),category:form.category||'other',vendor:form.vendor.trim()}]);
+    sForm({date:'',amount:'',desc:'',category:'',vendor:''});
+    sShowAdd(false);
+  };
+  const deleteExpense=(id)=>setExpenses(prev=>prev.filter(e=>e.id!==id));
+  const total=expenses.reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
+  const byCat={};expenses.forEach(e=>{byCat[e.category]=(byCat[e.category]||0)+(parseFloat(e.amount)||0);});
   const sortedCats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  const monthLabel=expenses.length>0?fmtMonth(expenses[expenses.length-1].date):'This Month';
   return html`<div style=${{animation:'fadeIn .25s ease'}}>
-    <div style=${{display:'flex',gap:16,marginBottom:20}}>
+    ${expenses.length>0&&html`<div style=${{display:'flex',gap:16,marginBottom:20}}>
       <div style=${{flex:1,padding:'18px 22px',borderRadius:4,background:'#111113',border:'1px solid #1A1A1E'}}>
-        <div style=${{fontSize:9,fontWeight:800,color:'#555',letterSpacing:'0.12em',marginBottom:6}}>NOVEMBER 2024</div>
+        <div style=${{fontSize:9,fontWeight:800,color:'#555',letterSpacing:'0.12em',marginBottom:6}}>${monthLabel.toUpperCase()}</div>
         <div style=${{fontSize:28,fontWeight:800,color:'#E8E8EA',fontFamily:"'Barlow Condensed',sans-serif"}}>$${total.toLocaleString('en-US',{minimumFractionDigits:2})}</div>
-        <div style=${{fontSize:11,color:'#555',marginTop:4}}>${OPS_EXP.length} transactions</div>
+        <div style=${{fontSize:11,color:'#555',marginTop:4}}>${expenses.length} transactions</div>
       </div>
-      <div style=${{flex:2,padding:'18px 22px',borderRadius:4,background:'#111113',border:'1px solid #1A1A1E'}}>
+      ${sortedCats.length>0&&html`<div style=${{flex:2,padding:'18px 22px',borderRadius:4,background:'#111113',border:'1px solid #1A1A1E'}}>
         <div style=${{fontSize:9,fontWeight:800,color:'#555',letterSpacing:'0.12em',marginBottom:10}}>TOP CATEGORIES</div>
         <div style=${{display:'flex',flexDirection:'column',gap:6}}>
           ${sortedCats.slice(0,4).map(([cat,amt])=>html`<div key=${cat} style=${{display:'flex',alignItems:'center',gap:10}}>
             <div style=${{width:90,fontSize:11,color:'#888'}}>${CAT_LABELS[cat]||cat}</div>
             <div style=${{flex:1,height:6,background:'#1A1A1E',borderRadius:3}}>
-              <div style=${{height:6,borderRadius:3,width:`${(amt/total)*100}%`,background:`linear-gradient(90deg,${G},#B8900F)`}}/>
+              <div style=${{height:6,borderRadius:3,width:`${total>0?(amt/total)*100:0}%`,background:`linear-gradient(90deg,${G},#B8900F)`}}/>
             </div>
             <div style=${{width:80,textAlign:'right',fontSize:12,color:'#AAA',fontWeight:600}}>$${amt.toLocaleString('en-US',{minimumFractionDigits:2})}</div>
           </div>`)}
         </div>
-      </div>
-    </div>
-    <div style=${{display:'flex',gap:10,marginBottom:20}}>
-      <${OpsActionBtn} label="+ ADD EXPENSE" onClick=${()=>{sShowAdd(!showAdd);sShowUpload(false);}} active=${showAdd}/>
-      <${OpsActionBtn} label="📄 UPLOAD CSV" onClick=${()=>{sShowUpload(!showUpload);sShowAdd(false);}} active=${showUpload}/>
-      <${OpsActionBtn} label="📊 GENERATE REPORT" onClick=${()=>{}}/>
-    </div>
-    ${showUpload&&html`<div style=${{marginBottom:20,padding:24,borderRadius:4,background:'#111113',border:`1px dashed ${G}44`,animation:'fadeIn .2s ease'}}>
-      <h3 style=${{fontSize:14,color:'#E8E8EA',fontWeight:700,marginBottom:8}}>Upload Expenses CSV</h3>
-      <p style=${{fontSize:12,color:'#666',lineHeight:1.6,marginBottom:16}}>Required columns: Date, Amount, Description, Category. Optional: Vendor.</p>
-      <div style=${{padding:28,borderRadius:4,border:'2px dashed #2A2A30',background:'#0E0E10',textAlign:'center',cursor:'pointer'}}>
-        <div style=${{fontSize:28,marginBottom:8}}>📁</div>
-        <div style=${{fontSize:13,color:'#888'}}>Drag & drop or <span style=${{color:G,fontWeight:600}}>click to browse</span></div>
-        <div style=${{fontSize:11,color:'#444',marginTop:4}}>Categories: parts, labor, rent, utilities, insurance, marketing, tools_equipment, training</div>
-      </div>
+      </div>`}
     </div>`}
+    <div style=${{display:'flex',gap:10,marginBottom:20}}>
+      <${OpsActionBtn} label="+ ADD EXPENSE" onClick=${()=>sShowAdd(v=>!v)} active=${showAdd}/>
+    </div>
     ${showAdd&&html`<div style=${{marginBottom:20,padding:24,borderRadius:4,background:'#111113',border:'1px solid #1A1A1E',animation:'fadeIn .2s ease'}}>
       <h3 style=${{fontSize:14,color:'#E8E8EA',fontWeight:700,marginBottom:16}}>Add Expense</h3>
       <div style=${{display:'flex',gap:12,flexWrap:'wrap'}}>
-        <${OpsMiniField} label="Date" placeholder="" flex="0.8" type="date"/>
-        <${OpsMiniField} label="Amount ($)" placeholder="450.00" flex="0.6" type="number"/>
-        <${OpsMiniField} label="Description" placeholder="Brake pads bulk order" flex="2"/>
+        <div style=${{flex:'0.8',minWidth:120}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Date</label><input type="date" value=${form.date} onChange=${fld('date')} style=${iS}/></div>
+        <div style=${{flex:'0.6',minWidth:100}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Amount ($) *</label><input type="number" step="0.01" value=${form.amount} onChange=${fld('amount')} placeholder="450.00" style=${iS}/></div>
+        <div style=${{flex:'2',minWidth:160}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Description *</label><input value=${form.desc} onChange=${fld('desc')} placeholder="Brake pads bulk order" style=${iS}/></div>
         <div style=${{flex:'1',minWidth:160}}>
           <label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Category</label>
-          <select style=${{width:'100%',padding:'10px 12px',borderRadius:4,border:'1px solid #1A1A1E',background:'#0E0E10',color:'#AAA',fontSize:13}}>
+          <select value=${form.category} onChange=${fld('category')} style=${{...iS,color:form.category?'#CCC':'#555'}}>
             <option value="">Select...</option>
             ${Object.entries(CAT_LABELS).map(([k,v])=>html`<option key=${k} value=${k}>${v}</option>`)}
           </select>
         </div>
-        <${OpsMiniField} label="Vendor" placeholder="AutoZone" flex="1"/>
+        <div style=${{flex:'1',minWidth:120}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Vendor</label><input value=${form.vendor} onChange=${fld('vendor')} placeholder="AutoZone" style=${iS}/></div>
       </div>
       <div style=${{display:'flex',gap:10,marginTop:16}}>
-        <${OpsGoldBtn} label="ADD EXPENSE →"/>
+        <${OpsGoldBtn} label="ADD EXPENSE →" onClick=${addExpense}/>
         <button onClick=${()=>sShowAdd(false)} style=${{padding:'10px 18px',borderRadius:4,border:'1px solid #2A2A30',background:'transparent',color:'#666',fontSize:11,fontWeight:700,cursor:'pointer',letterSpacing:'0.06em'}}>CANCEL</button>
       </div>
     </div>`}
-    <div style=${{borderRadius:4,border:'1px solid #1A1A1E',overflow:'hidden'}}>
+    ${expenses.length===0?html`<div style=${{textAlign:'center',padding:'60px 20px',color:'#444'}}>
+      <div style=${{fontSize:36,marginBottom:12}}>💰</div>
+      <div style=${{fontSize:14,fontWeight:600,color:'#555',marginBottom:6}}>No expenses logged yet</div>
+      <div style=${{fontSize:12,color:'#444'}}>Track parts costs, labor, rent, utilities, insurance, and more.</div>
+    </div>`:html`<div style=${{borderRadius:4,border:'1px solid #1A1A1E',overflow:'hidden'}}>
       <table style=${{width:'100%',borderCollapse:'collapse'}}>
         <thead><tr style=${{background:'#111113'}}>
           <${OpsTH}>DATE</${OpsTH}><${OpsTH}>DESCRIPTION</${OpsTH}><${OpsTH}>CATEGORY</${OpsTH}><${OpsTH}>VENDOR</${OpsTH}><${OpsTH} right>AMOUNT</${OpsTH}><${OpsTH}></${OpsTH}>
         </tr></thead>
         <tbody>
-          ${OPS_EXP.map(e=>html`<tr key=${e.id} style=${{borderBottom:'1px solid #141416'}}>
+          ${expenses.map(e=>html`<tr key=${e.id} style=${{borderBottom:'1px solid #141416'}}>
             <td style=${{padding:'12px 16px',fontSize:12,color:'#666'}}>${e.date}</td>
             <td style=${{padding:'12px 16px',fontSize:13,color:'#E8E8EA'}}>${e.desc}</td>
-            <td style=${{padding:'12px 16px'}}><span style=${{fontSize:10,fontWeight:700,padding:'3px 9px',borderRadius:3,background:`${G}10`,color:G,letterSpacing:'0.04em'}}>${CAT_LABELS[e.category]||e.category}</span></td>
-            <td style=${{padding:'12px 16px',fontSize:12,color:'#666'}}>${e.vendor}</td>
-            <td style=${{padding:'12px 16px',fontSize:14,fontWeight:700,color:'#E8E8EA',textAlign:'right'}}>$${e.amount.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
-            <td style=${{padding:'12px 16px'}}><button style=${{padding:'4px 10px',borderRadius:3,border:'1px solid #1A1A1E',background:'transparent',color:'#555',fontSize:11,cursor:'pointer'}}>Edit</button></td>
+            <td style=${{padding:'12px 16px'}}><span style=${{fontSize:10,fontWeight:700,padding:'3px 9px',borderRadius:3,background:`${G}10`,color:G,letterSpacing:'0.04em'}}>${CAT_LABELS[e.category]||e.category||'—'}</span></td>
+            <td style=${{padding:'12px 16px',fontSize:12,color:'#666'}}>${e.vendor||'—'}</td>
+            <td style=${{padding:'12px 16px',fontSize:14,fontWeight:700,color:'#E8E8EA',textAlign:'right'}}>$${(parseFloat(e.amount)||0).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+            <td style=${{padding:'12px 16px'}}><button onClick=${()=>deleteExpense(e.id)} style=${{padding:'4px 8px',borderRadius:3,border:'1px solid #3A1A1A',background:'transparent',color:'#C0392B',fontSize:11,cursor:'pointer'}}>×</button></td>
           </tr>`)}
         </tbody>
       </table>
-    </div>
+    </div>`}
   </div>`;
 }
 
 /* ── WARRANTY TRACKER ── */
-function OpsWarrantyTracker(){
-  const totalClaimed=OPS_WARRANTY.reduce((s,w)=>s+w.cost,0);
-  const totalRecovered=OPS_WARRANTY.reduce((s,w)=>s+w.reimbursed,0);
+function OpsWarrantyTracker({warranty,setWarranty}){
+  const iS={width:'100%',padding:'9px 11px',borderRadius:4,border:'1px solid #1A1A1E',background:'#0E0E10',color:'#CCC',fontSize:12,boxSizing:'border-box'};
+  const[showAdd,sShowAdd]=useState(false);
+  const[form,sForm]=useState({part:'',vehicle:'',vendor:'',cost:'',claimDate:'',status:'Submitted'});
+  const fld=(k)=>(e)=>sForm(p=>({...p,[k]:e.target.value}));
+  const calcDays=(d)=>{if(!d)return 0;return Math.floor((new Date()-new Date(d))/86400000);};
+  const addClaim=()=>{
+    if(!form.part.trim())return;
+    const claimDate=form.claimDate||todayStr();
+    setWarranty(prev=>[...prev,{id:Date.now(),part:form.part.trim(),vehicle:form.vehicle.trim(),vendor:form.vendor.trim(),cost:parseFloat(form.cost)||0,reimbursed:0,claimDate,status:form.status,days:calcDays(claimDate)}]);
+    sForm({part:'',vehicle:'',vendor:'',cost:'',claimDate:'',status:'Submitted'});
+    sShowAdd(false);
+  };
+  const updateStatus=(id,status)=>setWarranty(prev=>prev.map(w=>w.id===id?{...w,status,reimbursed:status==='Approved'?w.cost:w.reimbursed}:w));
+  const deleteClaim=(id)=>setWarranty(prev=>prev.filter(w=>w.id!==id));
+  const withDays=warranty.map(w=>({...w,days:calcDays(w.claimDate)}));
+  const totalClaimed=withDays.reduce((s,w)=>s+(parseFloat(w.cost)||0),0);
+  const totalRecovered=withDays.reduce((s,w)=>s+(parseFloat(w.reimbursed)||0),0);
+  const STATUSES=['Submitted','Under Review','Approved','Denied','Resolved'];
   return html`<div style=${{animation:'fadeIn .25s ease'}}>
-    <div style=${{display:'flex',gap:16,marginBottom:20}}>
-      ${[{l:'TOTAL CLAIMED',v:`$${totalClaimed.toFixed(2)}`,c:'#E8E8EA'},{l:'RECOVERED',v:`$${totalRecovered.toFixed(2)}`,c:'#27AE60'},{l:'PENDING',v:`$${(totalClaimed-totalRecovered).toFixed(2)}`,c:G},{l:'OPEN CLAIMS',v:OPS_WARRANTY.filter(w=>w.status!=='Resolved').length,c:'#E8E8EA'}].map(s=>html`
+    ${warranty.length>0&&html`<div style=${{display:'flex',gap:16,marginBottom:20}}>
+      ${[{l:'TOTAL CLAIMED',v:`$${totalClaimed.toFixed(2)}`,c:'#E8E8EA'},{l:'RECOVERED',v:`$${totalRecovered.toFixed(2)}`,c:'#27AE60'},{l:'PENDING',v:`$${(totalClaimed-totalRecovered).toFixed(2)}`,c:G},{l:'OPEN CLAIMS',v:withDays.filter(w=>w.status!=='Resolved').length,c:'#E8E8EA'}].map(s=>html`
         <div key=${s.l} style=${{flex:1,padding:'16px 20px',borderRadius:4,background:'#111113',border:'1px solid #1A1A1E'}}>
           <div style=${{fontSize:9,fontWeight:800,color:'#555',letterSpacing:'0.12em',marginBottom:6}}>${s.l}</div>
           <div style=${{fontSize:24,fontWeight:800,color:s.c,fontFamily:"'Barlow Condensed',sans-serif"}}>${s.v}</div>
         </div>`)}
-    </div>
+    </div>`}
     <div style=${{display:'flex',gap:10,marginBottom:20}}>
-      <${OpsActionBtn} label="+ NEW CLAIM" onClick=${()=>{}}/>
-      <${OpsActionBtn} label="📊 MONTHLY REPORT" onClick=${()=>{}}/>
+      <${OpsActionBtn} label="+ NEW CLAIM" onClick=${()=>sShowAdd(v=>!v)} active=${showAdd}/>
     </div>
-    <div style=${{display:'flex',flexDirection:'column',gap:10}}>
-      ${OPS_WARRANTY.map(w=>html`<div key=${w.id} style=${{background:'#111113',border:`1px solid ${w.days>60?'#C0392B25':w.days>30?`${G}20`:'#1A1A1E'}`,borderRadius:4,padding:'18px 22px',display:'flex',alignItems:'center',gap:20}}>
-        <div style=${{width:52,height:52,borderRadius:4,background:'#0E0E10',border:'1px solid #1A1A1E',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:800,color:G}}>${w.id}</div>
-        <div style=${{flex:1}}>
-          <div style=${{fontSize:14,fontWeight:700,color:'#E8E8EA'}}>${w.part}</div>
-          <div style=${{fontSize:11,color:'#555',marginTop:2}}>${w.vehicle} · Vendor: ${w.vendor} · $${w.cost.toFixed(2)}</div>
+    ${showAdd&&html`<div style=${{marginBottom:20,padding:24,borderRadius:4,background:'#111113',border:'1px solid #1A1A1E',animation:'fadeIn .2s ease'}}>
+      <h3 style=${{fontSize:14,color:'#E8E8EA',fontWeight:700,marginBottom:16}}>New Warranty Claim</h3>
+      <div style=${{display:'flex',gap:12,flexWrap:'wrap'}}>
+        <div style=${{flex:'2',minWidth:160}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Part / Component *</label><input value=${form.part} onChange=${fld('part')} placeholder="Alternator" style=${iS}/></div>
+        <div style=${{flex:'1.5',minWidth:140}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Vehicle</label><input value=${form.vehicle} onChange=${fld('vehicle')} placeholder="2020 Honda Civic" style=${iS}/></div>
+        <div style=${{flex:'1',minWidth:120}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Vendor</label><input value=${form.vendor} onChange=${fld('vendor')} placeholder="NAPA" style=${iS}/></div>
+        <div style=${{flex:'0.7',minWidth:100}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Cost ($)</label><input type="number" step="0.01" value=${form.cost} onChange=${fld('cost')} placeholder="185.00" style=${iS}/></div>
+        <div style=${{flex:'0.8',minWidth:130}}><label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Claim Date</label><input type="date" value=${form.claimDate} onChange=${fld('claimDate')} style=${iS}/></div>
+        <div style=${{flex:'1',minWidth:140}}>
+          <label style=${{display:'block',fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em',marginBottom:6,textTransform:'uppercase'}}>Status</label>
+          <select value=${form.status} onChange=${fld('status')} style=${iS}>
+            ${STATUSES.map(s=>html`<option key=${s} value=${s}>${s}</option>`)}
+          </select>
         </div>
-        <div style=${{textAlign:'center'}}>
+      </div>
+      <div style=${{display:'flex',gap:10,marginTop:16}}>
+        <${OpsGoldBtn} label="ADD CLAIM →" onClick=${addClaim}/>
+        <button onClick=${()=>sShowAdd(false)} style=${{padding:'10px 18px',borderRadius:4,border:'1px solid #2A2A30',background:'transparent',color:'#666',fontSize:11,fontWeight:700,cursor:'pointer',letterSpacing:'0.06em'}}>CANCEL</button>
+      </div>
+    </div>`}
+    ${withDays.length===0?html`<div style=${{textAlign:'center',padding:'60px 20px',color:'#444'}}>
+      <div style=${{fontSize:36,marginBottom:12}}>🛡</div>
+      <div style=${{fontSize:14,fontWeight:600,color:'#555',marginBottom:6}}>No warranty claims yet</div>
+      <div style=${{fontSize:12,color:'#444'}}>Track part warranty claims, status updates, and reimbursements here.</div>
+    </div>`:html`<div style=${{display:'flex',flexDirection:'column',gap:10}}>
+      ${withDays.map(w=>html`<div key=${w.id} style=${{background:'#111113',border:`1px solid ${w.days>60?'#C0392B25':w.days>30?`${G}20`:'#1A1A1E'}`,borderRadius:4,padding:'18px 22px',display:'flex',alignItems:'center',gap:20,flexWrap:'wrap'}}>
+        <div style=${{flex:1,minWidth:160}}>
+          <div style=${{fontSize:14,fontWeight:700,color:'#E8E8EA'}}>${w.part}</div>
+          <div style=${{fontSize:11,color:'#555',marginTop:2}}>${w.vehicle||'—'} · ${w.vendor||'—'} · $${(parseFloat(w.cost)||0).toFixed(2)}</div>
+        </div>
+        <div style=${{textAlign:'center',minWidth:48}}>
           <div style=${{fontSize:9,fontWeight:700,color:'#555',letterSpacing:'0.1em'}}>AGE</div>
           <div style=${{fontSize:16,fontWeight:800,color:w.days>60?'#C0392B':w.days>30?G:'#AAA'}}>${w.days}d</div>
         </div>
-        <div style=${{padding:'6px 14px',borderRadius:3,fontSize:11,fontWeight:700,background:w.status==='Approved'?'#27AE6012':w.status==='Submitted'?`${G}10`:'#1A1A1E',color:w.status==='Approved'?'#27AE60':w.status==='Submitted'?G:'#888',border:`1px solid ${w.status==='Approved'?'#27AE6020':w.status==='Submitted'?`${G}20`:'#2A2A30'}`}}>${w.status}</div>
-        <button style=${{padding:'8px 14px',borderRadius:3,border:'1px solid #1A1A1E',background:'transparent',color:'#555',fontSize:11,cursor:'pointer',fontWeight:600}}>UPDATE</button>
+        <select value=${w.status} onChange=${(e)=>updateStatus(w.id,e.target.value)} style=${{padding:'6px 10px',borderRadius:3,fontSize:11,fontWeight:700,border:`1px solid ${w.status==='Approved'?'#27AE6040':w.status==='Submitted'?`${G}40`:'#2A2A30'}`,background:w.status==='Approved'?'#27AE6012':w.status==='Submitted'?`${G}10`:'#1A1A1E',color:w.status==='Approved'?'#27AE60':w.status==='Submitted'?G:'#888',cursor:'pointer'}}>
+          ${STATUSES.map(s=>html`<option key=${s} value=${s}>${s}</option>`)}
+        </select>
+        <button onClick=${()=>deleteClaim(w.id)} style=${{padding:'6px 10px',borderRadius:3,border:'1px solid #3A1A1A',background:'transparent',color:'#C0392B',fontSize:11,cursor:'pointer',fontWeight:600}}>×</button>
       </div>`)}
-    </div>
+    </div>`}
   </div>`;
 }
 
 /* ── OPERATIONS HUB ── */
 function OperationsHub({onBack}){
   const[activeTab,sTab]=useState('parts');
+  const load=(key)=>{try{const v=localStorage.getItem(key);return v?JSON.parse(v):[];}catch{return[];}};
+  const[parts,sParts]=useState(()=>load('scc_parts'));
+  const[equip,sEquip]=useState(()=>load('scc_equip'));
+  const[expenses,sExpenses]=useState(()=>load('scc_exp'));
+  const[warranty,sWarranty]=useState(()=>load('scc_warranty'));
+  useEffect(()=>{try{localStorage.setItem('scc_parts',JSON.stringify(parts));}catch{}},[parts]);
+  useEffect(()=>{try{localStorage.setItem('scc_equip',JSON.stringify(equip));}catch{}},[equip]);
+  useEffect(()=>{try{localStorage.setItem('scc_exp',JSON.stringify(expenses));}catch{}},[expenses]);
+  useEffect(()=>{try{localStorage.setItem('scc_warranty',JSON.stringify(warranty));}catch{}},[warranty]);
   const tabs=[
-    {id:'parts',label:'Parts Inventory',icon:'📦',count:OPS_PARTS.length,alert:OPS_PARTS.filter(p=>p.status!=='ok').length},
-    {id:'equipment',label:'Equipment',icon:'🔧',count:OPS_EQUIP.length,alert:OPS_EQUIP.filter(e=>e.status!=='ok').length},
-    {id:'expenses',label:'Expenses',icon:'💰',count:OPS_EXP.length,alert:0},
-    {id:'warranty',label:'Warranty Claims',icon:'🛡',count:OPS_WARRANTY.length,alert:OPS_WARRANTY.filter(w=>w.days>30).length},
+    {id:'parts',label:'Parts Inventory',icon:'📦',count:parts.length,alert:parts.filter(p=>calcPartStatus(p.qty,p.min)!=='ok').length},
+    {id:'equipment',label:'Equipment',icon:'🔧',count:equip.length,alert:equip.filter(e=>calcEquipStatus(e.nextDue)!=='ok').length},
+    {id:'expenses',label:'Expenses',icon:'💰',count:expenses.length,alert:0},
+    {id:'warranty',label:'Warranty Claims',icon:'🛡',count:warranty.length,alert:warranty.filter(w=>w.status!=='Resolved'&&Math.floor((new Date()-new Date(w.claimDate||todayStr()))/86400000)>30).length},
   ];
   return html`<div style=${{position:'fixed',inset:0,zIndex:200,background:'#0B0B0D',display:'flex',flexDirection:'column',animation:'fadeIn .2s ease'}}>
     <div style=${{height:3,background:`linear-gradient(90deg,${G},#F5C542,${G})`}}/>
@@ -1313,10 +1384,10 @@ function OperationsHub({onBack}){
       </button>`)}
     </div>
     <div style=${{flex:1,overflowY:'auto',padding:'24px 32px'}}>
-      ${activeTab==='parts'&&html`<${OpsPartsInventory}/>`}
-      ${activeTab==='equipment'&&html`<${OpsEquipmentLog}/>`}
-      ${activeTab==='expenses'&&html`<${OpsExpenseTracker}/>`}
-      ${activeTab==='warranty'&&html`<${OpsWarrantyTracker}/>`}
+      ${activeTab==='parts'&&html`<${OpsPartsInventory} parts=${parts} setParts=${sParts}/>`}
+      ${activeTab==='equipment'&&html`<${OpsEquipmentLog} equip=${equip} setEquip=${sEquip}/>`}
+      ${activeTab==='expenses'&&html`<${OpsExpenseTracker} expenses=${expenses} setExpenses=${sExpenses}/>`}
+      ${activeTab==='warranty'&&html`<${OpsWarrantyTracker} warranty=${warranty} setWarranty=${sWarranty}/>`}
     </div>
   </div>`;
 }
@@ -1670,7 +1741,8 @@ function SetupWizard({onComplete}){
 
 /* ── COMPONENTCARE KNOWLEDGE BASE ── */
 const KB_VEHICLES=[
-  {id:1,make:'Toyota',model:'Camry',years:'2018-2023',engines:['2.5L 4-cyl A25A-FKS','3.5L V6 2GR-FKS'],oil:'0W-20 Full Synthetic',oilCap:'4.8 qt (2.5L) / 6.4 qt (3.5L)',coolant:'Toyota Pink SLLC',sparkPlug:'NGK DILKAR6A11GS',torqueSpecs:[{item:'Lug Nuts','spec':'76 ft-lb'},{item:'Drain Plug',spec:'30 ft-lb'},{item:'Caliper Bolts',spec:'25 ft-lb'}],intervals:[{service:'Oil Change',interval:'10,000 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs (2.5L)',interval:'60,000 mi'},{service:'Transmission Fluid',interval:'60,000 mi'},{service:'Coolant Flush',interval:'100,000 mi'}],issues:['Oil consumption >1 qt/5k mi (2.5L pre-2021 build)','Sunroof drain clogs leading to interior leaks','Catalytic converter theft risk — high target vehicle']},
+  // ── Current-gen models (2015–2024) ─────────────────────────────────────────
+  {id:1,make:'Toyota',model:'Camry',years:'2018-2023',engines:['2.5L 4-cyl A25A-FKS','3.5L V6 2GR-FKS'],oil:'0W-20 Full Synthetic',oilCap:'4.8 qt (2.5L) / 6.4 qt (3.5L)',coolant:'Toyota Pink SLLC',sparkPlug:'NGK DILKAR6A11GS',torqueSpecs:[{item:'Lug Nuts',spec:'76 ft-lb'},{item:'Drain Plug',spec:'30 ft-lb'},{item:'Caliper Bolts',spec:'25 ft-lb'}],intervals:[{service:'Oil Change',interval:'10,000 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs (2.5L)',interval:'60,000 mi'},{service:'Transmission Fluid',interval:'60,000 mi'},{service:'Coolant Flush',interval:'100,000 mi'}],issues:['Oil consumption >1 qt/5k mi (2.5L pre-2021 build)','Sunroof drain clogs leading to interior leaks','Catalytic converter theft risk — high target vehicle']},
   {id:2,make:'Honda',model:'Accord',years:'2018-2022',engines:['1.5L Turbo L15B7','2.0L Turbo K20C4'],oil:'0W-20 Full Synthetic',oilCap:'3.4 qt (1.5T) / 5.1 qt (2.0T)',coolant:'Honda Blue Type 2',sparkPlug:'NGK ILZKR7B11GS',torqueSpecs:[{item:'Lug Nuts',spec:'80 ft-lb'},{item:'Drain Plug',spec:'29 ft-lb'},{item:'Caliper Bolts (front)',spec:'37 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi (1.5T) / 5,000 mi (2.0T)'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'30,000 mi'},{service:'Coolant Flush',interval:'60,000 mi'}],issues:['1.5T oil dilution in cold climates — monitor closely','CVT judder at low speeds on some 2018-2019 units','Bluetooth connectivity drops after software updates']},
   {id:3,make:'Ford',model:'F-150',years:'2018-2023',engines:['5.0L V8 Coyote','2.7L EcoBoost V6','3.5L EcoBoost V6'],oil:'5W-30 (5.0L) / 5W-30 (EcoBoost)',oilCap:'7.7 qt (5.0L) / 6.0 qt (2.7T)',coolant:'Ford Orange VC-3-B',sparkPlug:'Motorcraft SP-537 (5.0L)',torqueSpecs:[{item:'Lug Nuts',spec:'150 ft-lb'},{item:'Drain Plug',spec:'19 ft-lb'},{item:'Caliper Bolts',spec:'26 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi (dino) / 10,000 mi (syn)'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'60,000 mi'},{service:'Transmission Fluid',interval:'150,000 mi (normal) / 60,000 mi (towing)'},{service:'Transfer Case Fluid',interval:'150,000 mi'}],issues:['EcoBoost carbon buildup on intake valves (walnut blast at 60k)','Panoramic roof wind noise on 2019-2021','Tailgate latch sticking in cold weather']},
   {id:4,make:'Chevrolet',model:'Silverado 1500',years:'2019-2023',engines:['5.3L V8 L84','6.2L V8 L87'],oil:'0W-20 Full Synthetic (AFM)',oilCap:'6.0 qt (5.3L) / 8.0 qt (6.2L)',coolant:'Dex-Cool Orange',sparkPlug:'ACDelco 41-164',torqueSpecs:[{item:'Lug Nuts',spec:'140 ft-lb'},{item:'Drain Plug',spec:'18 ft-lb'},{item:'Caliper Bolts',spec:'32 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'100,000 mi'},{service:'Transmission Fluid',interval:'45,000 mi (towing) / 100,000 mi (normal)'}],issues:['AFM/DFM lifter failures on 5.3L — watch for tick at startup','Oil consumption with active fuel management enabled','Trailer brake controller sensitivity complaints']},
@@ -1680,6 +1752,31 @@ const KB_VEHICLES=[
   {id:8,make:'Toyota',model:'Corolla',years:'2020-2023',engines:['2.0L 4-cyl M20A-FKS','1.8L Hybrid 2ZR-FXE'],oil:'0W-16 Full Synthetic',oilCap:'4.4 qt (2.0L) / 3.9 qt (Hybrid)',coolant:'Toyota Pink SLLC',sparkPlug:'NGK ILKAR7L11',torqueSpecs:[{item:'Lug Nuts',spec:'76 ft-lb'},{item:'Drain Plug',spec:'27 ft-lb'},{item:'Caliper Bolts',spec:'25 ft-lb'}],intervals:[{service:'Oil Change',interval:'10,000 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'120,000 mi'},{service:'Hybrid Battery Check',interval:'Annual (Hybrid)'}],issues:['Rearview camera delay on cold starts','Road noise from rear wheel wells — install additional deadening','Hybrid battery warranty — 10 yr / 150k in ZEV states']},
   {id:9,make:'Honda',model:'CR-V',years:'2017-2022',engines:['1.5L Turbo L15B7','2.4L NA K24W (2017)'],oil:'0W-20 Full Synthetic',oilCap:'3.4 qt',coolant:'Honda Blue Type 2',sparkPlug:'NGK ILZKR7B11GS',torqueSpecs:[{item:'Lug Nuts',spec:'80 ft-lb'},{item:'Drain Plug',spec:'29 ft-lb'},{item:'Caliper Bolts',spec:'37 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'AWD Fluid',interval:'30,000 mi'}],issues:['1.5T oil dilution — worst on 2017-2018 in cold climates','Infotainment screen delamination on 2017-2019','CVT shudder at highway merge speeds']},
   {id:10,make:'Ford',model:'Escape',years:'2020-2023',engines:['1.5L EcoBoost 3-cyl','2.0L EcoBoost 4-cyl'],oil:'5W-30 Full Synthetic',oilCap:'4.4 qt (1.5L) / 5.7 qt (2.0L)',coolant:'Ford Orange VC-3-B',sparkPlug:'Motorcraft SP-534',torqueSpecs:[{item:'Lug Nuts',spec:'100 ft-lb'},{item:'Drain Plug',spec:'19 ft-lb'},{item:'Caliper Bolts',spec:'26 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'60,000 mi'}],issues:['1.5L 3-cyl coolant intrusion into cylinder — check TSB 21-2316','PHEV range degradation in cold weather','Reverse camera pixelation on 2020-2021']},
+  {id:11,make:'Toyota',model:'RAV4',years:'2013-2018',engines:['2.5L 4-cyl 2AR-FE','2.5L Hybrid 2AR-FXE'],oil:'0W-20 Full Synthetic',oilCap:'4.8 qt (gas) / 4.2 qt (hybrid)',coolant:'Toyota Pink SLLC',sparkPlug:'NGK ILFR5L11',torqueSpecs:[{item:'Lug Nuts',spec:'76 ft-lb'},{item:'Drain Plug',spec:'27 ft-lb'},{item:'Caliper Bolts',spec:'25 ft-lb'}],intervals:[{service:'Oil Change',interval:'5,000 mi (conv) / 10,000 mi (syn)'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'60,000 mi'},{service:'AWD Rear Diff Fluid',interval:'30,000 mi'}],issues:['2AR-FE oil consumption — check every oil change','AC musty odor from evaporator in humid climates','Rear differential clutch shudder on AWD models']},
+  {id:12,make:'Toyota',model:'RAV4',years:'2019-2024',engines:['2.5L 4-cyl A25A-FKS','2.5L Hybrid A25A-FXS'],oil:'0W-16 Full Synthetic',oilCap:'4.8 qt',coolant:'Toyota Pink SLLC',sparkPlug:'NGK ILZKAR7B11GS',torqueSpecs:[{item:'Lug Nuts',spec:'76 ft-lb'},{item:'Drain Plug',spec:'30 ft-lb'},{item:'Caliper Bolts',spec:'25 ft-lb'}],intervals:[{service:'Oil Change',interval:'10,000 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'60,000 mi'},{service:'AWD Fluid',interval:'60,000 mi'}],issues:['Hybrid battery warranty 10yr/150k in CARB states','AC blower motor noise at low fan speed','Panoramic moonroof rattle on rough roads']},
+  {id:13,make:'Toyota',model:'Prius',years:'2010-2015',engines:['1.8L Hybrid 2ZR-FXE'],oil:'0W-20 Full Synthetic',oilCap:'4.4 qt',coolant:'Toyota Pink SLLC',sparkPlug:'NGK FK20HR11',torqueSpecs:[{item:'Lug Nuts',spec:'76 ft-lb'},{item:'Drain Plug',spec:'27 ft-lb'},{item:'Caliper Bolts',spec:'25 ft-lb'}],intervals:[{service:'Oil Change',interval:'10,000 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'120,000 mi'},{service:'Inverter Coolant Flush',interval:'100,000 mi'}],issues:['Inverter coolant pump failure — replace proactively at 80k','HV battery cell degradation — check 12V aux battery annually','Brake actuator assembly failure (soft pedal) — TSB exists']},
+  {id:14,make:'Toyota',model:'Prius',years:'2016-2022',engines:['1.8L Hybrid 2ZR-FXE'],oil:'0W-16 Full Synthetic',oilCap:'4.4 qt',coolant:'Toyota Pink SLLC',sparkPlug:'NGK ILKAR7L11GS',torqueSpecs:[{item:'Lug Nuts',spec:'76 ft-lb'},{item:'Drain Plug',spec:'27 ft-lb'},{item:'Caliper Bolts',spec:'25 ft-lb'}],intervals:[{service:'Oil Change',interval:'10,000 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'120,000 mi'},{service:'Inverter Coolant',interval:'100,000 mi'}],issues:['HV battery pack degradation after 150k — monitor with Techstream','12V aux battery failure common after 5 years','Oil consumption in 2ZR-FXE at high mileage — check regularly']},
+  {id:15,make:'Toyota',model:'Highlander',years:'2014-2019',engines:['2.7L 4-cyl 1AR-FE','3.5L V6 2GR-FKS'],oil:'0W-20 Full Synthetic',oilCap:'4.9 qt (2.7L) / 6.4 qt (3.5L)',coolant:'Toyota Pink SLLC',sparkPlug:'NGK ILZKAR7B11GS (3.5L)',torqueSpecs:[{item:'Lug Nuts',spec:'76 ft-lb'},{item:'Drain Plug',spec:'27 ft-lb'},{item:'Caliper Bolts',spec:'25 ft-lb'}],intervals:[{service:'Oil Change',interval:'5,000 mi (2.7L) / 10,000 mi (3.5L)'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'60,000 mi'},{service:'AWD Fluid',interval:'30,000 mi'}],issues:['2.7L 1AR-FE oil consumption noted by owners','3rd-row seat track binding over time','AC evaporator musty odor — use Toyota AC cleaner spray']},
+  {id:16,make:'Toyota',model:'4Runner',years:'2003-2023',engines:['4.0L V6 1GR-FE'],oil:'5W-30 Full Synthetic',oilCap:'5.5 qt',coolant:'Toyota Pink SLLC',sparkPlug:'NGK ILFR6A11',torqueSpecs:[{item:'Lug Nuts',spec:'83 ft-lb'},{item:'Drain Plug',spec:'27 ft-lb'},{item:'Caliper Bolts',spec:'91 ft-lb'}],intervals:[{service:'Oil Change',interval:'5,000 mi (conv) / 10,000 mi (syn)'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'60,000 mi'},{service:'Front/Rear Diff Fluid',interval:'30,000 mi (4WD)'},{service:'Transfer Case Fluid',interval:'30,000 mi'}],issues:['Frame rust — inspect undercarriage annually in salt-belt states','Rear main seal and cam tower oil leaks at high mileage','Front lower ball joint wear — inspect at every tire rotation']},
+  {id:17,make:'Toyota',model:'Tundra',years:'2007-2021',engines:['5.7L V8 3UR-FE','4.6L V8 1UR-FE'],oil:'5W-30 Full Synthetic',oilCap:'8.0 qt (5.7L) / 7.1 qt (4.6L)',coolant:'Toyota Red LLC',sparkPlug:'NGK DILKAR7C11GS',torqueSpecs:[{item:'Lug Nuts',spec:'83 ft-lb'},{item:'Drain Plug',spec:'29 ft-lb'},{item:'Caliper Bolts',spec:'90 ft-lb'}],intervals:[{service:'Oil Change',interval:'5,000 mi (conv) / 10,000 mi (syn)'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'60,000 mi'},{service:'Front Diff Fluid',interval:'30,000 mi (4WD)'},{service:'Rear Diff Fluid',interval:'30,000 mi'}],issues:['Frame rust recall on 2000-2003 — verify repair on used units','Secondary air injection pump failure (P0418) — common at 80k','Cam tower front oil leak on high-mileage 5.7L']},
+  {id:18,make:'Honda',model:'Civic',years:'2001-2015',engines:['1.7L D17A2','1.8L R18A1','2.0L K20Z3 (Si)'],oil:'5W-20 Full Synthetic',oilCap:'3.7 qt (1.7L/1.8L) / 4.4 qt (2.0L)',coolant:'Honda Blue Type 2',sparkPlug:'NGK IZFR6K13',torqueSpecs:[{item:'Lug Nuts',spec:'80 ft-lb'},{item:'Drain Plug',spec:'29 ft-lb'},{item:'Caliper Bolts (front)',spec:'25 ft-lb'}],intervals:[{service:'Oil Change',interval:'5,000 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Spark Plugs',interval:'30,000 mi (std) / 100,000 mi (iridium)'},{service:'Coolant Flush',interval:'60,000 mi'},{service:'Transmission Fluid',interval:'30,000 mi (manual)'}],issues:['D17A2 timing chain tensioner rattle on cold starts (2001-2005)','R18A1 oil consumption at high mileage — check level monthly','Rust around rear wheel arches in northern states']},
+  {id:19,make:'Honda',model:'Pilot',years:'2009-2022',engines:['3.5L V6 J35A9','3.5L V6 J35Y4'],oil:'0W-20 Full Synthetic',oilCap:'4.5 qt (J35A9) / 5.0 qt (J35Y4)',coolant:'Honda Blue Type 2',sparkPlug:'NGK IZFR6K13',torqueSpecs:[{item:'Lug Nuts',spec:'94 ft-lb'},{item:'Drain Plug',spec:'29 ft-lb'},{item:'Caliper Bolts (front)',spec:'53 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'30,000 mi (std) / 90,000 mi (iridium)'},{service:'AWD VTM-4 Fluid',interval:'30,000 mi'},{service:'Coolant Flush',interval:'60,000 mi'}],issues:['VCM cylinder deactivation causes vibration and premature engine mounts — consider VCMuzzler','Power steering hose leak at rack (2009-2015)','3rd-row seat folding mechanism binding']},
+  {id:20,make:'Honda',model:'Odyssey',years:'2011-2017',engines:['3.5L V6 J35A6','3.5L V6 J35Y5'],oil:'0W-20 Full Synthetic',oilCap:'4.5 qt',coolant:'Honda Blue Type 2',sparkPlug:'NGK ILZKR7B11GS',torqueSpecs:[{item:'Lug Nuts',spec:'80 ft-lb'},{item:'Drain Plug',spec:'29 ft-lb'},{item:'Caliper Bolts (front)',spec:'53 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'30,000 mi (std) / 90,000 mi (iridium)'},{service:'Transmission Fluid',interval:'30,000 mi (severe) / 90,000 mi'}],issues:['VCM issues causing vibration — engine mounts wear prematurely','AC condenser corrosion and leak on front bumper units','Power sliding door actuator failure']},
+  {id:21,make:'Ford',model:'F-150',years:'2009-2017',engines:['5.0L V8 Coyote','3.5L EcoBoost V6','2.7L EcoBoost V6','3.7L V6'],oil:'5W-20 (5.0L/3.7L) / 5W-30 (EcoBoost)',oilCap:'7.7 qt (5.0L) / 6.0 qt (EcoBoost)',coolant:'Ford Orange VC-3-B',sparkPlug:'Motorcraft SP-520 (5.0L)',torqueSpecs:[{item:'Lug Nuts',spec:'150 ft-lb'},{item:'Drain Plug',spec:'19 ft-lb'},{item:'Caliper Bolts',spec:'26 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi (dino) / 10,000 mi (syn)'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'60,000 mi (Coyote / EcoBoost)'},{service:'Transmission Fluid',interval:'150,000 mi (normal) / 60,000 mi (towing)'}],issues:['3.5T EcoBoost carbon buildup on intake valves — walnut blast at 60k','Spark plug blowout on 2-valve 5.4L (pre-2011) — torque to spec','Cam phaser rattle on 5.0L Coyote at startup (oil pressure related)']},
+  {id:22,make:'Ford',model:'Explorer',years:'2011-2019',engines:['3.5L V6 Ti-VCT','2.0L EcoBoost 4-cyl','3.5L EcoBoost V6'],oil:'5W-20 (3.5L NA/2.0T) / 5W-30 (3.5T)',oilCap:'6.0 qt (3.5L) / 5.7 qt (2.0T)',coolant:'Ford Orange VC-3-B',sparkPlug:'Motorcraft SP-520 (3.5L)',torqueSpecs:[{item:'Lug Nuts',spec:'100 ft-lb'},{item:'Drain Plug',spec:'19 ft-lb'},{item:'Caliper Bolts',spec:'26 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'60,000 mi'},{service:'PTU Fluid',interval:'30,000 mi (AWD)'}],issues:['Exhaust fume intrusion into cabin — NHTSA recall; inspect rear lift gate seal','PTU (Power Transfer Unit) failure from neglected fluid changes','2.0T EcoBoost carbon buildup on intake valves']},
+  {id:23,make:'Ford',model:'Mustang GT',years:'2005-2014',engines:['4.6L V8 3V','5.0L V8 Coyote (2011+)'],oil:'5W-20 Full Synthetic',oilCap:'6.0 qt (4.6L) / 8.0 qt (5.0L)',coolant:'Ford Orange VC-3-B',sparkPlug:'Motorcraft SP-479 (4.6L) / SP-520 (5.0L)',torqueSpecs:[{item:'Lug Nuts',spec:'100 ft-lb'},{item:'Drain Plug',spec:'17 ft-lb'},{item:'Caliper Bolts',spec:'26 ft-lb'}],intervals:[{service:'Oil Change',interval:'5,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'30,000 mi (4.6L std) / 60,000 mi (5.0L iridium)'},{service:'Rear Axle Fluid',interval:'30,000 mi (severe) / 75,000 mi'},{service:'Coolant Flush',interval:'100,000 mi'}],issues:['4.6L 3V spark plug thread failure — use proper extraction kit, do not force','Rear axle seal leaks on 8.8" axle at high mileage','IRS axle halfshaft CV boot tears on 2011-2014 Coyote GT']},
+  {id:24,make:'Chevrolet',model:'Silverado 1500',years:'2007-2018',engines:['5.3L V8 LC9/L83','4.3L V6 LV3','6.2L V8 L86'],oil:'5W-30 (2007-2013) / 0W-20 AFM (2014-2018)',oilCap:'6.0 qt (5.3L/6.2L) / 4.5 qt (4.3L)',coolant:'Dex-Cool Orange',sparkPlug:'ACDelco 41-103 (5.3L)',torqueSpecs:[{item:'Lug Nuts',spec:'140 ft-lb'},{item:'Drain Plug',spec:'18 ft-lb'},{item:'Caliper Bolts',spec:'32 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'100,000 mi'},{service:'Transmission Fluid',interval:'45,000 mi (towing) / 100,000 mi (normal)'}],issues:['AFM lifter failure on 5.3L L83/LY5 — tick at startup, especially at 80k+','Oil consumption with active fuel management — add catch can','Throttle body carbon buildup causing idle surge (5.3L)']},
+  {id:25,make:'Chevrolet',model:'Equinox',years:'2010-2017',engines:['2.4L 4-cyl LAF/LE5','3.0L V6 LFW'],oil:'5W-30 Full Synthetic',oilCap:'5.0 qt (2.4L) / 5.5 qt (3.0L)',coolant:'Dex-Cool Orange',sparkPlug:'ACDelco 41-110 (2.4L)',torqueSpecs:[{item:'Lug Nuts',spec:'100 ft-lb'},{item:'Drain Plug',spec:'18 ft-lb'},{item:'Caliper Bolts',spec:'32 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'100,000 mi'},{service:'Coolant Flush',interval:'150,000 mi'}],issues:['2.4L LAF timing chain wear — rattle on cold starts, replace chain kit at first sign','2.4L oil consumption and coolant consumption (2010-2012) — check TSBs','Rear hatch strut failure common after 5 years']},
+  {id:26,make:'Chevrolet',model:'Tahoe',years:'2015-2020',engines:['5.3L V8 L83','6.2L V8 L86'],oil:'0W-20 Full Synthetic (AFM)',oilCap:'8.0 qt',coolant:'Dex-Cool Orange',sparkPlug:'ACDelco 41-164',torqueSpecs:[{item:'Lug Nuts',spec:'140 ft-lb'},{item:'Drain Plug',spec:'18 ft-lb'},{item:'Caliper Bolts',spec:'32 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'100,000 mi'},{service:'Transmission Fluid',interval:'45,000 mi (severe) / 100,000 mi'},{service:'Transfer Case Fluid',interval:'50,000 mi'}],issues:['AFM/DFM lifter failures — same issue as Silverado 5.3L','Oil consumption with cylinder deactivation enabled','Front brake squeal from factory pads — upgrade to ceramic']},
+  {id:27,make:'Nissan',model:'Altima',years:'2007-2018',engines:['2.5L 4-cyl QR25DE','3.5L V6 VQ35DE'],oil:'5W-30 Full Synthetic',oilCap:'4.9 qt (2.5L) / 5.1 qt (3.5L)',coolant:'Nissan Blue Long Life',sparkPlug:'NGK DIFR5B37 (2.5L)',torqueSpecs:[{item:'Lug Nuts',spec:'80 ft-lb'},{item:'Drain Plug',spec:'25 ft-lb'},{item:'Caliper Bolts (front)',spec:'28 ft-lb'}],intervals:[{service:'Oil Change',interval:'5,000 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'105,000 mi (iridium)'},{service:'CVT Fluid',interval:'30,000 mi (severe) / 60,000 mi'}],issues:['CVT transmission failure — most common issue, change fluid every 30k to extend life','QR25DE oil consumption at high mileage — check level every fill-up','Radiator cracking at ATF cooler fitting (2007-2012) — inspect before overheat']},
+  {id:28,make:'Nissan',model:'Rogue',years:'2014-2020',engines:['2.5L 4-cyl QR25DE'],oil:'5W-30 Full Synthetic',oilCap:'5.2 qt',coolant:'Nissan Blue Long Life',sparkPlug:'NGK DIFR5B37',torqueSpecs:[{item:'Lug Nuts',spec:'83 ft-lb'},{item:'Drain Plug',spec:'25 ft-lb'},{item:'Caliper Bolts',spec:'28 ft-lb'}],intervals:[{service:'Oil Change',interval:'5,000 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'105,000 mi'},{service:'CVT Fluid',interval:'30,000 mi (severe) / 60,000 mi'}],issues:['CVT whine and shudder — Nissan CVT warranty extended on some years, check coverage','Timing chain stretch causing P0011/P0014 codes on QR25DE','Brake pad wear faster than expected — inspect every 15k']},
+  {id:29,make:'Nissan',model:'Frontier',years:'2005-2021',engines:['2.5L 4-cyl QR25DE','4.0L V6 VQ40DE'],oil:'5W-30 Full Synthetic',oilCap:'4.2 qt (2.5L) / 5.8 qt (4.0L)',coolant:'Nissan Blue Long Life',sparkPlug:'NGK DILKAR7A11 (4.0L)',torqueSpecs:[{item:'Lug Nuts',spec:'98 ft-lb'},{item:'Drain Plug',spec:'25 ft-lb'},{item:'Caliper Bolts',spec:'28 ft-lb'}],intervals:[{service:'Oil Change',interval:'5,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'60,000 mi (4.0L std) / 105,000 mi (iridium)'},{service:'Differential Fluid',interval:'30,000 mi (4WD)'},{service:'Transfer Case Fluid',interval:'30,000 mi'}],issues:['4.0L VQ40DE timing chain guide failure — rattle/knock; replace guides at 100k+','Radiator cracking and coolant mixing with ATF (known issue, 2005-2012)','Front lower control arm bushing wear causing pull and wander']},
+  {id:30,make:'Jeep',model:'Wrangler JK',years:'2007-2018',engines:['3.8L V6 EGH (2007-2011)','3.6L V6 Pentastar (2012-2018)'],oil:'5W-20 (3.8L) / 0W-20 (3.6L)',oilCap:'6.0 qt (3.8L) / 6.0 qt (3.6L)',coolant:'HOAT Orange',sparkPlug:'Champion RC12ECC (3.8L) / NGK LZKER6AP11 (3.6L)',torqueSpecs:[{item:'Lug Nuts',spec:'100 ft-lb'},{item:'Drain Plug',spec:'25 ft-lb'},{item:'Caliper Bolts (front)',spec:'11 ft-lb (slider pin)'}],intervals:[{service:'Oil Change',interval:'5,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'30,000 mi (3.8L) / 60,000 mi (3.6L)'},{service:'Front/Rear Diff Fluid',interval:'30,000 mi'},{service:'Transfer Case Fluid',interval:'30,000 mi'}],issues:['Death wobble — worn track bar bushings, ball joints, or steering stabilizer; diagnose before replacing parts','D30/D44 axle seal leaks common after off-road use','3.6L Pentastar cam phaser rattle on cold start — oil pressure related']},
+  {id:31,make:'Jeep',model:'Grand Cherokee',years:'2011-2021',engines:['3.6L V6 Pentastar','5.7L HEMI V8','3.0L EcoDiesel V6'],oil:'0W-20 (3.6L) / 5W-20 (HEMI) / 5W-40 (Diesel)',oilCap:'5.9 qt (3.6L) / 7.0 qt (HEMI)',coolant:'HOAT Orange',sparkPlug:'NGK LZKER6AP11 (3.6L) / Champion RC12ECC (HEMI)',torqueSpecs:[{item:'Lug Nuts',spec:'110 ft-lb'},{item:'Drain Plug',spec:'20 ft-lb'},{item:'Caliper Bolts',spec:'32 ft-lb'}],intervals:[{service:'Oil Change',interval:'8,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'30,000 mi (HEMI) / 60,000 mi (3.6L)'},{service:'Transfer Case Fluid',interval:'60,000 mi'},{service:'Differential Fluid',interval:'60,000 mi'}],issues:['TIPM (Totally Integrated Power Module) failure — causes intermittent starting/stalling','Transfer case shudder and NVH under acceleration','3.6L Pentastar cam phaser rattle — maintain strict oil change intervals']},
+  {id:32,make:'Subaru',model:'Outback',years:'2010-2019',engines:['2.5L H4 FB25','3.6L H6 EZ36'],oil:'0W-20 Full Synthetic (FB25) / 5W-30 (EZ36)',oilCap:'5.1 qt (FB25) / 6.9 qt (EZ36)',coolant:'Subaru Blue Long Life',sparkPlug:'NGK ILZKR7B11GS (FB25)',torqueSpecs:[{item:'Lug Nuts',spec:'89 ft-lb'},{item:'Drain Plug',spec:'31 ft-lb'},{item:'Caliper Bolts',spec:'20 ft-lb'}],intervals:[{service:'Oil Change',interval:'6,000 mi (conv) / 7,500 mi (syn)'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'60,000 mi'},{service:'Differential Fluid (rear)',interval:'30,000 mi'},{service:'Coolant Flush',interval:'60,000 mi'}],issues:['FB25 oil consumption 2011-2014 — Subaru extended warranty to 100k, check eligibility','EZ36 valve cover gasket oil leaks at high mileage','AWD rear coupling wear — vibration at highway speeds if fluid neglected']},
+  {id:33,make:'Hyundai',model:'Elantra',years:'2011-2022',engines:['1.8L 4-cyl NU MPI','2.0L 4-cyl NU MPI','1.4L Turbo G4LD (2017+)'],oil:'5W-20 (2011-2016) / 0W-20 (2017+)',oilCap:'4.2 qt (1.8L/2.0L) / 4.2 qt (1.4T)',coolant:'Hyundai/Kia Pink Long Life',sparkPlug:'NGK ILZKR7B10E',torqueSpecs:[{item:'Lug Nuts',spec:'80 ft-lb'},{item:'Drain Plug',spec:'29 ft-lb'},{item:'Caliper Bolts (front)',spec:'26 ft-lb'}],intervals:[{service:'Oil Change',interval:'7,500 mi'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'30,000 mi (std) / 97,000 mi (iridium)'},{service:'Coolant Flush',interval:'60,000 mi'}],issues:['Theta II 2.0L engine knock/rod bearing failure — check NHTSA recall by VIN','Oil consumption in 2011-2014 NU engines — monitor closely, class action settlement','Transmission mount wear causing vibration at idle (DCT models)']},
+  {id:34,make:'Dodge',model:'Charger / Challenger',years:'2011-2023',engines:['3.6L V6 Pentastar','5.7L HEMI V8','6.4L HEMI SRT V8'],oil:'0W-20 (3.6L) / 5W-20 (5.7L/6.4L)',oilCap:'5.9 qt (3.6L) / 7.0 qt (5.7L/6.4L)',coolant:'HOAT Orange',sparkPlug:'NGK LZKER6AP11 (3.6L) / Champion RC12ECC (5.7L)',torqueSpecs:[{item:'Lug Nuts',spec:'130 ft-lb'},{item:'Drain Plug',spec:'20 ft-lb'},{item:'Caliper Bolts',spec:'17 ft-lb (front slider)'}],intervals:[{service:'Oil Change',interval:'8,000 mi (3.6L) / 6,000 mi (HEMI)'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'30,000 mi (HEMI) / 60,000 mi (3.6L)'},{service:'Transmission Fluid',interval:'60,000 mi'},{service:'Differential Fluid (5.7L/6.4L)',interval:'60,000 mi'}],issues:['HEMI tick on cold start — MDS lifter wear; check oil level and weight','TIPM electrical issues causing cooling fan failures and stalling','3.6L Pentastar cam phaser rattle — oil pressure critical, no extended cold idling']},
+  {id:35,make:'Toyota',model:'Camry',years:'2002-2011',engines:['2.4L 4-cyl 2AZ-FE','3.0L V6 1MZ-FE (2002-2006)','3.5L V6 2GR-FE (2007-2011)'],oil:'5W-30 Full Synthetic',oilCap:'4.5 qt (2AZ-FE) / 5.0 qt (V6)',coolant:'Toyota Red LLC (pre-2011)',sparkPlug:'NGK IFR6A-11 (2AZ-FE)',torqueSpecs:[{item:'Lug Nuts',spec:'76 ft-lb'},{item:'Drain Plug',spec:'33 ft-lb'},{item:'Caliper Bolts',spec:'25 ft-lb'}],intervals:[{service:'Oil Change',interval:'5,000 mi (conventional)'},{service:'Cabin Air Filter',interval:'15,000 mi'},{service:'Engine Air Filter',interval:'30,000 mi'},{service:'Spark Plugs',interval:'30,000 mi (std) / 60,000 mi (platinum)'},{service:'Timing Belt (V6)',interval:'90,000 mi'},{service:'Coolant Flush',interval:'60,000 mi'}],issues:['2AZ-FE oil consumption — severe cases >1 qt/1000 mi; check every fill-up (class action settlement)','VVT-i oil hose failure on 2AZ-FE causing sudden oil loss','1MZ-FE/2GR-FE rear main seal leak and power steering hose leak at high mileage']},
 ];
 
 function ComponentCarePanel({onBack}){

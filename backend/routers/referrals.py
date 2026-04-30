@@ -8,7 +8,10 @@ import os
 import sys
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from auth import get_current_user
+from supabase_client import supabase
+
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -51,7 +54,7 @@ class ReferralRewardsRequest(BaseModel):
 
 
 @router.post("/referrals/track", response_model=ModuleResponse)
-def track_referrals(body: ReferralTrackRequest):
+def track_referrals(body: ReferralTrackRequest, user=Depends(get_current_user)): 
     try:
         from referrals import track_referrals as tr_module
         from datetime import datetime
@@ -170,7 +173,7 @@ def track_referrals(body: ReferralTrackRequest):
 
 
 @router.post("/referrals/rewards", response_model=ModuleResponse)
-def generate_referral_rewards(body: ReferralRewardsRequest):
+def generate_referral_rewards(body: ReferralTrackRequest, user=Depends(get_current_user)): 
     try:
         from referrals import generate_rewards
 

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react"
 import { getHealth, getProfile } from "./api/client"
+import { supabase } from "./supabase"
+import Login from "./components/Login"
 import { modules, categoryMeta } from "./data/modules"
 import Header from "./components/Header"
 import NavBar from "./components/NavBar"
@@ -8,6 +10,8 @@ import ModuleCard from "./components/ModuleCard"
 import Drawer from "./components/Drawer"
 import ModulePanel from "./components/ModulePanel"
 import SetupWizard from "./components/SetupWizard"
+import ServicePricesEditor from "./components/ServicePricesEditor"
+import SopEditor from "./components/SopEditor"
 
 export default function App() {
   const [cat, setCat] = useState("all")
@@ -17,23 +21,33 @@ export default function App() {
   const [profile, setProfile] = useState(null)
   const [setupNeeded, setSetupNeeded] = useState(false)
   const [bootstrapped, setBootstrapped] = useState(false)
+  const [editorOpen, setEditorOpen] = useState(false)
+  const [sopEditorOpen, setSopEditorOpen] = useState(false)
+  const [session, setSession] = useState(null)
 
   useEffect(() => {
     async function init() {
-      try {
-        const health = await getHealth()
-        if (health.setup_complete === false) {
-          setSetupNeeded(true)
-        } else {
-          try {
-            const p = await getProfile()
+      // 1. Get auth session
+      const { data: { session } } = await supabase.auth.getSession()
+      setSession(session)
+
+      // Listen for auth changes
+      supabase.auth.onAuthStateChange((_event, session) => {
+        setSession(session)
+      })
+
+      // 2. Fetch profile from Supabase (will fail if not logged in, but we handle it)
+      if (session) {
+        try {
+          const p = await getProfile()
+          if (!p || Object.keys(p).length === 0 || !p.shop_name) {
+            setSetupNeeded(true)
+          } else {
             setProfile(p)
-          } catch {
-            // profile load failed — continue without it
           }
+        } catch {
+          setSetupNeeded(true)
         }
-      } catch {
-        // backend not available — show UI anyway
       }
       setBootstrapped(true)
       setTimeout(() => setReady(true), 50)
@@ -73,6 +87,10 @@ export default function App() {
     )
   }
 
+  if (!session) {
+    return <Login />
+  }
+
   if (setupNeeded) {
     return <SetupWizard onComplete={handleSetupComplete} />
   }
@@ -90,7 +108,11 @@ export default function App() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#0B0B0D", fontFamily: "'Barlow', sans-serif", color: "#AAA" }}>
-      <Header shopName={profile?.shop_name} />
+      <Header 
+        profile={profile} 
+        onEditPrices={() => setEditorOpen(true)} 
+        onEditSops={() => setSopEditorOpen(true)}
+      />
 
       <NavBar cat={cat} setCat={setCat} categoryMeta={categoryMeta} />
 
@@ -173,6 +195,9 @@ export default function App() {
           onLaunch={() => setPanelOpen(true)}
         />
       )}
+
+      {editorOpen && <ServicePricesEditor onClose={() => setEditorOpen(false)} />}
+      {sopEditorOpen && <SopEditor onClose={() => setSopEditorOpen(false)} />}
     </div>
   )
 }

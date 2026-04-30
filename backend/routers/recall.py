@@ -8,7 +8,10 @@ import os
 import sys
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from auth import get_current_user
+from supabase_client import supabase
+
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -45,7 +48,7 @@ class RecallNotifyRequest(BaseModel):
 
 
 @router.post("/recall/check", response_model=ModuleResponse)
-def check_recall(body: RecallCheckRequest):
+def check_recall(body: RecallCheckRequest, user=Depends(get_current_user)): 
     try:
         from recall import check_recalls
 
@@ -94,7 +97,7 @@ def check_recall(body: RecallCheckRequest):
 
 
 @router.post("/recall/notify", response_model=ModuleResponse)
-def notify_recall(body: RecallNotifyRequest):
+def notify_recall(body: RecallCheckRequest, user=Depends(get_current_user)): 
     try:
         from recall import generate_notifications
         from datetime import datetime

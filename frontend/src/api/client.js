@@ -1,9 +1,20 @@
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+import { supabase } from '../supabase'
+
+async function getHeaders() {
+  const { data: { session } } = await supabase.auth.getSession()
+  const headers = { 'Content-Type': 'application/json' }
+  if (session?.access_token) {
+    headers['Authorization'] = `Bearer ${session.access_token}`
+  }
+  return headers
+}
 
 async function post(path, data) {
+  const headers = await getHeaders()
   const res = await fetch(`${API}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(data),
   })
   if (!res.ok) {
@@ -14,7 +25,8 @@ async function post(path, data) {
 }
 
 async function get(path) {
-  const res = await fetch(`${API}${path}`)
+  const headers = await getHeaders()
+  const res = await fetch(`${API}${path}`, { headers })
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }))
     throw new Error(err.detail || `HTTP ${res.status}`)
@@ -124,4 +136,24 @@ export async function techSummary(data) {
 
 export async function generateMilestone(data) {
   return post('/api/milestones/generate', data)
+}
+
+export async function getServicePrices() {
+  return get('/api/service-prices/')
+}
+
+export async function saveServicePrices(data) {
+  return post('/api/service-prices/', data)
+}
+
+export async function getSops() {
+  return get('/api/sop/')
+}
+
+export async function saveSops(data) {
+  return post('/api/sop/', data)
+}
+
+export async function getVehicleSpecs(query) {
+  return get(`/api/knowledge-base/vehicle-lookup?q=${encodeURIComponent(query)}`)
 }

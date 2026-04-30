@@ -38,6 +38,7 @@ from routers import (
     tech,
     milestones,
     ai_modules,
+    service_prices,
 )
 
 app = FastAPI(
@@ -80,6 +81,7 @@ app.include_router(referrals.router, prefix="/api", tags=["15 - Referrals"])
 app.include_router(tech.router, prefix="/api", tags=["16 - Tech Productivity"])
 app.include_router(milestones.router, prefix="/api", tags=["17 - Milestones"])
 app.include_router(ai_modules.router, prefix="/api", tags=["AI Modules"])
+app.include_router(service_prices.router, prefix="/api", tags=["Knowledge Base"])
 
 
 @app.get("/")

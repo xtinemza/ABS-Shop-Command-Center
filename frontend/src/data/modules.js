@@ -15,6 +15,7 @@ import SeasonalForm from '../components/forms/SeasonalForm'
 import ReferralsForm from '../components/forms/ReferralsForm'
 import TechForm from '../components/forms/TechForm'
 import MilestonesForm from '../components/forms/MilestonesForm'
+import VehicleLookupForm from '../components/forms/VehicleLookupForm'
 
 export const modules = [
   { id: "appointments", title: "Appointment Reminders", subtitle: "& Follow-Up Sequences", icon: "📅", category: "communication", status: "core", desc: "Confirmations, day-before reminders, post-service thank-yous, 30-day check-ins, 6-month maintenance nudges. SMS, email & phone scripts.", impact: "Reduces no-shows up to 30%", tag: "HIGH IMPACT", formComponent: AppointmentsForm, apiCall: "appointments" },
@@ -34,6 +35,7 @@ export const modules = [
   { id: "referrals", title: "Referral Tracking", subtitle: "& Reward System", icon: "🤝", category: "communication", status: "suggested", desc: "Tracks referrer-to-referee chains, automated thank-yous, reward notifications, referral analytics, custom reward tiers.", impact: "Highest-trust lead channel", tag: "GROWTH", formComponent: ReferralsForm, apiCall: "referrals" },
   { id: "tech-productivity", title: "Tech Productivity", subtitle: "& Labor Summary", icon: "👨‍🔧", category: "financial", status: "suggested", desc: "Weekly per-tech summaries — efficiency rates, over-estimate flagging, revenue per tech breakdown. Stops margin leaks.", impact: "Protects profit margins", tag: "FINANCIAL", formComponent: TechForm, apiCall: "tech-productivity" },
   { id: "anniversaries", title: "Customer Milestone", subtitle: "Outreach", icon: "🎉", category: "communication", status: "suggested", desc: "Auto-generated messages for 1-year anniversary, 5th visit, milestones. Simple touchpoints, strong retention signal.", impact: "Retention on autopilot", tag: "RETENTION", formComponent: MilestonesForm, apiCall: "milestones" },
+  { id: "vehicle-lookup", title: "Vehicle DB", subtitle: "Direct Lookup", icon: "⚡", category: "operations", status: "core", desc: "Instant database query for vehicle specs, torque settings, intervals, and recalls. Uses 0 AI tokens.", impact: "Instant lookup speed", tag: "SPEED", formComponent: VehicleLookupForm, apiCall: "vehicle-lookup" },
 ]
 
 export const categoryMeta = {
@@ -63,4 +65,5 @@ export const featureData = {
   referrals: ["Referrer-to-referee tracking", "Automated thank-you messages", "Reward notification system", "Referral source analytics", "Custom reward tiers"],
   "tech-productivity": ["Hours logged per technician", "Efficiency rate calculations", "Over-estimate job flagging", "Revenue per tech breakdown", "Weekly summary reports"],
   anniversaries: ["1-year anniversary messages", "Visit milestone triggers", "Personalized outreach templates", "SMS + email versions", "Automated scheduling"],
+  "vehicle-lookup": ["Direct database query", "Zero AI token cost", "Torque specifications", "Maintenance intervals", "Known issues & recalls", "Fluid capacities and specs"],
 }

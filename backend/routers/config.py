@@ -6,7 +6,10 @@ GET  /api/config
 import json
 import os
 from typing import Optional
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from auth import get_current_user
+from supabase_client import supabase
+
 from pydantic import BaseModel
 
 _DATA_DIR = "/data" if os.path.isdir("/data") else os.path.abspath(
@@ -41,7 +44,7 @@ class ConfigSaveRequest(BaseModel):
 
 
 @router.get("/config")
-def get_config():
+def get_config()user=Depends(get_current_user)):
     cfg = _load_config()
     # Mask the key for display — only show last 4 chars
     masked = {}
@@ -56,7 +59,7 @@ def get_config():
 
 
 @router.post("/config/save")
-def save_config(body: ConfigSaveRequest):
+def save_config(body: ConfigSaveRequest, user=Depends(get_current_user)): 
     try:
         data = {k: v for k, v in body.dict().items() if v}
         _save_config(data)

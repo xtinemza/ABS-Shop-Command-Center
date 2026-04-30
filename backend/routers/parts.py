@@ -11,7 +11,10 @@ import os
 import sys
 from typing import List, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from auth import get_current_user
+from supabase_client import supabase
+
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -48,7 +51,7 @@ class CatalogRequest(BaseModel):
 
 
 @router.get("/parts/catalog")
-def get_catalog():
+def get_catalog()user=Depends(get_current_user)):
     try:
         if not os.path.exists(CATALOG_PATH):
             return {"success": True, "items": [], "count": 0}
@@ -60,7 +63,7 @@ def get_catalog():
 
 
 @router.post("/parts/catalog")
-def save_catalog(body: CatalogRequest):
+def save_catalog(body: CatalogItem, user=Depends(get_current_user)): 
     try:
         items = [item.dict() for item in body.items]
         os.makedirs(os.path.dirname(CATALOG_PATH), exist_ok=True)
@@ -89,7 +92,7 @@ class PartsPORequest(BaseModel):
 
 
 @router.post("/parts/inventory", response_model=ModuleResponse)
-def parts_inventory(body: PartsInventoryRequest):
+def parts_inventory(body: CatalogItem, user=Depends(get_current_user)): 
     try:
         from parts_inventory import track_inventory
 
@@ -148,7 +151,7 @@ def parts_inventory(body: PartsInventoryRequest):
 
 
 @router.post("/parts/po", response_model=ModuleResponse)
-def generate_po(body: PartsPORequest):
+def generate_po(body: CatalogItem, user=Depends(get_current_user)): 
     try:
         from parts_inventory import generate_po as po_module
 

@@ -1,35 +1,30 @@
-import { useState } from "react"
-import { generateSop } from "../../api/client"
+import { useState, useEffect } from "react"
+import { generateSop, getSops } from "../../api/client"
 
 const gold = "#D4A017"
 const inputStyle = { width: "100%", background: "#111113", border: "1px solid #222", borderRadius: 3, color: "#CCC", padding: "10px 12px", fontSize: 13, fontFamily: "'Barlow', sans-serif", outline: "none" }
 const labelStyle = { fontSize: 10, fontWeight: 700, color: "#555", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6, display: "block" }
 function Field({ label, children }) { return <div style={{ marginBottom: 16 }}><label style={labelStyle}>{label}</label>{children}</div> }
 
-const BUILT_IN_SOPS = [
-  "Customer check-in procedure",
-  "Vehicle inspection workflow",
-  "Estimate creation and presentation",
-  "Parts ordering and receiving",
-  "Quality control and test drive",
-  "Vehicle delivery procedure",
-  "Warranty claim process",
-  "Customer complaint handling",
-  "Hazardous material handling",
-  "End-of-day closing procedure",
-  "New technician onboarding",
-  "Loaner vehicle policy",
-  "After-hours drop-off procedure",
-  "Fleet account management",
-  "Sublet repair authorization",
-  "Towing coordination",
-  "Cash and payment handling",
-]
-
 export default function SopForm({ onSubmit, onSubmitStart, loading }) {
   const [mode, setMode] = useState("built-in")
-  const [procedure, setProcedure] = useState(BUILT_IN_SOPS[0])
+  const [procedure, setProcedure] = useState("")
   const [custom, setCustom] = useState({ title: "", description: "" })
+  const [availableSops, setAvailableSops] = useState({})
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const sops = await getSops()
+        setAvailableSops(sops || {})
+        const keys = Object.keys(sops || {})
+        if (keys.length > 0) setProcedure(keys[0])
+      } catch (err) {
+        console.error("Failed to load SOPs", err)
+      }
+    }
+    load()
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -50,10 +45,16 @@ export default function SopForm({ onSubmit, onSubmitStart, loading }) {
         {tabBtn("custom", "Custom")}
       </div>
       {mode === "built-in" ? (
-        <Field label="Select Procedure">
-          <select style={inputStyle} value={procedure} onChange={e => setProcedure(e.target.value)}>
-            {BUILT_IN_SOPS.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
+        <Field label="Select Custom SOP">
+          {Object.keys(availableSops).length === 0 ? (
+            <div style={{ color: "#888", fontSize: 12 }}>No SOPs available. Use the Header to add some!</div>
+          ) : (
+            <select style={inputStyle} value={procedure} onChange={e => setProcedure(e.target.value)}>
+              {Object.entries(availableSops).map(([key, data]) => (
+                <option key={key} value={key}>{data.title}</option>
+              ))}
+            </select>
+          )}
         </Field>
       ) : (
         <>

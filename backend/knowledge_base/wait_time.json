@@ -1,0 +1,79 @@
+{
+  "_description": "Wait Time Communications — status types, time thresholds, message templates",
+
+  "statuses": {
+    "checked_in": {
+      "label": "Vehicle Checked In",
+      "trigger": "When vehicle is received at the shop",
+      "send_immediately": true,
+      "channels": ["sms"],
+      "message_goal": "Confirm receipt and set initial time expectation"
+    },
+    "in_progress": {
+      "label": "Work In Progress",
+      "trigger": "When tech starts the job",
+      "channels": ["sms"],
+      "message_goal": "Reassure customer, provide estimate of completion time"
+    },
+    "needs_approval": {
+      "label": "Additional Work Found — Needs Approval",
+      "trigger": "Tech discovers extra repairs needed",
+      "channels": ["sms", "phone_script"],
+      "message_goal": "Explain what was found, give price, ask for go/no-go",
+      "urgency": "high — do not delay this message"
+    },
+    "parts_delay": {
+      "label": "Parts Delay",
+      "trigger": "Ordered part will not arrive same day",
+      "channels": ["sms", "email"],
+      "message_goal": "Honest update on delay, new ETA, offer loaner/transport info if available"
+    },
+    "ready_for_pickup": {
+      "label": "Vehicle Ready",
+      "trigger": "All work complete, final inspection passed",
+      "channels": ["sms", "email"],
+      "message_goal": "Clear pickup call to action, include total amount due and hours",
+      "send_immediately": true
+    },
+    "extended_delay": {
+      "label": "Extended Delay (Same-Day Not Possible)",
+      "trigger": "Job cannot be completed same day as promised",
+      "channels": ["sms", "phone_script"],
+      "message_goal": "Apologize, explain reason, give new completion date, offer transport",
+      "urgency": "high — proactive communication required"
+    }
+  },
+
+  "time_thresholds": {
+    "quick_service_max_minutes": 90,
+    "standard_service_max_hours": 4,
+    "major_repair_max_days": 2,
+    "proactive_update_interval_hours": 2,
+    "note": "If a job exceeds its category threshold with no update sent, trigger a proactive status message."
+  },
+
+  "service_time_estimates": {
+    "oil_change": "30–45 min",
+    "tire_rotation": "30–45 min",
+    "brake_pads": "1.5–2.5 hrs",
+    "brake_pads_and_rotors": "2–3 hrs",
+    "diagnostic_scan": "1–2 hrs",
+    "spark_plugs_4cyl": "1–1.5 hrs",
+    "spark_plugs_v6": "2–3 hrs",
+    "coolant_flush": "1–1.5 hrs",
+    "transmission_service": "1.5–2 hrs",
+    "timing_belt": "4–6 hrs",
+    "alternator": "2–3 hrs",
+    "struts_front_pair": "3–4 hrs"
+  },
+
+  "communication_rules": [
+    "Never let more than 2 hours pass without a status update for waiting customers.",
+    "Always get verbal or text approval before performing any unplanned work.",
+    "If the customer is waiting in the lobby, communicate in person — skip the SMS.",
+    "Include the service advisor's name in messages when possible.",
+    "For 'needs_approval' messages, always include the dollar amount of the additional work."
+  ],
+
+  "loaner_and_transport_note": "If shop offers loaner vehicles or has a ride-share arrangement, mention it in parts_delay and extended_delay messages."
+}
