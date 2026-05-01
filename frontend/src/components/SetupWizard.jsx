@@ -48,6 +48,7 @@ export default function SetupWizard({ onComplete, existingProfile, onCancel }) {
     tagline: existingProfile?.tagline || "",
     tone: existingProfile?.tone || "Professional and friendly",
     google_review_link: existingProfile?.google_review_link || "",
+    logo_url: existingProfile?.logo_url || "",
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -199,6 +200,9 @@ export default function SetupWizard({ onComplete, existingProfile, onCancel }) {
             </Field>
             <Field label="Google Review Link (optional)">
               <input style={inputStyle} value={form.google_review_link} onChange={set("google_review_link")} placeholder="https://g.page/r/..." />
+            </Field>
+            <Field label="Shop Logo URL (optional)">
+              <input style={inputStyle} value={form.logo_url} onChange={set("logo_url")} placeholder="https://example.com/logo.png" />
             </Field>
 
             {error && (

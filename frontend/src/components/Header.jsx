@@ -1,8 +1,9 @@
 const gold = "#D4A017"
 
-export default function Header({ profile, onEditPrices, onEditSops, onEditProfile }) {
+export default function Header({ profile, onEditPrices, onEditSops, onEditProfile, onSignOut }) {
   const name = profile?.shop_name || "Shop Command Center"
   const tag = profile?.tagline || "Professional Auto Care"
+  const logo = profile?.logo_url || null
   return (
     <>
       <div style={{ height: 3, background: `linear-gradient(90deg, transparent, ${gold}, transparent)` }} />
@@ -33,12 +34,17 @@ export default function Header({ profile, onEditPrices, onEditSops, onEditProfil
                 background: `linear-gradient(135deg, #18180B, #0F0F0A)`,
                 border: `2px solid ${gold}55`,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 24, position: "relative",
+                fontSize: 24, position: "relative", overflow: "hidden"
               }}>
-                <span>⚙️</span>
+                {logo ? (
+                  <img src={logo} alt="Shop Logo" style={{ width: "100%", height: "100%", objectFit: "cover", position: "relative", zIndex: 2 }} />
+                ) : (
+                  <span style={{ position: "relative", zIndex: 2 }}>⚙️</span>
+                )}
                 <div style={{
                   position: "absolute", inset: 0, borderRadius: 4,
                   background: `radial-gradient(circle at 30% 30%, ${gold}15, transparent 60%)`,
+                  zIndex: 1
                 }} />
               </div>
               <div>
@@ -90,6 +96,15 @@ export default function Header({ profile, onEditPrices, onEditSops, onEditProfil
                 textTransform: "uppercase"
               }}>
                 🏢 EDIT PROFILE
+              </button>
+              <button onClick={onSignOut} style={{
+                background: "transparent", border: `1px solid #555`,
+                color: "#999", padding: "8px 16px", borderRadius: 3,
+                fontSize: 11, fontWeight: 700, cursor: "pointer",
+                fontFamily: "'Barlow', sans-serif", letterSpacing: "0.08em",
+                textTransform: "uppercase"
+              }}>
+                🚪 SIGN OUT
               </button>
             </div>
             {[{ n: "13", l: "Core" }, { n: "4", l: "Suggested" }, { n: "5", l: "Categories" }].map((s, i) => (

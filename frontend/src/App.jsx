@@ -130,6 +130,11 @@ export default function App() {
         onEditPrices={() => setEditorOpen(true)} 
         onEditSops={() => setSopEditorOpen(true)}
         onEditProfile={() => setProfileEditorOpen(true)}
+        onSignOut={async () => {
+          await supabase.auth.signOut()
+          setSession(null)
+          setProfile(null)
+        }}
       />
 
       <NavBar cat={cat} setCat={setCat} categoryMeta={categoryMeta} />
