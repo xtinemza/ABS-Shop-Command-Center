@@ -12,7 +12,7 @@ from knowledge_base import kb_loader
 
 router = APIRouter()
 
-@router.get("/")
+@router.get("/service-prices/")
 def get_service_prices(user=Depends(get_current_user)):
     """Return the current service prices from Supabase for the logged in shop."""
     try:
@@ -23,7 +23,7 @@ def get_service_prices(user=Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/")
+@router.post("/service-prices/")
 def update_service_prices(prices: dict = Body(...), user=Depends(get_current_user)):
     """Update service prices in Supabase for the logged in shop."""
     try:
