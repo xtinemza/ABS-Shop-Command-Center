@@ -8,6 +8,7 @@ export default function ModulePanel({ mod, onBack }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [files, setFiles] = useState([])
+  const [content, setContent] = useState(null)
 
   const FormComponent = mod.formComponent
 
@@ -17,10 +18,11 @@ export default function ModulePanel({ mod, onBack }) {
       setOutput("")
     } else {
       const text = res
-        ? (res.output || res.content || res.result || res.message || JSON.stringify(res, null, 2))
+        ? (res.output || res.result || res.message || JSON.stringify(res, null, 2))
         : ""
       setOutput(text)
       if (res && res.files) setFiles(res.files)
+      if (res && res.content) setContent(res.content)
       setError("")
     }
     setLoading(false)
@@ -32,6 +34,7 @@ export default function ModulePanel({ mod, onBack }) {
     setError("")
     setOutput("")
     setFiles([])
+    setContent(null)
   }
 
   return (
@@ -133,6 +136,7 @@ export default function ModulePanel({ mod, onBack }) {
           loading={loading}
           error={error}
           files={files}
+          content={content}
           moduleName={mod.id}
         />
       </div>
