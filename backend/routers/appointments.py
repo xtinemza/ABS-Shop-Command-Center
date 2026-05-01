@@ -28,6 +28,7 @@ router = APIRouter()
 
 class AppointmentRequest(BaseModel):
     touchpoint: Optional[str] = "all"
+    customer_name: Optional[str] = ""
     service_type: Optional[str] = "General Service"
     channels: Optional[str] = "sms,email,phone_script"
 
@@ -37,9 +38,16 @@ def generate_appointments(body: AppointmentRequest, user=Depends(get_current_use
     try:
         from appointments import generate_reminders
 
-        profile = generate_reminders.load_profile()
+        # Load profile from Supabase for this tenant
+        try:
+            res = supabase.table("profiles").select("shop_info").eq("id", user.id).execute()
+            profile = res.data[0].get("shop_info", {}) if res.data else {}
+        except Exception as e:
+            profile = {}
+
         channels = [c.strip() for c in (body.channels or "sms,email,phone_script").split(",")]
         touchpoint = body.touchpoint or "all"
+        customer_name = body.customer_name or ""
         service_type = body.service_type or "General Service"
 
         output_dir = os.path.abspath(
@@ -63,7 +71,7 @@ def generate_appointments(body: AppointmentRequest, user=Depends(get_current_use
             for tp in touchpoints:
                 print(f"  {tp}")
                 generated = generate_reminders.generate_touchpoint(
-                    tp, service_type, channels, profile, output_dir
+                    tp, customer_name, service_type, channels, profile, output_dir
                 )
                 all_generated.extend(generated)
             print(f"\nDone - {len(all_generated)} file(s) saved to output/appointments/")

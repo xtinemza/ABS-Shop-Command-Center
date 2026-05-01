@@ -1,28 +1,9 @@
 #!/usr/bin/env python3
 """
-Generate appointment reminder templates for every touchpoint in the customer journey.
-
-Usage:
-    python tools/appointments/generate_reminders.py \\
-        --touchpoint all \\
-        --service_type "Oil Change" \\
-        --channels sms,email,phone_script
-
-    python tools/appointments/generate_reminders.py \\
-        --touchpoint booking_confirmation \\
-        --service_type "Brake Service" \\
-        --channels sms,email,phone_script
-
-Touchpoints:
-    booking_confirmation   day_before_reminder   day_of_notification
-    post_service_thankyou  thirty_day_followup   six_month_maintenance
-    all  (generates all 6 touchpoints = 18 files)
-
-Channels: sms, email, phone_script
+Generate high-converting, expert-level appointment reminder templates.
 """
 
 import argparse
-import json
 import os
 import sys
 
@@ -32,280 +13,181 @@ if sys.stdout.encoding != 'utf-8':
 if sys.stderr.encoding != 'utf-8':
     sys.stderr.reconfigure(encoding='utf-8', errors='replace')
 
-PROFILE_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'shop_profile.json')
-OUTPUT_DIR   = os.path.join(os.path.dirname(__file__), '..', '..', 'output', 'appointments')
-
-SMS_LIMIT = 160
-
 # ---------------------------------------------------------------------------
 # Profile helpers
 # ---------------------------------------------------------------------------
-
-def load_profile():
-    path = os.path.abspath(PROFILE_PATH)
-    if os.path.exists(path):
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return {}
-
-
 def pval(profile, key, default='[Not Set]'):
     return profile.get(key) or default
 
-
 # ---------------------------------------------------------------------------
-# Templates
-# Each template uses:
-#   {shop_name}  {phone}  {address}  {owner_name}  {website}  {review_link}
-#   {{customer_name}}  {{vehicle}}  {{service_type}}  {{date}}  {{time}}
-#   {{duration}}  {{next_service}}  {{next_date}}  {{season}}
-#   {{seasonal_tip}}  {{recommended_service_1}}  {{recommended_service_2}}
-#   {{next_available}}  {{agent_name}}
+# Elite Templates
 # ---------------------------------------------------------------------------
 
 TEMPLATES = {
     "booking_confirmation": {
         "sms": (
-            "Hi {{customer_name}}, your {{service_type}} at {shop_name} is confirmed for "
-            "{{date}} at {{time}}. {address}. Call {phone} with questions. See you then!"
+            "Hi {{customer_name}}, you're all set! Your {{service_type}} at {shop_name} "
+            "is confirmed for {{date}} at {{time}}. Need to adjust? Call {phone}. See you then!"
         ),
         "email": (
-            "Subject: Your {{service_type}} Appointment is Confirmed — {shop_name}\n\n"
+            "Subject: Your Appointment is Confirmed! We'll see you on {{date}}.\n\n"
             "Hi {{customer_name}},\n\n"
-            "You're all set! Here's a summary of your upcoming appointment:\n\n"
-            "  Service:    {{service_type}}\n"
-            "  Date:       {{date}}\n"
-            "  Time:       {{time}}\n"
-            "  Est. Time:  {{duration}}\n"
-            "  Location:   {address}\n\n"
-            "A few things to know before you arrive:\n"
-            "- Please arrive 5 minutes early so we can get the paperwork started.\n"
-            "- Bring your keys (and a spare key fob if you have one).\n"
-            "- If you've noticed anything else with your vehicle lately, let us know when "
-            "you drop off — we're happy to take a look.\n\n"
-            "Need to reschedule? No problem at all — just call us at {phone} and we'll "
-            "find a time that works better.\n\n"
-            "We'll see you on {{date}}!\n\n"
+            "Thank you for choosing {shop_name}. You're officially on the schedule for your upcoming {{service_type}}, and we're looking forward to taking great care of your vehicle.\n\n"
+            "Here are the details for your visit:\n"
+            "• Service: {{service_type}}\n"
+            "• Date: {{date}}\n"
+            "• Time: {{time}}\n"
+            "• Location: {address}\n\n"
+            "To help us get you back on the road faster, please plan to arrive about 5 minutes early. If you've noticed any other issues lately—strange noises, new smells, or a warning light—just let our service advisor know when you drop off the keys. We'll be happy to take a look.\n\n"
+            "If you need to reschedule, no problem at all. Just give us a call at {phone}.\n\n"
+            "See you soon,\n\n"
             "{owner_name}\n"
             "{shop_name}\n"
             "{phone} | {website}"
         ),
         "phone_script": (
-            "[GREET] Hi, may I speak with {{customer_name}}? ... "
-            "Great, this is {{agent_name}} calling from {shop_name}.\n\n"
-            "[PURPOSE] I'm calling to confirm your {{service_type}} appointment "
-            "that's scheduled for {{date}} at {{time}}.\n\n"
-            "[PAUSE] Does that time still work for you?\n\n"
-            "[IF YES] Perfect! Just plan to arrive a few minutes early if you can. "
-            "We're located at {address}. The service should take about {{duration}}, "
-            "and we'll call you if we find anything else that needs attention.\n\n"
-            "[IF NO] No problem at all — let me look at what else we have available. "
-            "[Check schedule and offer 2–3 alternatives. Confirm new date/time and "
-            "update the booking system before ending the call.]\n\n"
-            "[CLOSE] Great, we have you down for {{date}} at {{time}}. "
-            "If anything comes up before then, don't hesitate to call us at {phone}. "
-            "Thanks, {{customer_name}} — we'll see you soon!"
+            "[GREET] Hi, may I speak with {{customer_name}}? ... Hi {{customer_name}}, this is {{agent_name}} calling from {shop_name}.\n\n"
+            "[PURPOSE] I'm calling to quickly confirm your appointment for a {{service_type}} on {{date}} at {{time}}.\n\n"
+            "[PAUSE] Does that time still work perfectly for you?\n\n"
+            "[IF YES] Fantastic. We're at {address}. Please try to arrive just a few minutes early so we can get your paperwork started right away. If you think of anything else you'd like us to check while we have it in the bay, just let us know when you drop off the keys.\n\n"
+            "[IF NO] Not a problem at all. Let me pull up the schedule... I have an opening on [Alternative Date/Time] or [Alternative Date/Time]. Do either of those work better for your schedule?\n\n"
+            "[CLOSE] Great, we have you locked in. If anything comes up before then, feel free to call us directly at {phone}. Thanks, {{customer_name}}, we'll see you soon!"
         ),
     },
 
     "day_before_reminder": {
         "sms": (
-            "Reminder: {{service_type}} at {shop_name} is TOMORROW at {{time}}. "
-            "Need to reschedule? Call {phone}. See you soon!"
+            "Reminder: Your {{service_type}} at {shop_name} is TOMORROW at {{time}}. "
+            "Questions? Reply or call {phone}. We look forward to seeing you!"
         ),
         "email": (
-            "Subject: Reminder — Your {{service_type}} is Tomorrow at {{time}} | {shop_name}\n\n"
+            "Subject: Reminder: We'll see you tomorrow at {{time}}!\n\n"
             "Hi {{customer_name}},\n\n"
-            "Just a friendly heads-up — your appointment is tomorrow and we're looking "
-            "forward to seeing you!\n\n"
-            "  Service:   {{service_type}}\n"
-            "  Date:      {{date}}\n"
-            "  Time:      {{time}}\n"
-            "  Location:  {address}\n\n"
-            "Quick tips for a smooth drop-off:\n"
-            "- Arrive a few minutes early to get checked in quickly.\n"
-            "- Let us know if you've noticed any new sounds, smells, or warning lights "
-            "— we'll add it to the inspection checklist.\n"
-            "- We accept cash, check, and all major credit cards.\n\n"
-            "Need to reschedule? No hassle — just call {phone} and we'll sort it out.\n\n"
-            "See you tomorrow,\n"
-            "{shop_name}\n"
+            "Just a quick reminder that you are on our schedule tomorrow for your {{service_type}}. Our technicians are ready for you!\n\n"
+            "Appointment Details:\n"
+            "• Date: {{date}} (Tomorrow)\n"
+            "• Time: {{time}}\n"
+            "• Location: {address}\n\n"
+            "When you arrive, just pull into the service drive and head to the front desk. If you need a ride home or to work while we service your vehicle, please let us know so we can accommodate you.\n\n"
+            "Need to make a last-minute change? Give us a call directly at {phone}.\n\n"
+            "Drive safely, and we'll see you tomorrow!\n\n"
+            "The Team at {shop_name}\n"
             "{phone}"
         ),
         "phone_script": (
             "[GREET] Hi {{customer_name}}, this is {{agent_name}} from {shop_name}.\n\n"
-            "[PURPOSE] I'm just calling with a quick reminder — your {{service_type}} "
-            "is scheduled for tomorrow at {{time}}.\n\n"
-            "[PAUSE] Are we still on for tomorrow?\n\n"
-            "[IF YES] Wonderful! Plan to arrive a few minutes early if you can. "
-            "We're at {address}. Is there anything else you'd like us to check while "
-            "we have the vehicle?\n\n"
-            "[IF NO] Not a problem — let me find you a better time. "
-            "[Offer alternatives. Update booking system. Confirm new time before hanging up.]\n\n"
-            "[CLOSE] Great, we'll see you tomorrow at {{time}}. "
-            "Call us at {phone} if anything comes up. Have a great evening!"
+            "[PURPOSE] I'm just calling with a quick, friendly reminder that your {{service_type}} is on our schedule for tomorrow at {{time}}.\n\n"
+            "[PAUSE] Are we still good to go for tomorrow?\n\n"
+            "[IF YES] Wonderful. Our address is {address}. Just a reminder to bring any spare keys if you have them, and let us know if there's absolutely anything else you'd like our techs to look at while we have the vehicle on the lift.\n\n"
+            "[IF NO] No worries, life happens! Let's get you rescheduled right now so we don't lose your spot in line. How does next week look for you?\n\n"
+            "[CLOSE] Perfect. We're looking forward to seeing you tomorrow at {{time}}. Have a great rest of your day, {{customer_name}}!"
         ),
     },
 
     "day_of_notification": {
         "sms": (
-            "Good morning {{customer_name}}! Your {{service_type}} at {shop_name} "
-            "is TODAY at {{time}}. Est. time: {{duration}}. See you soon!"
+            "Good morning {{customer_name}}! Today's the day for your {{service_type}} at {shop_name}. "
+            "See you at {{time}}! {address}"
         ),
         "email": (
-            "Subject: See You Today, {{customer_name}}! — {shop_name}\n\n"
+            "Subject: See you today, {{customer_name}}!\n\n"
             "Good morning {{customer_name}},\n\n"
-            "Today's the day! We're all set and ready for your {{service_type}}.\n\n"
-            "  Time:      {{time}}\n"
-            "  Est. Time: {{duration}}\n"
-            "  Location:  {address}\n\n"
-            "A couple of things that help us serve you faster:\n"
-            "- Let the front desk know when you arrive if you have a preference for "
-            "waiting in our lobby or getting a ride.\n"
-            "- Mention anything you've noticed recently — unusual sounds, smells, or "
-            "changes in how the vehicle drives. Our techs will check it out.\n\n"
-            "We're here if you have any last-minute questions: {phone}.\n\n"
-            "See you shortly,\n"
+            "Today is the day! We are fully prepared and expecting you at {{time}} for your {{service_type}}.\n\n"
+            "Location: {address}\n"
+            "Questions? Call us at: {phone}\n\n"
+            "A quick tip: Write down any dashboard warning lights, weird sounds, or performance issues you've noticed recently. The more details you give us, the faster and more accurately our technicians can diagnose and service your vehicle.\n\n"
+            "We'll see you shortly!\n\n"
             "{shop_name}"
         ),
         "phone_script": (
-            "[GREET] Good morning {{customer_name}}! This is {{agent_name}} from {shop_name}.\n\n"
-            "[PURPOSE] Just a quick call to say we're expecting you today at {{time}} "
-            "for your {{service_type}}.\n\n"
-            "[INFO] The job should take about {{duration}}. While we have the vehicle, "
-            "is there anything else you'd like us to take a look at?\n\n"
-            "[PAUSE] ... Great.\n\n"
-            "[CLOSE] We'll have everything ready for you. See you at {{time}}, "
-            "{{customer_name}}!"
+            "[GREET] Good morning {{customer_name}}, this is {{agent_name}} calling from {shop_name}.\n\n"
+            "[PURPOSE] I'm just giving you a quick call to let you know our service bay is ready and we're expecting you today at {{time}} for your {{service_type}}.\n\n"
+            "[PAUSE] Did you have any last-minute questions before you head over?\n\n"
+            "[IF NO] Excellent. We'll be ready for you at the front desk when you arrive. Drive safe!\n\n"
+            "[IF YES] [Answer questions thoroughly and reassure the customer].\n\n"
+            "[CLOSE] We'll see you at {{time}}, {{customer_name}}. Thanks for choosing {shop_name}!"
         ),
     },
 
     "post_service_thankyou": {
         "sms": (
-            "Thanks, {{customer_name}}! Your {{service_type}} is done. "
-            "We appreciate you choosing {shop_name}. Mind leaving us a quick review? "
-            "{review_link}"
+            "Hi {{customer_name}}, thanks for trusting {shop_name} with your {{service_type}} today! "
+            "If you loved our service, a quick review means the world: {review_link}"
         ),
         "email": (
-            "Subject: Thank You for Trusting {shop_name}, {{customer_name}}!\n\n"
+            "Subject: Thank you for choosing {shop_name}, {{customer_name}}!\n\n"
             "Hi {{customer_name}},\n\n"
-            "Thank you for bringing your {{vehicle}} to {shop_name} today for "
-            "your {{service_type}}. We really appreciate your business.\n\n"
-            "A few things to keep in mind:\n\n"
-            "1. If you notice anything unusual in the next few days — any sounds, smells, "
-            "or warning lights — don't hesitate to call us at {phone}. We stand behind "
-            "our work and we'll make it right.\n\n"
-            "2. Based on today's service, your next recommended maintenance is "
-            "{{next_service}} around {{next_date}}. We'll send you a reminder when "
-            "that's coming up.\n\n"
-            "3. If you had a good experience today, a quick Google review would mean "
-            "the world to us — it helps other drivers in {location} find a shop they "
-            "can trust:\n"
-            "   {review_link}\n\n"
-            "Thank you again. Drive safe and don't hesitate to reach out whenever "
-            "you need us.\n\n"
-            "Gratefully,\n"
+            "I want to personally thank you for bringing your vehicle to {shop_name} today for your {{service_type}}. We know you have choices when it comes to auto repair, and we are grateful you chose us.\n\n"
+            "Our goal is always to provide transparent, high-quality service that keeps your vehicle safe and reliable. \n\n"
+            "Two quick things:\n"
+            "1. If you notice anything unusual over the next few days—don't hesitate to call us immediately at {phone}. We stand completely behind our work and want to make sure you are 100% satisfied.\n"
+            "2. As a local business, we rely heavily on word-of-mouth. If you had a 5-star experience with our team today, it would mean the world to us if you took 30 seconds to leave a quick Google review:\n"
+            "{review_link}\n\n"
+            "Thank you again for your trust. Drive safely, and we'll see you next time!\n\n"
+            "Best regards,\n\n"
             "{owner_name}\n"
             "{shop_name}\n"
-            "{phone} | {website}"
+            "{website}"
         ),
         "phone_script": (
-            "[GREET] Hi {{customer_name}}, this is {{agent_name}} from {shop_name}.\n\n"
-            "[PURPOSE] We just wanted to follow up and make sure everything went well "
-            "with your {{service_type}} today.\n\n"
-            "[PAUSE] How is the vehicle feeling?\n\n"
-            "[IF GOOD] That's great to hear! We really appreciate you trusting us. "
-            "If you have a spare moment, a quick Google review helps us a lot — I can "
-            "text you the link right now.\n\n"
-            "[IF ISSUE] I'm sorry to hear that — I want to make sure we take care of "
-            "that for you. Can you describe what you're noticing? "
-            "[Listen, log the issue, and schedule a follow-up inspection at no charge "
-            "if the issue is related to the service performed.]\n\n"
-            "[CLOSE] Thanks again, {{customer_name}}. We appreciate you choosing "
-            "{shop_name}. Don't hesitate to call us at {phone} if you need anything!"
+            "[GREET] Hi {{customer_name}}, this is {{agent_name}} following up from {shop_name}.\n\n"
+            "[PURPOSE] I'm just calling to make sure everything went perfectly with your {{service_type}} today and to thank you for your business.\n\n"
+            "[PAUSE] How is the vehicle driving for you?\n\n"
+            "[IF GOOD] That is exactly what we love to hear! We really appreciate you giving us the opportunity to earn your trust. By the way, if you have a spare minute, I'd love to text you a link to leave us a quick Google review. It helps our small business tremendously. Would that be okay?\n\n"
+            "[IF ISSUE] I'm so sorry to hear you're experiencing that. That's not the standard we strive for. Can you describe exactly what it's doing? [Listen carefully, log notes]. I want to make this right immediately. Can you bring it back by tomorrow morning so our lead tech can inspect it at no charge?\n\n"
+            "[CLOSE] Thank you again, {{customer_name}}. Don't hesitate to call us at {phone} if you ever need anything else. Have a wonderful day!"
         ),
     },
 
     "thirty_day_followup": {
         "sms": (
-            "Hi {{customer_name}}, it's been a month since your {{service_type}} at "
-            "{shop_name}. How's the vehicle running? Book your next visit: {phone}"
+            "Hi {{customer_name}}, it's been a month since your {{service_type}} at {shop_name}. "
+            "Is the vehicle driving perfectly? Need anything else? Just text or call {phone}."
         ),
         "email": (
-            "Subject: Checking In — How's Your {{vehicle}} Running? | {shop_name}\n\n"
+            "Subject: Checking in: How is your vehicle running? | {shop_name}\n\n"
             "Hi {{customer_name}},\n\n"
-            "It's been about 30 days since your {{service_type}} here at {shop_name}, "
-            "and we wanted to check in.\n\n"
-            "How's your vehicle running? If you've noticed anything — a new sound, a "
-            "dashboard light, or just a feeling that something's off — it's always "
-            "better to catch it early. Give us a call at {phone} and we'll tell you "
-            "if it's worth bringing in.\n\n"
-            "Also, with {{season}} just around the corner, this is a great time to "
-            "{{seasonal_tip}}. A quick preventive check now can save you from a "
-            "breakdown later.\n\n"
-            "Ready to schedule your next visit? Call {phone} or book online at "
-            "{website} — we'll get you in quickly.\n\n"
-            "Drive safe,\n"
-            "{shop_name}\n"
+            "It's been about 30 days since your last visit to {shop_name} for your {{service_type}}, and we just wanted to do a quick check-in.\n\n"
+            "How is your vehicle performing? We strongly believe that preventative care is the secret to avoiding massive repair bills. If you've felt any new vibrations, heard any new squeaks, or noticed a drop in fuel economy, those are early warning signs. \n\n"
+            "It's always cheaper to fix a small problem now than a major failure on the side of the highway later.\n\n"
+            "If everything is running beautifully—great! If you have even the slightest concern, give us a call at {phone}. We're always happy to offer advice over the phone or schedule a quick diagnostic look.\n\n"
+            "Stay safe out there,\n\n"
+            "The Team at {shop_name}\n"
             "{phone}"
         ),
         "phone_script": (
             "[GREET] Hi {{customer_name}}, this is {{agent_name}} calling from {shop_name}.\n\n"
-            "[PURPOSE] It's been about a month since your {{service_type}}, and I "
-            "just wanted to do a quick check-in.\n\n"
-            "[PAUSE] How's the vehicle running? Anything we should know about?\n\n"
-            "[IF GOOD] Glad to hear it! Just a heads-up — with {{season}} coming, "
-            "it's worth thinking about {{seasonal_tip}}. Want me to get you scheduled "
-            "for a quick look?\n\n"
-            "[IF ISSUE] Thanks for letting me know. That's worth getting checked. "
-            "I can get you in as early as {{next_available}} — does that work? "
-            "[Book the appointment and confirm before ending the call.]\n\n"
-            "[CLOSE] Thanks, {{customer_name}}. Don't hesitate to call us at {phone} "
-            "anytime. Take care!"
+            "[PURPOSE] I'm just doing a quick courtesy follow-up. It's been about a month since we saw you for your {{service_type}}.\n\n"
+            "[PAUSE] I wanted to make sure everything is still running smoothly. Any weird noises or concerns we should know about?\n\n"
+            "[IF GOOD] That is great news. A well-maintained vehicle is a safe vehicle! Just a heads-up, we are currently running a special on [Insert Special/Seasonal Service]. Should I go ahead and pencil you in for a quick checkup while I have you on the phone?\n\n"
+            "[IF ISSUE] I'm glad I called. That sounds like something we should definitely take a look at before it turns into a bigger headache for you. I have an opening tomorrow afternoon—want me to put you down so we can get it diagnosed?\n\n"
+            "[CLOSE] Excellent. Thanks for your time, {{customer_name}}. Keep us in mind if you need anything at all. Our number is {phone}. Take care!"
         ),
     },
 
     "six_month_maintenance": {
         "sms": (
-            "Hi {{customer_name}}, it's been 6 months since your {{service_type}} at "
-            "{shop_name}. Time for a check-up! Call {phone} to book."
+            "Hi {{customer_name}}, it's been 6 months since your {{service_type}} at {shop_name}. "
+            "Stay ahead of costly repairs—call {phone} to book your routine check-up today."
         ),
         "email": (
-            "Subject: Your 6-Month Maintenance Reminder from {shop_name}\n\n"
+            "Subject: It's time for your 6-month vehicle check-up! | {shop_name}\n\n"
             "Hi {{customer_name}},\n\n"
-            "It's been about six months since your last visit to {shop_name} for "
-            "your {{service_type}}, and based on your vehicle's maintenance schedule, "
-            "it's a good time to think about:\n\n"
-            "  - {{recommended_service_1}}\n"
-            "  - {{recommended_service_2}}\n"
-            "  - Multi-point inspection (we include this with every service)\n\n"
-            "Staying on top of routine maintenance is the best way to avoid big "
-            "repair bills down the road. Most of these services take under an hour "
-            "and cost far less than fixing what happens when they're skipped.\n\n"
-            "Not sure if your vehicle is due? Just call us at {phone} — give us "
-            "your year, make, model, and mileage and we'll tell you exactly what's "
-            "coming up at no charge.\n\n"
-            "Ready to book? Call {phone} or visit {website}.\n\n"
-            "Keeping you on the road,\n"
+            "Can you believe it's been six months since your last visit to {shop_name} for your {{service_type}}?\n\n"
+            "Based on your vehicle's factory maintenance schedule, you are likely due for a routine service. Staying strictly on top of routine maintenance (like oil changes, fluid flushes, and brake inspections) is the single most effective way to drastically extend the life of your vehicle and prevent multi-thousand-dollar emergency repairs.\n\n"
+            "When you bring your vehicle in, we don't just do the bare minimum. We perform a comprehensive multi-point digital inspection to catch early signs of wear and tear before they become dangerous or expensive.\n\n"
+            "Don't wait for a breakdown. Call us today at {phone} or reply to this email to get on the schedule at a time that is convenient for you.\n\n"
+            "We look forward to seeing you!\n\n"
             "{shop_name}\n"
-            "{phone}"
+            "{phone} | {website}"
         ),
         "phone_script": (
             "[GREET] Hi {{customer_name}}, this is {{agent_name}} from {shop_name}.\n\n"
-            "[PURPOSE] It's been about six months since your {{service_type}}, and "
-            "I'm calling because based on your vehicle's schedule, you're likely due "
-            "for some routine maintenance.\n\n"
-            "[DETAILS] Specifically, we'd recommend {{recommended_service_1}} and "
-            "{{recommended_service_2}}. These are the kinds of things that keep small "
-            "issues from turning into expensive ones.\n\n"
-            "[PAUSE] Would you like to get that scheduled? I've got availability as "
-            "early as {{next_available}}.\n\n"
-            "[IF YES] Great — let me get that booked for you. "
-            "[Confirm date, time, and services. Read back the appointment details.]\n\n"
-            "[IF NO] No worries at all. I'll send you a text with the details so you "
-            "have it when you're ready. Just call us at {phone} whenever you'd like "
-            "to come in.\n\n"
-            "[CLOSE] Thanks, {{customer_name}}. Drive safe and we'll talk soon!"
+            "[PURPOSE] I'm calling because our records show it's been about six months since your {{service_type}}. Based on typical driving habits, you're right in the window where routine maintenance is due to keep your warranty valid and your engine healthy.\n\n"
+            "[PAUSE] Have you had a chance to get your oil changed or your fluids checked recently?\n\n"
+            "[IF NO] No problem, that's exactly why we reach out! Getting it done now prevents major engine wear later. I actually have an opening this Thursday or Friday. Which of those days works better for you to drop it off?\n\n"
+            "[IF YES] Oh, excellent! We love to hear that you're staying on top of it. Did they happen to check your brake pads and alignment while it was in the shop?\n\n"
+            "[CLOSE] Great, I'll update our records. Let us know when you're ready for your next service, {{customer_name}}. Call us anytime at {phone}. Have a great day!"
         ),
     },
 }
@@ -319,23 +201,20 @@ TOUCHPOINT_ORDER = [
     "six_month_maintenance",
 ]
 
-ALL_CHANNELS = ["sms", "email", "phone_script"]
-
-
 # ---------------------------------------------------------------------------
 # Core generation
 # ---------------------------------------------------------------------------
 
-def apply_profile(content, profile):
+def apply_profile(content, profile, customer_name, service_type):
     """Replace {profile_var} tokens with real values from the shop profile."""
     shop_name   = pval(profile, 'shop_name',  'Your Auto Shop')
     phone       = pval(profile, 'phone',       '(555) 555-5555')
     address     = pval(profile, 'address') or pval(profile, 'location', '123 Main St')
     owner_name  = pval(profile, 'owner_name', 'The Owner')
     website     = pval(profile, 'website',    'yourshop.com')
-    location    = pval(profile, 'location',   'your area')
-    review_link = profile.get('review_links', {}).get('google', '') or \
-                  'https://g.page/r/[add-your-google-review-link]'
+    review_link = profile.get('review_links', {}).get('google', '') or 'https://g.page/r/[add-your-google-review-link]'
+    
+    c_name = customer_name.strip() if customer_name else "[Customer Name]"
 
     replacements = {
         '{shop_name}':   shop_name,
@@ -343,124 +222,68 @@ def apply_profile(content, profile):
         '{address}':     address,
         '{owner_name}':  owner_name,
         '{website}':     website,
-        '{location}':    location,
         '{review_link}': review_link,
+        '{{customer_name}}': c_name,
+        '{{service_type}}': service_type,
+        '{{date}}': '[Date]',
+        '{{time}}': '[Time]',
+        '{{agent_name}}': '[Your Name]'
     }
     for token, value in replacements.items():
         content = content.replace(token, value)
     return content
 
-
-def check_sms_length(content, touchpoint, profile):
-    """
-    Warn if an SMS template might exceed 160 chars after typical placeholder
-    substitution.  We substitute a realistic worst-case for each placeholder.
-    """
-    sample = content
-    sample_subs = {
-        '{{customer_name}}': 'Christopher',
-        '{{service_type}}':  'Transmission Flush',
-        '{{date}}':          'Tuesday, Nov 12',
-        '{{time}}':          '10:30 AM',
-        '{{duration}}':      '90 min',
-        '{{vehicle}}':       '2018 Ford F-150',
-        '{{next_service}}':  'tire rotation',
-        '{{next_date}}':     'March 2025',
-        '{{season}}':        'winter',
-        '{{seasonal_tip}}':  'check your battery and tire pressure',
-        '{{next_available}}': 'Thursday',
-    }
-    for ph, val in sample_subs.items():
-        sample = sample.replace(ph, val)
-    if len(sample) > SMS_LIMIT:
-        print(f"  ⚠️  SMS for '{touchpoint}' may exceed 160 chars "
-              f"(~{len(sample)} chars with sample substitution). "
-              f"Review and tighten if needed.", file=sys.stderr)
-
-
-def generate_touchpoint(touchpoint, service_type, channels, profile, output_dir):
-    """Generate all requested channels for one touchpoint."""
+def generate_touchpoint(touchpoint, customer_name, service_type, channels, profile, output_dir):
+    """Generate all requested channels for one touchpoint into ONE combined file."""
     templates = TEMPLATES.get(touchpoint)
     if not templates:
         print(f"ERROR: Unknown touchpoint '{touchpoint}'", file=sys.stderr)
         return []
 
-    generated = []
-    for channel in channels:
-        if channel not in templates:
-            print(f"  ⚠️  No '{channel}' template for '{touchpoint}'", file=sys.stderr)
-            continue
+    combined_content = []
 
-        content = templates[channel]
-        content = apply_profile(content, profile)
-        content = content.replace('{{service_type}}', service_type)
+    if "sms" in channels or "all" in channels:
+        if "sms" in templates:
+            txt = apply_profile(templates["sms"], profile, customer_name, service_type)
+            combined_content.append("--- SMS ---\n" + txt + "\n")
 
-        if channel == 'sms':
-            check_sms_length(content, touchpoint, profile)
+    if "email" in channels or "all" in channels:
+        if "email" in templates:
+            txt = apply_profile(templates["email"], profile, customer_name, service_type)
+            combined_content.append("--- EMAIL ---\n" + txt + "\n")
 
-        filename = f"{touchpoint}_{channel}.txt"
-        filepath = os.path.join(output_dir, filename)
-        with open(filepath, 'w', encoding='utf-8') as fh:
-            fh.write(content)
+    if "phone_script" in channels or "all" in channels:
+        if "phone_script" in templates:
+            txt = apply_profile(templates["phone_script"], profile, customer_name, service_type)
+            combined_content.append("--- PHONE SCRIPT ---\n" + txt + "\n")
 
-        print(f"  ✅ output/appointments/{filename}")
-        generated.append(filename)
+    if not combined_content:
+        return []
 
-    return generated
+    filename = f"{touchpoint}.txt"
+    filepath = os.path.join(output_dir, filename)
+    with open(filepath, 'w', encoding='utf-8') as fh:
+        fh.write("\n".join(combined_content))
 
+    print(f"  ✅ output/appointments/{filename}")
+    return [filename]
 
 # ---------------------------------------------------------------------------
-# CLI
+# CLI (kept for compatibility, though mostly called via router)
 # ---------------------------------------------------------------------------
-
 def main():
-    parser = argparse.ArgumentParser(
-        description="Generate appointment reminder templates for every touchpoint."
-    )
-    parser.add_argument(
-        '--touchpoint',
-        required=True,
-        choices=TOUCHPOINT_ORDER + ['all'],
-        help="Which touchpoint to generate, or 'all' for all 6 touchpoints."
-    )
-    parser.add_argument(
-        '--service_type',
-        required=True,
-        help="The service being performed (e.g. 'Oil Change', 'Brake Pad Replacement')."
-    )
-    parser.add_argument(
-        '--channels',
-        default='sms,email,phone_script',
-        help="Comma-separated list of channels: sms,email,phone_script (default: all three)."
-    )
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--touchpoint', required=True)
+    parser.add_argument('--customer_name', default='')
+    parser.add_argument('--service_type', required=True)
+    parser.add_argument('--channels', default='sms,email,phone_script')
     args = parser.parse_args()
+    
+    print("CLI execution is deprecated. Please use the FastAPI router.")
 
-    profile  = load_profile()
-    channels = [c.strip() for c in args.channels.split(',')]
-
-    os.makedirs(os.path.abspath(OUTPUT_DIR), exist_ok=True)
-    output_dir = os.path.abspath(OUTPUT_DIR)
-
-    touchpoints = TOUCHPOINT_ORDER if args.touchpoint == 'all' else [args.touchpoint]
-
-    print(f"\n🔧 Generating appointment reminders")
-    print(f"   Service type : {args.service_type}")
-    print(f"   Touchpoints  : {'all (6)' if args.touchpoint == 'all' else args.touchpoint}")
-    print(f"   Channels     : {', '.join(channels)}")
-    print(f"   Shop         : {pval(profile, 'shop_name', '[Not Set]')}")
-    print()
-
-    all_generated = []
-    for tp in touchpoints:
-        print(f"📋 {tp}")
-        generated = generate_touchpoint(tp, args.service_type, channels, profile, output_dir)
-        all_generated.extend(generated)
-
-    print(f"\n{'─'*50}")
-    print(f"✅ Done — {len(all_generated)} file(s) saved to output/appointments/")
-    if args.touchpoint == 'all':
-        print(f"   {len(touchpoints)} touchpoints × {len(channels)} channels = "
-              f"{len(touchpoints) * len(channels)} total templates")
+if __name__ == '__main__':
+    main()
+ len(channels)} total templates")
 
 
 if __name__ == '__main__':

@@ -7,7 +7,7 @@ const labelStyle = { fontSize: 10, fontWeight: 700, color: "#555", letterSpacing
 function Field({ label, children }) { return <div style={{ marginBottom: 16 }}><label style={labelStyle}>{label}</label>{children}</div> }
 
 export default function AppointmentsForm({ onSubmit, onSubmitStart, loading }) {
-  const [form, setForm] = useState({ touchpoint: "all", service_type: "", channels: "all" })
+  const [form, setForm] = useState({ touchpoint: "all", customer_name: "", service_type: "", channels: "all" })
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }))
 
   const handleSubmit = async (e) => {
@@ -29,6 +29,9 @@ export default function AppointmentsForm({ onSubmit, onSubmitStart, loading }) {
           <option value="thirty_day_followup">30-Day Follow-Up</option>
           <option value="six_month_maintenance">6-Month Maintenance</option>
         </select>
+      </Field>
+      <Field label="Customer Name">
+        <input style={inputStyle} value={form.customer_name} onChange={set("customer_name")} placeholder="e.g. John Doe (Optional)" />
       </Field>
       <Field label="Service Type">
         <input style={inputStyle} value={form.service_type} onChange={set("service_type")} placeholder="e.g. Oil change, Brake repair, AC service" />
