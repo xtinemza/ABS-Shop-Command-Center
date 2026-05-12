@@ -30,6 +30,7 @@ class ProfileSaveRequest(BaseModel):
     tagline: Optional[str] = None
     tone: Optional[str] = None
     google_review_link: Optional[str] = None
+    logo_url: Optional[str] = None
 
 class SetupRequest(BaseModel):
     shop_name: Optional[str] = None
@@ -46,24 +47,26 @@ class SetupRequest(BaseModel):
     tagline: Optional[str] = None
     tone: Optional[str] = None
     google_review_link: Optional[str] = None
+    logo_url: Optional[str] = None
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 def _save_to_supabase(user_id: str, updates: dict) -> dict:
-    """Merge updates into existing profile in Supabase."""
+    """Merge updates into existing profile in Supabase (upsert — works even if row doesn't exist yet)."""
     # First, get current profile
     res = supabase.table("shop_profiles").select("shop_info").eq("id", user_id).execute()
-    
+
     current_info = {}
     if res.data and res.data[0].get("shop_info"):
         current_info = res.data[0]["shop_info"]
 
-    # Merge simple scalar fields
+    # Merge scalar fields
     scalar_fields = [
         "shop_name", "owner_name", "phone", "street", "city", "state", "zip",
-        "hours", "business_type", "website", "tagline", "tone", "google_review_link"
+        "hours", "business_type", "website", "tagline", "tone",
+        "google_review_link", "logo_url",
     ]
     for field in scalar_fields:
         if field in updates and updates[field] is not None:
@@ -76,12 +79,13 @@ def _save_to_supabase(user_id: str, updates: dict) -> dict:
         else:
             current_info["services"] = [s.strip() for s in str(updates["services"]).split(",")]
 
-    # Update in Supabase
-    update_res = supabase.table("shop_profiles").update({
-        "shop_info": current_info
-    }).eq("id", user_id).execute()
-    
-    return update_res.data[0]["shop_info"] if update_res.data else current_info
+    # Upsert — creates the row if it doesn't exist, updates it if it does
+    upsert_res = supabase.table("shop_profiles").upsert({
+        "id": user_id,
+        "shop_info": current_info,
+    }, on_conflict="id").execute()
+
+    return upsert_res.data[0]["shop_info"] if upsert_res.data else current_info
 
 # ---------------------------------------------------------------------------
 # Endpoints
