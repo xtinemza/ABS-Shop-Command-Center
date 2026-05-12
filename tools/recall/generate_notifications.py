@@ -260,8 +260,8 @@ under the manufacturer's recall program."
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 {'[HIGH URGENCY] "We do recommend you try to limit driving the vehicle until we can get this addressed. It affects a safety system and we want to make sure you and your family are protected."' if args.urgency == 'high' else ''}
-{'[MEDIUM] "We'd recommend getting this scheduled within the next few weeks."' if args.urgency == 'medium' else ''}
-{'[LOW] "There's no immediate rush, but we do want to get it handled for you."' if args.urgency == 'low' else ''}
+{'[MEDIUM] "We recommend getting this scheduled within the next few weeks."' if args.urgency == 'medium' else ''}
+{'[LOW] "There is no immediate rush, but we do want to get it handled for you."' if args.urgency == 'low' else ''}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [SCHEDULE THE APPOINTMENT]
