@@ -40,7 +40,7 @@ def generate_appointments(body: AppointmentRequest, user=Depends(get_current_use
 
         # Load profile from Supabase for this tenant
         try:
-            res = supabase.table("profiles").select("shop_info").eq("id", user.id).execute()
+            res = supabase.table("shop_profiles").select("shop_info").eq("id", user.id).execute()
             profile = res.data[0].get("shop_info", {}) if res.data else {}
         except Exception as e:
             profile = {}

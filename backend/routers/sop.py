@@ -28,7 +28,7 @@ router = APIRouter()
 @router.get("/sop/")
 def get_custom_sops(user=Depends(get_current_user)):
     try:
-        res = supabase.table("profiles").select("sops").eq("id", user.id).execute()
+        res = supabase.table("shop_profiles").select("sops").eq("id", user.id).execute()
         if res.data:
             return res.data[0].get("sops", {})
         return {}
@@ -38,7 +38,7 @@ def get_custom_sops(user=Depends(get_current_user)):
 @router.post("/sop/")
 def save_custom_sops(sops: dict, user=Depends(get_current_user)):
     try:
-        supabase.table("profiles").update({
+        supabase.table("shop_profiles").update({
             "sops": sops
         }).eq("id", user.id).execute()
         return {"success": True}
@@ -101,7 +101,7 @@ def generate_sop(body: SopRequest, user=Depends(get_current_user)):
 
             elif procedure:
                 # Fetch custom SOPs from Supabase
-                res = supabase.table("profiles").select("sops").eq("id", user.id).execute()
+                res = supabase.table("shop_profiles").select("sops").eq("id", user.id).execute()
                 shop_sops = res.data[0].get("sops", {}) if res.data else {}
                 
                 proc = shop_sops.get(procedure)
