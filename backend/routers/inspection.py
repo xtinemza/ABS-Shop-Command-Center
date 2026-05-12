@@ -71,7 +71,7 @@ def generate_inspection(body: InspectionRequest, user=Depends(get_current_user))
                 if form_type not in generate_forms.FORM_TEMPLATES:
                     print(f"  Unknown form type: {form_type}. Using multi_point.")
                     args.type = "multi_point"
-                content = generate_forms.generate_blank_form(profile, args)
+                content, _, _ = generate_forms.generate_blank_form(profile, args)
                 filename = f"inspection_form_{form_type}.txt"
             else:
                 content, counts = generate_forms.generate_report(profile, args)
