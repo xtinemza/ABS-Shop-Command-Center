@@ -86,6 +86,7 @@ _DEFAULT_ORIGINS = ",".join([
     "http://127.0.0.1:3000",
     "https://absshopscommandcenter.netlify.app",
     "https://abs-shop-command-center.netlify.app",
+    "https://auto-shop-command-center.netlify.app",
 ])
 _allowed_origins = [
     o.strip()
