@@ -44,7 +44,7 @@ class ConfigSaveRequest(BaseModel):
 
 
 @router.get("/config")
-def get_config()user=Depends(get_current_user)):
+def get_config(user=Depends(get_current_user)):
     cfg = _load_config()
     # Mask the key for display — only show last 4 chars
     masked = {}

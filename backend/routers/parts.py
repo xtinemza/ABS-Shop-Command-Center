@@ -51,7 +51,7 @@ class CatalogRequest(BaseModel):
 
 
 @router.get("/parts/catalog")
-def get_catalog()user=Depends(get_current_user)):
+def get_catalog(user=Depends(get_current_user)):
     try:
         if not os.path.exists(CATALOG_PATH):
             return {"success": True, "items": [], "count": 0}
