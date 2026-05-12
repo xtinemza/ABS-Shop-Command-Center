@@ -8,6 +8,7 @@ export default function ServicePricesEditor({ onClose }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -53,7 +54,8 @@ export default function ServicePricesEditor({ onClose }) {
         }
       });
       await saveServicePrices(data);
-      onClose(); // Close on success
+      setSuccess(true);
+      setTimeout(() => { setSuccess(false); onClose(); }, 1500);
     } catch (e) {
       setError("Failed to save: " + e.message);
       setSaving(false);
@@ -99,6 +101,14 @@ export default function ServicePricesEditor({ onClose }) {
 
         {/* Content */}
         <div style={{ flex: 1, overflowY: "auto", padding: "24px 32px" }}>
+          {success && (
+            <div style={{
+              background: "#0a2a0a", border: "1px solid #2a622a", color: "#4ADE80",
+              padding: "12px 16px", borderRadius: 4, marginBottom: 20, fontSize: 13
+            }}>
+              ✓ Prices saved successfully!
+            </div>
+          )}
           {error && (
             <div style={{
               background: "#311", border: "1px solid #622", color: "#F88",

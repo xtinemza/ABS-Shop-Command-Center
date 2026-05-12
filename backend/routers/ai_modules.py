@@ -12,10 +12,9 @@ import hashlib
 import time
 from typing import Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, UploadFile, File
 from auth import get_current_user
 from supabase_client import supabase
-, UploadFile, File
 from pydantic import BaseModel
 
 # Import static knowledge base
@@ -27,7 +26,11 @@ from marketing_templates import (find_social, find_cta, find_promo,
                                   _fill, _hashtag, SOCIAL, CTA, PROMO,
                                   SOCIAL_SERVICES, CTA_GOALS, PROMO_SERVICES)
 
-# ── Persistent paths ─────────────────────────────────────────────────────────
+# ── Paths ────────────────────────────────────────────────────────────────────
+_DATA_DIR = "/data" if os.path.isdir("/data") else os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "data")
+)
+PROFILE_PATH  = os.path.join(_DATA_DIR, "shop_profile.json")
 _LEARNED_PATH = os.path.join(_DATA_DIR, "learned_vehicles.json")
 _PRICES_PATH  = os.path.join(_DATA_DIR, "parts_prices.json")
 
@@ -110,11 +113,6 @@ def _cache_key(system: str, user: str) -> str:
 # Max characters accepted from user input (prevents token bloat)
 MAX_INPUT_CHARS = 800
 
-_DATA_DIR = "/data" if os.path.isdir("/data") else os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "data")
-)
-PROFILE_PATH = os.path.join(_DATA_DIR, "shop_profile.json")
-
 router = APIRouter()
 
 
@@ -122,7 +120,7 @@ router = APIRouter()
 
 def _load_profile(user_id: str) -> dict:
     try:
-        res = supabase.table("profiles").select("shop_info").eq("id", user_id).execute()
+        res = supabase.table("shop_profiles").select("shop_info").eq("id", user_id).execute()
         return res.data[0].get("shop_info", {}) if res.data else {}
     except Exception:
         return {}
@@ -194,7 +192,7 @@ def _err(msg: str):
 # ── Knowledge Base endpoints ─────────────────────────────────────────────────
 
 @router.get("/knowledge-base/learned")
-def get_learned_vehicles()user=Depends(get_current_user)):
+def get_learned_vehicles(user=Depends(get_current_user)):
     """Return all auto-learned vehicles saved from AI queries."""
     return {"success": True, "vehicles": _load_learned()}
 
@@ -202,6 +200,10 @@ def get_learned_vehicles()user=Depends(get_current_user)):
 def delete_learned_vehicle(key: str, user=Depends(get_current_user)):
     """Remove a learned vehicle entry (key = url-encoded 'make model')."""
     learned = _load_learned()
+    # Sanitize key: allow only alphanumeric, spaces, hyphens
+    import re as _re
+    if not _re.match(r'^[\w\s\-]+$', key):
+        return {"success": False, "error": "Invalid vehicle key"}
     norm = key.replace("-", " ").lower()
     if norm in learned:
         del learned[norm]
@@ -224,17 +226,23 @@ def vehicle_lookup(q: str = "", user=Depends(get_current_user)):
     return {"success": False, "error": "Vehicle not found in database"}
 
 @router.get("/knowledge-base/parts-prices")
-def get_parts_prices()user=Depends(get_current_user)):
+def get_parts_prices(user=Depends(get_current_user)):
     """Return the shop's uploaded parts & prices list."""
     rows = _load_shop_prices()
     return {"success": True, "rows": rows, "count": len(rows)}
 
 
+_MAX_CSV_BYTES = 2 * 1024 * 1024  # 2 MB
+
 @router.post("/knowledge-base/parts-prices/upload")
 async def upload_parts_prices(file: UploadFile = File(...), user=Depends(get_current_user)):
     """Accept a CSV upload, parse it, and save to /data/parts_prices.json."""
+    if file.content_type not in ("text/csv", "text/plain", "application/vnd.ms-excel", "application/octet-stream"):
+        return {"success": False, "error": "Only CSV files are accepted."}
     try:
         raw = await file.read()
+        if len(raw) > _MAX_CSV_BYTES:
+            return {"success": False, "error": "File too large. Maximum size is 2 MB."}
         text = raw.decode("utf-8-sig")          # strip BOM if present
         reader = csv.DictReader(io.StringIO(text))
         rows = []
@@ -263,7 +271,7 @@ async def upload_parts_prices(file: UploadFile = File(...), user=Depends(get_cur
 
 
 @router.get("/knowledge-base/marketing-templates")
-def get_marketing_templates()user=Depends(get_current_user)):
+def get_marketing_templates(user=Depends(get_current_user)):
     """Return available template service types for display in the KB panel."""
     return {
         "success": True,
@@ -274,7 +282,7 @@ def get_marketing_templates()user=Depends(get_current_user)):
 
 
 @router.delete("/knowledge-base/parts-prices")
-def clear_parts_prices()user=Depends(get_current_user)):
+def clear_parts_prices(user=Depends(get_current_user)):
     """Remove the uploaded parts & prices list."""
     try:
         if os.path.exists(_PRICES_PATH):

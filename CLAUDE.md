@@ -1,4 +1,107 @@
-# Shop Command Center — Agent Instructions (CLAUDE.md)
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
+
+## Development Setup
+
+### Environment Variables
+
+**Frontend** (`frontend/.env` — copy from `frontend/.env.example`):
+```
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+**Backend** (`backend/.env`):
+```
+ANTHROPIC_API_KEY=your_anthropic_key
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_KEY=your_supabase_service_role_key
+```
+
+### Running the App
+
+Both servers must run simultaneously. The Vite dev server proxies `/api/*` to `http://localhost:8000`.
+
+```bash
+# Backend (FastAPI) — from repo root
+python -m uvicorn main:app --port 8000 --app-dir backend --reload
+
+# Frontend (React + Vite) — in a separate terminal
+cd frontend && npm install && npm run dev
+```
+
+The frontend runs on `http://localhost:3000`. The `preview/` folder contains a static build served via `python -m http.server 3000 --directory preview` (used by `.claude/launch.json`), not the development server.
+
+### Frontend Build
+
+```bash
+cd frontend && npm run build   # outputs to frontend/dist/
+cd frontend && npm run preview # preview the production build
+```
+
+### Backend Dependencies
+
+```bash
+pip install -r backend/requirements.txt
+```
+
+---
+
+## Architecture
+
+### Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18 + Vite |
+| Backend | FastAPI (Python) |
+| Auth | Supabase Auth |
+| Database | Supabase (PostgreSQL) |
+| AI | Anthropic Claude API |
+| Deployment | Netlify (frontend), Render (backend) |
+
+### How the App is Structured
+
+This is a **WAT Framework** app: **W**orkflows (Markdown SOPs) + **A**gent (CLAUDE.md instructions) + **T**ools (Python scripts).
+
+**Frontend** (`frontend/src/`):
+- `App.jsx` — root: Supabase auth gate → setup gate → module menu. Contains service prices editor and SOP editor inline.
+- `components/forms/` — one form component per module, collected inputs sent to backend.
+- `data/modules.js` — all 17 module definitions (id, title, category, description, form fields).
+- `api/client.js` — all fetch calls to the FastAPI backend.
+
+**Backend** (`backend/`):
+- `main.py` — mounts all 17 routers under `/api/` with CORS for localhost:3000 and Netlify.
+- `routers/` — one file per module. Each router receives form data, calls the Anthropic API, and returns generated content.
+- `knowledge_base.py` — 113 KB template library; the primary source of shop-specific content templates.
+- `marketing_templates.py` — additional marketing-specific templates.
+- `kb_loader.py` — loads and queries the knowledge base.
+- `models/` — Pydantic request/response models.
+- `knowledge_base/` — JSON files with structured domain knowledge.
+
+**Persistence**:
+- `data/shop_profile.json` — shop name, hours, services, branding (read by all Python tools).
+- Supabase tables — user accounts, saved outputs, service prices.
+
+### Adding a New Module
+
+1. Create `workflows/<module_name>.md` (the SOP).
+2. Create `tools/<module_name>/` with Python CLI tools.
+3. Create `backend/routers/<module_name>.py` and mount it in `backend/main.py`.
+4. Create `frontend/src/components/forms/<ModuleName>Form.jsx`.
+5. Add the module entry to `frontend/src/data/modules.js`.
+
+### API Route Pattern
+
+Every module follows: `POST /api/<module-slug>/generate` → returns `{ content: string }`.
+Profile endpoints: `GET /api/profile` and `PUT /api/profile`.
+
+---
+
+## Shop Command Center — Agent Instructions
 ## AI-Powered Operations Suite for Independent Auto Repair Shops
 
 You are the **Shop Command Center Agent** — a single AI coordinator that manages 17 operational modules for independent auto repair shops. You route the shop owner to the right module, load only the workflow they need, execute the tools, and deliver finished outputs.

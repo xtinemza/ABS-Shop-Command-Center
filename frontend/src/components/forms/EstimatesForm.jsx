@@ -8,10 +8,18 @@ function Field({ label, children }) { return <div style={{ marginBottom: 16 }}><
 
 export default function EstimatesForm({ onSubmit, onSubmitStart, loading }) {
   const [form, setForm] = useState({ customer: "", vehicle: "", items: "" })
-  const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }))
+  const [jsonError, setJsonError] = useState("")
+  const set = (k) => (e) => {
+    setForm(f => ({ ...f, [k]: e.target.value }))
+    if (k === "items") setJsonError("")
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (form.items.trim()) {
+      try { JSON.parse(form.items) }
+      catch { setJsonError("Invalid JSON. Check brackets, quotes, and commas."); return }
+    }
     onSubmitStart && onSubmitStart()
     try { const res = await generateEstimate(form); onSubmit && onSubmit(res) }
     catch (err) { onSubmit && onSubmit({ error: err.message }) }
@@ -26,7 +34,8 @@ export default function EstimatesForm({ onSubmit, onSubmitStart, loading }) {
         <input style={inputStyle} value={form.vehicle} onChange={set("vehicle")} placeholder="e.g. 2017 Honda Accord EX" />
       </Field>
       <Field label="Estimate Line Items">
-        <textarea style={{ ...inputStyle, height: 140, resize: "vertical" }} value={form.items} onChange={set("items")} placeholder={'JSON array of line items:\n[{"part": "Front brake pads", "part_cost": 45, "labor_hours": 1.5, "labor_cost": 120, "urgency": "high"}]'} />
+        <textarea style={{ ...inputStyle, height: 140, resize: "vertical", borderColor: jsonError ? "#E05252" : "#222" }} value={form.items} onChange={set("items")} placeholder={'JSON array of line items:\n[{"part": "Front brake pads", "part_cost": 45, "labor_hours": 1.5, "labor_cost": 120, "urgency": "high"}]'} />
+        {jsonError && <p style={{ fontSize: 11, color: "#E05252", margin: "4px 0 0" }}>{jsonError}</p>}
       </Field>
       <button type="submit" disabled={loading} style={{ width: "100%", marginTop: 8, padding: "14px 0", borderRadius: 3, border: `1px solid ${gold}66`, background: loading ? `${gold}88` : `linear-gradient(135deg, ${gold}, ${gold}CC)`, color: "#0B0B0D", fontSize: 13, fontWeight: 800, cursor: loading ? "default" : "pointer", fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase", fontStyle: "italic" }}>
         {loading ? "Generating..." : "Generate →"}

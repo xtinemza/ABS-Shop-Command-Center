@@ -7,6 +7,14 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: ANTHROPIC_API_KEY
+        sync: false          # Set this secret in the Render dashboard
+      - key: SUPABASE_URL
+        sync: false          # Set this secret in the Render dashboard
+      - key: SUPABASE_KEY
+        sync: false          # Set this secret in the Render dashboard (use service_role key)
+      - key: ALLOWED_ORIGINS
+        sync: false          # Optional: comma-separated list of allowed frontend origins
     disk:
       name: shop-data
       mountPath: /data

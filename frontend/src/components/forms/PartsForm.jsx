@@ -10,11 +10,16 @@ export default function PartsForm({ onSubmit, onSubmitStart, loading }) {
   const [tab, setTab] = useState("inventory")
   const [inv, setInv] = useState({ action: "list", part_number: "", part_name: "", category: "", quantity: "", reorder_point: "", preferred_vendor: "", cost: "" })
   const [po, setPo] = useState({ vendor: "", items: "", notes: "" })
+  const [jsonError, setJsonError] = useState("")
   const setI = (k) => (e) => setInv(f => ({ ...f, [k]: e.target.value }))
-  const setP = (k) => (e) => setPo(f => ({ ...f, [k]: e.target.value }))
+  const setP = (k) => (e) => { setPo(f => ({ ...f, [k]: e.target.value })); if (k === "items") setJsonError("") }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (tab === "po" && po.items.trim()) {
+      try { JSON.parse(po.items) }
+      catch { setJsonError("Invalid JSON. Check brackets, quotes, and commas."); return }
+    }
     onSubmitStart && onSubmitStart()
     try {
       const res = tab === "inventory" ? await partsInventory(inv) : await generatePO(po)
@@ -61,7 +66,8 @@ export default function PartsForm({ onSubmit, onSubmitStart, loading }) {
         <>
           <Field label="Vendor"><input style={inputStyle} value={po.vendor} onChange={setP("vendor")} placeholder="e.g. NAPA Auto Parts" /></Field>
           <Field label="Items (JSON array)">
-            <textarea style={{ ...inputStyle, height: 120, resize: "vertical" }} value={po.items} onChange={setP("items")} placeholder={'[{"part_number": "BP-4421-F", "name": "Front Brake Pads", "qty": 8, "unit_cost": 24.99}]'} />
+            <textarea style={{ ...inputStyle, height: 120, resize: "vertical", borderColor: jsonError ? "#E05252" : "#222" }} value={po.items} onChange={setP("items")} placeholder={'[{"part_number": "BP-4421-F", "name": "Front Brake Pads", "qty": 8, "unit_cost": 24.99}]'} />
+            {jsonError && <p style={{ fontSize: 11, color: "#E05252", margin: "4px 0 0" }}>{jsonError}</p>}
           </Field>
           <Field label="Notes">
             <textarea style={{ ...inputStyle, height: 60, resize: "vertical" }} value={po.notes} onChange={setP("notes")} placeholder="Any special instructions for this order" />

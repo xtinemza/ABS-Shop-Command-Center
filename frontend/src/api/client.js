@@ -85,6 +85,15 @@ export async function checkRecall(data) {
   return post('/api/recall/lookup', data)
 }
 
+export async function nhtsaRecallLookup({ vin, make, model, year } = {}) {
+  const params = new URLSearchParams()
+  if (vin)   params.set('vin', vin)
+  if (make)  params.set('make', make)
+  if (model) params.set('model', model)
+  if (year)  params.set('year', year)
+  return get(`/api/recall/nhtsa-lookup?${params.toString()}`)
+}
+
 export async function generateRecallNotify(data) {
   return post('/api/recall/notify', data)
 }

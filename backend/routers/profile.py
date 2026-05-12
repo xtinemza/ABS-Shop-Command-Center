@@ -54,7 +54,7 @@ class SetupRequest(BaseModel):
 def _save_to_supabase(user_id: str, updates: dict) -> dict:
     """Merge updates into existing profile in Supabase."""
     # First, get current profile
-    res = supabase.table("profiles").select("shop_info").eq("id", user_id).execute()
+    res = supabase.table("shop_profiles").select("shop_info").eq("id", user_id).execute()
     
     current_info = {}
     if res.data and res.data[0].get("shop_info"):
@@ -77,7 +77,7 @@ def _save_to_supabase(user_id: str, updates: dict) -> dict:
             current_info["services"] = [s.strip() for s in str(updates["services"]).split(",")]
 
     # Update in Supabase
-    update_res = supabase.table("profiles").update({
+    update_res = supabase.table("shop_profiles").update({
         "shop_info": current_info
     }).eq("id", user_id).execute()
     
@@ -90,7 +90,7 @@ def _save_to_supabase(user_id: str, updates: dict) -> dict:
 @router.get("/profile", response_model=ProfileResponse)
 def get_profile(user=Depends(get_current_user)):
     try:
-        res = supabase.table("profiles").select("shop_info").eq("id", user.id).execute()
+        res = supabase.table("shop_profiles").select("shop_info").eq("id", user.id).execute()
         profile = res.data[0].get("shop_info", {}) if res.data else {}
         return ProfileResponse(success=True, profile=profile)
     except Exception as exc:
@@ -118,7 +118,7 @@ def setup(body: SetupRequest, user=Depends(get_current_user)):
 @router.get("/health", response_model=HealthResponse)
 def health(user=Depends(get_current_user)):
     try:
-        res = supabase.table("profiles").select("shop_info").eq("id", user.id).execute()
+        res = supabase.table("shop_profiles").select("shop_info").eq("id", user.id).execute()
         profile = res.data[0].get("shop_info", {}) if res.data else {}
         # Setup is complete if shop_name exists
         setup_complete = bool(profile.get("shop_name"))

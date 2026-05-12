@@ -1,5 +1,14 @@
 import sys
 import os
+import logging
+
+# ── Structured logging ────────────────────────────────────────────────────────
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
+)
+logger = logging.getLogger("shop_command_center")
 
 # Load .env file for local development
 try:
@@ -15,8 +24,20 @@ TOOLS_ROOT = os.path.join(PROJECT_ROOT, "tools")
 sys.path.insert(0, PROJECT_ROOT)
 sys.path.insert(0, TOOLS_ROOT)
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+try:
+    from slowapi import Limiter, _rate_limit_exceeded_handler
+    from slowapi.util import get_remote_address
+    from slowapi.errors import RateLimitExceeded
+    _limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
+    _rate_limiting_available = True
+except ImportError:
+    _limiter = None
+    _rate_limiting_available = False
+    logger.warning("slowapi not installed — rate limiting disabled. Run: pip install slowapi")
 
 from routers import (
     profile,
@@ -47,19 +68,45 @@ app = FastAPI(
     description="AI-powered operations suite for independent auto repair shops.",
 )
 
+# Attach rate limiter if available
+if _rate_limiting_available:
+    app.state.limiter = _limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    logger.info("Rate limiting enabled: 60 requests/minute per IP")
+
+# Global exception handler — never leak internal details to the client
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error("Unhandled exception on %s %s: %s", request.method, request.url.path, exc, exc_info=True)
+    return JSONResponse(status_code=500, content={"detail": "An internal error occurred. Please try again."})
+
+_DEFAULT_ORIGINS = ",".join([
+    "http://localhost:3000",
+    "http://localhost:8080",
+    "http://127.0.0.1:3000",
+    "https://absshopscommandcenter.netlify.app",
+    "https://abs-shop-command-center.netlify.app",
+])
+_allowed_origins = [
+    o.strip()
+    for o in os.environ.get("ALLOWED_ORIGINS", _DEFAULT_ORIGINS).split(",")
+    if o.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:8080",
-        "http://127.0.0.1:3000",
-        "https://absshopscommandcenter.netlify.app",   # no trailing slash
-        "https://abs-shop-command-center.netlify.app",
-    ],
+    allow_origins=_allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger.info("→ %s %s", request.method, request.url.path)
+    response = await call_next(request)
+    logger.info("← %s %s %s", request.method, request.url.path, response.status_code)
+    return response
 
 # Mount all routers
 app.include_router(profile.router, prefix="/api", tags=["Profile & Health"])

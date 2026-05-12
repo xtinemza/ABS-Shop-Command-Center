@@ -1,6 +1,11 @@
+import { modules } from "../data/modules"
+
 const gold = "#D4A017"
 
 export default function Header({ profile, onEditPrices, onEditSops, onEditProfile, onSignOut }) {
+  const coreCount = modules.filter(m => m.status === "core").length
+  const suggestedCount = modules.filter(m => m.status === "suggested").length
+  const categoryCount = new Set(modules.map(m => m.category)).size
   const name = profile?.shop_name || "Shop Command Center"
   const tag = profile?.tagline || "Professional Auto Care"
   const logo = profile?.logo_url || null
@@ -107,7 +112,7 @@ export default function Header({ profile, onEditPrices, onEditSops, onEditProfil
                 🚪 SIGN OUT
               </button>
             </div>
-            {[{ n: "13", l: "Core" }, { n: "4", l: "Suggested" }, { n: "5", l: "Categories" }].map((s, i) => (
+            {[{ n: String(coreCount), l: "Core" }, { n: String(suggestedCount), l: "Suggested" }, { n: String(categoryCount), l: "Categories" }].map((s, i) => (
               <div key={i} style={{
                 textAlign: "center", padding: "8px 18px",
                 background: "#0E0E10", border: "1px solid #1C1C20", borderRadius: 3,

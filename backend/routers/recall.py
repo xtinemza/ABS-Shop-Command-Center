@@ -1,18 +1,25 @@
 """
 Router: Module 8 — Recall Notifications
-POST /api/recall/check
-POST /api/recall/notify
+GET  /api/recall/nhtsa-lookup  — live NHTSA API lookup by VIN or make/model/year
+POST /api/recall/check         — generates a manual lookup guide
+POST /api/recall/notify        — generates customer notification templates
 """
 import argparse
 import os
 import sys
-from typing import Optional
+import urllib.request
+import urllib.parse
+import json as _json
+import logging
+from typing import Optional, List
 
 from fastapi import APIRouter, Depends
 from auth import get_current_user
 from supabase_client import supabase
 
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if _BACKEND_DIR not in sys.path:
@@ -45,6 +52,66 @@ class RecallNotifyRequest(BaseModel):
     remedy: Optional[str] = "Manufacturer will repair at no charge."
     consequence: Optional[str] = ""
     urgency: Optional[str] = "medium"
+
+
+_NHTSA_BASE = "https://api.nhtsa.gov/recalls"
+
+@router.get("/recall/nhtsa-lookup")
+def nhtsa_lookup(
+    vin: Optional[str] = None,
+    make: Optional[str] = None,
+    model: Optional[str] = None,
+    year: Optional[str] = None,
+    user=Depends(get_current_user),
+):
+    """
+    Live NHTSA recall lookup.
+    - Provide `vin` for VIN-based lookup, OR
+    - Provide `make` + `model` + `year` for vehicle-based lookup.
+    Returns structured recall records from the NHTSA public API.
+    """
+    try:
+        if vin and vin.strip():
+            vin_clean = vin.strip().upper()
+            if len(vin_clean) != 17:
+                return {"success": False, "error": "VIN must be exactly 17 characters.", "recalls": []}
+            url = f"{_NHTSA_BASE}/recallsByVehicleId?vin={urllib.parse.quote(vin_clean)}"
+        elif make and model and year:
+            params = urllib.parse.urlencode({
+                "make": make.strip(),
+                "model": model.strip(),
+                "modelYear": year.strip(),
+            })
+            url = f"{_NHTSA_BASE}/recallsByVehicle?{params}"
+        else:
+            return {"success": False, "error": "Provide a VIN, or make + model + year.", "recalls": []}
+
+        req = urllib.request.Request(url, headers={"Accept": "application/json", "User-Agent": "ShopCommandCenter/1.0"})
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            data = _json.loads(resp.read().decode())
+
+        results = data.get("results", [])
+        recalls = [
+            {
+                "campaign": r.get("NHTSACampaignNumber", ""),
+                "component": r.get("Component", ""),
+                "description": r.get("Summary", "") or r.get("Conequence", ""),
+                "consequence": r.get("Conequence", "") or r.get("Consequence", ""),
+                "remedy": r.get("Remedy", ""),
+                "report_date": r.get("ReportReceivedDate", ""),
+            }
+            for r in results
+        ]
+        logger.info("NHTSA lookup returned %d recalls for query: vin=%s make=%s model=%s year=%s",
+                    len(recalls), vin, make, model, year)
+        return {"success": True, "count": len(recalls), "recalls": recalls}
+
+    except urllib.error.URLError as e:
+        logger.warning("NHTSA API unreachable: %s", e)
+        return {"success": False, "error": "Could not reach the NHTSA API. Check your internet connection.", "recalls": []}
+    except Exception as exc:
+        logger.error("NHTSA lookup error: %s", exc)
+        return {"success": False, "error": "Recall lookup failed. Please try again.", "recalls": []}
 
 
 @router.post("/recall/check", response_model=ModuleResponse)

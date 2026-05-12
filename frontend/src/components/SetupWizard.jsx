@@ -52,6 +52,7 @@ export default function SetupWizard({ onComplete, existingProfile, onCancel }) {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState(false)
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }))
 
@@ -69,7 +70,8 @@ export default function SetupWizard({ onComplete, existingProfile, onCancel }) {
     setError("")
     try {
       await runSetup(form)
-      onComplete()
+      setSuccess(true)
+      setTimeout(onComplete, 1200)
     } catch (err) {
       setError(err.message || "Setup failed. Please try again.")
     } finally {
@@ -205,6 +207,11 @@ export default function SetupWizard({ onComplete, existingProfile, onCancel }) {
               <input style={inputStyle} value={form.logo_url} onChange={set("logo_url")} placeholder="https://example.com/logo.png" />
             </Field>
 
+            {success && (
+              <p style={{ fontSize: 12, color: "#4ADE80", marginBottom: 16, lineHeight: 1.5 }}>
+                ✓ Profile saved! Loading your dashboard...
+              </p>
+            )}
             {error && (
               <p style={{ fontSize: 12, color: "#E05252", marginBottom: 16, lineHeight: 1.5 }}>{error}</p>
             )}

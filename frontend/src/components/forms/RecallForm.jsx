@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { checkRecall, generateRecallNotify } from "../../api/client"
+import { checkRecall, generateRecallNotify, nhtsaRecallLookup } from "../../api/client"
 
 const gold = "#D4A017"
 const inputStyle = { width: "100%", background: "#111113", border: "1px solid #222", borderRadius: 3, color: "#CCC", padding: "10px 12px", fontSize: 13, fontFamily: "'Barlow', sans-serif", outline: "none" }
@@ -10,8 +10,37 @@ export default function RecallForm({ onSubmit, onSubmitStart, loading }) {
   const [mode, setMode] = useState("lookup")
   const [lookup, setLookup] = useState({ make: "", model: "", year: "", vin: "" })
   const [notify, setNotify] = useState({ customer: "", vehicle: "", recall_campaign: "", component: "", description: "", remedy: "", urgency: "high" })
+  const [liveRecalls, setLiveRecalls] = useState(null)
+  const [liveLoading, setLiveLoading] = useState(false)
   const setL = (k) => (e) => setLookup(f => ({ ...f, [k]: e.target.value }))
   const setN = (k) => (e) => setNotify(f => ({ ...f, [k]: e.target.value }))
+
+  // Pre-fill notify tab from a live recall result
+  const prefillFromRecall = (recall, vehicleLabel) => {
+    setNotify(n => ({
+      ...n,
+      vehicle: vehicleLabel,
+      recall_campaign: recall.campaign,
+      component: recall.component,
+      description: recall.description,
+      remedy: recall.remedy,
+      urgency: "high",
+    }))
+    setMode("notify")
+  }
+
+  const handleLiveLookup = async () => {
+    setLiveLoading(true)
+    setLiveRecalls(null)
+    try {
+      const data = await nhtsaRecallLookup({ vin: lookup.vin, make: lookup.make, model: lookup.model, year: lookup.year })
+      setLiveRecalls(data)
+    } catch (e) {
+      setLiveRecalls({ success: false, error: e.message, recalls: [] })
+    } finally {
+      setLiveLoading(false)
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -34,10 +63,57 @@ export default function RecallForm({ onSubmit, onSubmitStart, loading }) {
       </div>
       {mode === "lookup" ? (
         <>
-          <Field label="Make"><input style={inputStyle} value={lookup.make} onChange={setL("make")} placeholder="e.g. Toyota" /></Field>
-          <Field label="Model"><input style={inputStyle} value={lookup.model} onChange={setL("model")} placeholder="e.g. Camry" /></Field>
-          <Field label="Year"><input style={inputStyle} value={lookup.year} onChange={setL("year")} placeholder="e.g. 2019" /></Field>
-          <Field label="VIN (optional)"><input style={inputStyle} value={lookup.vin} onChange={setL("vin")} placeholder="17-character VIN" /></Field>
+          <Field label="VIN (recommended — most accurate)">
+            <input style={inputStyle} value={lookup.vin} onChange={setL("vin")} placeholder="17-character VIN" maxLength={17} />
+          </Field>
+          <p style={{ fontSize: 11, color: "#555", margin: "-8px 0 16px", textAlign: "center" }}>— or search by vehicle —</p>
+          <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ flex: 2 }}><Field label="Make"><input style={inputStyle} value={lookup.make} onChange={setL("make")} placeholder="e.g. Toyota" /></Field></div>
+            <div style={{ flex: 2 }}><Field label="Model"><input style={inputStyle} value={lookup.model} onChange={setL("model")} placeholder="e.g. Camry" /></Field></div>
+            <div style={{ flex: 1 }}><Field label="Year"><input style={inputStyle} value={lookup.year} onChange={setL("year")} placeholder="2019" /></Field></div>
+          </div>
+
+          {/* Live NHTSA lookup button */}
+          <button
+            type="button"
+            onClick={handleLiveLookup}
+            disabled={liveLoading || (!lookup.vin && !(lookup.make && lookup.model && lookup.year))}
+            style={{ width: "100%", padding: "11px 0", marginBottom: 16, borderRadius: 3, border: "1px solid #3a8a3a", background: liveLoading ? "#1a3a1a" : "#1a2a1a", color: "#4ADE80", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Barlow', sans-serif", letterSpacing: "0.08em", textTransform: "uppercase" }}
+          >
+            {liveLoading ? "⏳ Checking NHTSA Database..." : "🔍 Check Live NHTSA Recall Database"}
+          </button>
+
+          {/* Live results */}
+          {liveRecalls && (
+            <div style={{ marginBottom: 16, background: "#0B0B0D", border: "1px solid #222", borderRadius: 4, padding: "14px 16px" }}>
+              {liveRecalls.success === false ? (
+                <p style={{ color: "#E05252", fontSize: 12, margin: 0 }}>⚠ {liveRecalls.error}</p>
+              ) : liveRecalls.recalls?.length === 0 ? (
+                <p style={{ color: "#4ADE80", fontSize: 12, margin: 0 }}>✓ No open recalls found for this vehicle.</p>
+              ) : (
+                <>
+                  <p style={{ color: "#E05252", fontSize: 12, fontWeight: 700, margin: "0 0 10px" }}>
+                    ⚠ {liveRecalls.count} active recall{liveRecalls.count !== 1 ? "s" : ""} found
+                  </p>
+                  {liveRecalls.recalls.map((r, i) => (
+                    <div key={i} style={{ borderTop: i > 0 ? "1px solid #1a1a1e" : "none", paddingTop: i > 0 ? 10 : 0, marginTop: i > 0 ? 10 : 0 }}>
+                      <p style={{ fontSize: 12, color: "#CCC", fontWeight: 700, margin: "0 0 4px" }}>
+                        Campaign: {r.campaign} — {r.component}
+                      </p>
+                      <p style={{ fontSize: 11, color: "#888", margin: "0 0 6px", lineHeight: 1.5 }}>{r.description}</p>
+                      <button
+                        type="button"
+                        onClick={() => prefillFromRecall(r, `${lookup.year} ${lookup.make} ${lookup.model}`.trim() || "Vehicle")}
+                        style={{ fontSize: 10, fontWeight: 700, color: gold, background: "none", border: `1px solid ${gold}55`, padding: "4px 10px", borderRadius: 3, cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.08em" }}
+                      >
+                        Generate Notice →
+                      </button>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          )}
         </>
       ) : (
         <>
