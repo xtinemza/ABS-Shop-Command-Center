@@ -71,5 +71,41 @@
     "show_total": true,
     "include_warranty_line": true,
     "warranty_text": "All parts and labor covered by our 12-month / 12,000-mile warranty."
+  },
+
+  "example_narratives": {
+    "brake_pads_and_rotors": "Your brake pads have worn down to about 2mm — the minimum safe thickness is 3mm. At this level, you'll notice reduced stopping power, and continued driving risks metal-on-metal contact that damages the rotors. We're recommending new pads and rotors on both front wheels. This is a safety-critical repair — we'd like to get it done before you leave today if possible.",
+    "timing_belt": "Your timing belt is at 97,000 miles, and the manufacturer recommends replacement at 100,000. The timing belt keeps your engine's internal parts moving in perfect sync — if it fails, it can cause severe engine damage that costs far more than the belt itself. This is one of those repairs where the cost of waiting dramatically outweighs the cost of doing it now.",
+    "coolant_flush": "Your coolant has degraded to the point where it's become slightly acidic. Over time, acidic coolant eats away at radiator hoses, the water pump, and the heater core. A flush replaces the old fluid with fresh antifreeze and includes a conditioner that protects the cooling system for another two years. It's a preventive service that's much cheaper than replacing a water pump.",
+    "wheel_bearing": "We heard a grinding/humming noise from your left front wheel and traced it to a worn wheel bearing — the set of steel balls that let your wheel spin smoothly. A failing bearing gets louder over time and, in advanced stages, can cause the wheel to wobble or seize. This is a high-priority repair. We'd recommend scheduling within the next two weeks.",
+    "serpentine_belt": "Your serpentine belt has visible cracking on the underside — a sign it's near the end of its service life. This single belt drives your alternator, AC compressor, and power steering pump. If it snaps while you're driving, all of those systems fail at once and the car needs to be towed. Replacing it now takes about 45 minutes and costs a fraction of what a breakdown would.",
+    "air_filter": "Your engine air filter is heavily clogged with dust and debris. A clean air filter helps your engine breathe properly — a clogged one reduces fuel efficiency and can affect acceleration. This is a routine maintenance item and takes about 10 minutes to swap. We'd recommend doing it at today's service.",
+    "cv_axle": "Your right CV axle is showing a torn boot, which means the grease that protects the joint has been exposed to dirt and moisture. Left unaddressed, the joint itself will wear out and eventually fail — often with a clicking noise in turns that gets progressively worse. Replacing the axle now prevents a much more expensive joint failure down the road. We'd schedule this within 30 days."
+  },
+
+  "service_advisor_scripts": {
+    "intro": [
+      "So I went through everything our tech found and I want to walk you through it. I'll start with the most important items and work down from there.",
+      "I've got your inspection results here. There are a couple of things I want to make sure you're aware of, and then some items that are more routine. Let me start with what matters most."
+    ],
+    "safety_item_intro": [
+      "The first thing I want to flag is a safety item — this one I'd really encourage you to take care of today if you can.",
+      "I have to be upfront about something we found — it's a safety concern and I want to make sure you understand what it means."
+    ],
+    "maintenance_item_intro": [
+      "On the routine side, we found a couple of things that aren't urgent but are worth putting on your radar.",
+      "These next items are maintenance items — nothing scary, just things to keep on your list for the next visit or two."
+    ],
+    "closing": [
+      "Any questions on any of this? I want to make sure you leave today knowing exactly where your car stands.",
+      "I can break this down into what we should do today versus what can wait — whatever works best for you."
+    ]
+  },
+
+  "tone_guidelines": {
+    "voice": "Transparent and educational. The goal is a customer who understands their car — not one who feels pressured or overwhelmed.",
+    "avoid": ["fear language like 'your brakes could fail at any moment'", "technical part numbers or specs customers don't need", "making the customer feel bad for not knowing"],
+    "must_translate": "Any part name that isn't common knowledge must be explained in plain English — see plain_language_translations section.",
+    "structure_every_item_as": "What we found → Why it matters → What the repair is → Cost → Urgency"
   }
 }

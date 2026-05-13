@@ -28,12 +28,21 @@ router = APIRouter()
 @router.get("/sop/")
 def get_custom_sops(user=Depends(get_current_user)):
     try:
+        from sop import generate_sop as sop_module
+        built_in = {
+            k: {"title": v["title"], "category": v["category"]}
+            for k, v in sop_module.PROCEDURES.items()
+        }
+    except Exception:
+        built_in = {}
+
+    try:
         res = supabase.table("profiles").select("sops").eq("id", user.id).execute()
-        if res.data:
-            return res.data[0].get("sops", {})
-        return {}
-    except Exception as e:
-        return {}
+        custom = res.data[0].get("sops", {}) if res.data else {}
+    except Exception:
+        custom = {}
+
+    return {"built_in": built_in, "custom": custom}
 
 @router.post("/sop/")
 def save_custom_sops(sops: dict, user=Depends(get_current_user)):

@@ -46,8 +46,8 @@ def test_ai_modules_imports_without_error():
     except SyntaxError as e:
         raise AssertionError(f"ai_modules.py has a syntax error: {e}") from e
     except ImportError as e:
-        # ImportError for optional deps (anthropic, etc.) is acceptable
-        if "anthropic" in str(e) or "marketing_templates" in str(e) or "knowledge_base" in str(e):
+        # ImportError for optional deps (google.generativeai, etc.) is acceptable
+        if "google" in str(e) or "generativeai" in str(e) or "marketing_templates" in str(e) or "knowledge_base" in str(e):
             pass  # Optional dependency missing in test environment — that's fine
         else:
             raise

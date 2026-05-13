@@ -42,6 +42,8 @@ _MODULE_FILES = {
     "tech":            "tech",
     "milestones":      "milestones",
     "parts":           "parts",
+    "social_media":    "social_media",
+    "obd_codes":       "obd_codes",
 }
 
 # Common aliases so callers don't have to remember the exact key
@@ -66,6 +68,8 @@ _ALIASES = {
     "price":                 "service_prices",
     "vehicle":               "vehicles",
     "cars":                  "vehicles",
+    "social":                "social_media",
+    "obd":                   "obd_codes",
 }
 
 

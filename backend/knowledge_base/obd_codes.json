@@ -1,0 +1,727 @@
+{
+  "_description": "OBD-II Diagnostic Trouble Codes — common P-codes with causes, tests, and advisor summaries for the Repair Assistant module",
+
+  "P0011": {
+    "name": "A Camshaft Position Timing Over-Advanced (Bank 1)",
+    "severity": "high",
+    "system": "engine_timing",
+    "symptoms": ["rough idle", "poor fuel economy", "rattling on cold start", "check engine light"],
+    "causes": ["low engine oil", "wrong oil viscosity", "dirty VVT actuator", "stretched timing chain", "faulty camshaft actuator solenoid"],
+    "tests": ["check oil level and condition", "verify oil viscosity matches spec", "inspect VVT solenoid resistance", "check timing chain stretch with scope", "listen for timing chain rattle on cold start"],
+    "advisor_summary": "The computer detected that your engine's camshaft timing is off — it's more advanced than it should be. This is often caused by low or dirty oil. We need to diagnose the root cause before it worsens."
+  },
+
+  "P0016": {
+    "name": "Crankshaft/Camshaft Position Correlation Bank 1 Sensor A",
+    "severity": "high",
+    "system": "engine_timing",
+    "symptoms": ["hard start", "rough idle", "reduced power", "rattling noise"],
+    "causes": ["stretched or jumped timing chain", "worn timing components", "damaged crankshaft/camshaft sensor", "low oil pressure"],
+    "tests": ["verify timing chain condition via scope", "check cam/crank sensor signals", "inspect timing chain tensioner", "measure oil pressure"],
+    "advisor_summary": "Your engine's timing chain or sensors are out of sync. This can indicate the timing chain is stretched and may be close to failing. We recommend not driving until this is diagnosed."
+  },
+
+  "P0030": {
+    "name": "HO2S Heater Control Circuit Bank 1 Sensor 1",
+    "severity": "medium",
+    "system": "emissions",
+    "symptoms": ["check engine light", "poor cold-start fuel economy"],
+    "causes": ["failed O2 sensor heater element", "blown fuse", "wiring harness damage", "PCM fault"],
+    "tests": ["check O2 sensor heater fuse", "measure heater circuit resistance (spec: 3–30 ohm)", "inspect wiring for damage", "verify PCM power and ground"],
+    "advisor_summary": "One of your oxygen sensors has a heater circuit issue. Oxygen sensors help your engine manage fuel efficiently — we can diagnose and replace if needed."
+  },
+
+  "P0068": {
+    "name": "MAP/MAF — Throttle Position Correlation",
+    "severity": "medium",
+    "system": "fuel_air",
+    "symptoms": ["rough idle", "hesitation on acceleration", "check engine light"],
+    "causes": ["vacuum leak", "faulty MAP sensor", "faulty throttle position sensor", "intake manifold gasket leak"],
+    "tests": ["smoke test for vacuum leaks", "check MAP sensor voltage", "inspect throttle body and TPS", "compare MAF and MAP readings at idle"],
+    "advisor_summary": "Your engine's air pressure and throttle sensors are giving conflicting readings. This usually points to an air leak or a failing sensor, and can affect how smoothly your engine runs."
+  },
+
+  "P0100": {
+    "name": "Mass Air Flow Circuit Malfunction",
+    "severity": "medium",
+    "system": "fuel_air",
+    "symptoms": ["rough idle", "poor fuel economy", "hard start", "stalling", "black smoke"],
+    "causes": ["dirty or failed MAF sensor", "air intake leak", "damaged wiring to MAF", "contaminated air filter"],
+    "tests": ["inspect and clean MAF sensor with MAF cleaner", "check air filter condition", "measure MAF voltage at idle (typically 0.5–1.0V)", "inspect wiring harness for damage"],
+    "advisor_summary": "The sensor that measures how much air enters your engine is malfunctioning. A dirty or failing air flow sensor causes poor fuel economy and rough running."
+  },
+
+  "P0101": {
+    "name": "Mass Air Flow Sensor Range/Performance",
+    "severity": "medium",
+    "system": "fuel_air",
+    "symptoms": ["rough idle", "hesitation", "poor mpg", "black smoke from exhaust"],
+    "causes": ["dirty MAF sensor", "air intake leak after MAF", "clogged air filter", "vacuum leak"],
+    "tests": ["clean MAF sensor", "smoke test intake system", "check air filter", "monitor MAF grams/sec at idle and WOT"],
+    "advisor_summary": "Your mass air flow sensor is reading outside its normal range. Often this just needs cleaning, but sometimes requires replacement. Affects fuel efficiency and engine response."
+  },
+
+  "P0102": {
+    "name": "Mass Air Flow Sensor Circuit Low Input",
+    "severity": "medium",
+    "system": "fuel_air",
+    "symptoms": ["rough idle", "hard start", "check engine light"],
+    "causes": ["dirty or failed MAF sensor", "wiring short to ground", "broken MAF wire"],
+    "tests": ["check MAF sensor signal voltage", "inspect wiring for short to ground", "clean or replace MAF sensor"],
+    "advisor_summary": "The mass air flow sensor is sending a low signal to the computer. This can cause rough idle and starting issues."
+  },
+
+  "P0113": {
+    "name": "Intake Air Temperature Sensor High Input",
+    "severity": "low",
+    "system": "fuel_air",
+    "symptoms": ["check engine light", "slightly rich running", "minor performance impact"],
+    "causes": ["failed IAT sensor", "open circuit in wiring", "poor connector connection"],
+    "tests": ["check IAT sensor resistance vs. temperature chart", "inspect connector and wiring"],
+    "advisor_summary": "The sensor that measures incoming air temperature is reading too high. This is a minor issue that can affect fuel trim — usually a simple sensor or wiring fix."
+  },
+
+  "P0128": {
+    "name": "Coolant Temperature Below Thermostat Regulating Temperature",
+    "severity": "medium",
+    "system": "cooling",
+    "symptoms": ["check engine light", "heater not getting hot", "poor fuel economy", "temperature gauge stays low"],
+    "causes": ["stuck-open thermostat", "faulty coolant temp sensor", "air pocket in cooling system"],
+    "tests": ["monitor coolant temp with scan tool during warm-up", "verify thermostat opens at correct temp", "check sensor resistance vs. temperature"],
+    "advisor_summary": "Your engine isn't reaching normal operating temperature — usually caused by a thermostat stuck in the open position. A failed thermostat is inexpensive and easy to replace, and fixing it improves heater performance and fuel economy."
+  },
+
+  "P0171": {
+    "name": "System Too Lean Bank 1",
+    "severity": "medium",
+    "system": "fuel_air",
+    "symptoms": ["rough idle", "hesitation", "surging at idle", "check engine light", "poor fuel economy"],
+    "causes": ["vacuum leak", "dirty or failed MAF sensor", "clogged fuel injector", "low fuel pressure", "faulty O2 sensor", "PCV valve leak"],
+    "tests": ["smoke test for vacuum leaks", "check fuel pressure", "monitor short and long-term fuel trims", "inspect MAF sensor", "check PCV system"],
+    "advisor_summary": "Your engine is running lean — it's getting too much air or not enough fuel. Common causes are a small air leak or a dirty air flow sensor. We'll pinpoint the source and fix it."
+  },
+
+  "P0172": {
+    "name": "System Too Rich Bank 1",
+    "severity": "medium",
+    "system": "fuel_air",
+    "symptoms": ["rough idle", "black smoke", "poor fuel economy", "fuel smell", "check engine light"],
+    "causes": ["leaking fuel injector", "faulty coolant temp sensor causing over-fueling", "failed MAF sensor", "clogged air filter", "high fuel pressure"],
+    "tests": ["check fuel injectors for leakage", "verify coolant temp sensor reading", "monitor fuel trims", "check fuel pressure regulator"],
+    "advisor_summary": "Your engine is running rich — too much fuel is being burned. This causes poor fuel economy and can damage the catalytic converter over time."
+  },
+
+  "P0174": {
+    "name": "System Too Lean Bank 2",
+    "severity": "medium",
+    "system": "fuel_air",
+    "symptoms": ["rough idle", "hesitation", "check engine light"],
+    "causes": ["vacuum leak (intake manifold, PCV, brake booster)", "dirty MAF sensor", "clogged injector", "low fuel pressure"],
+    "tests": ["smoke test for vacuum leaks", "check MAF sensor output", "monitor bank 2 fuel trims", "fuel pressure test"],
+    "advisor_summary": "The right bank of your engine is running lean (too much air, not enough fuel). Common cause is a small vacuum leak or dirty air flow sensor."
+  },
+
+  "P0175": {
+    "name": "System Too Rich Bank 2",
+    "severity": "medium",
+    "system": "fuel_air",
+    "symptoms": ["rough idle", "fuel smell", "black smoke", "poor mpg"],
+    "causes": ["leaking injector", "failed MAF", "faulty coolant temp sensor", "high fuel pressure"],
+    "tests": ["check fuel injectors for drip", "verify coolant sensor reading accuracy", "check fuel pressure", "monitor bank 2 fuel trims"],
+    "advisor_summary": "The right side of your engine is running with too much fuel. Left uncorrected, this wastes fuel and can damage the catalytic converter."
+  },
+
+  "P0190": {
+    "name": "Fuel Rail Pressure Sensor Circuit Malfunction",
+    "severity": "high",
+    "system": "fuel",
+    "symptoms": ["hard start", "stalling", "poor performance", "check engine light"],
+    "causes": ["failed fuel rail pressure sensor", "wiring damage", "fuel pressure out of spec"],
+    "tests": ["check fuel pressure sensor signal", "compare actual fuel pressure to sensor reading", "inspect wiring harness"],
+    "advisor_summary": "The sensor monitoring your fuel system pressure has a circuit issue. This affects how well your engine manages fuel delivery and can cause starting or running problems."
+  },
+
+  "P0201": {
+    "name": "Injector Circuit Malfunction — Cylinder 1",
+    "severity": "high",
+    "system": "fuel",
+    "symptoms": ["misfire on cyl 1", "rough idle", "reduced power"],
+    "causes": ["failed injector", "open/short in injector wiring", "PCM driver failure"],
+    "tests": ["check injector resistance (spec: 12–16 ohm)", "test injector pulse with noid light", "inspect wiring connector"],
+    "advisor_summary": "Cylinder 1's fuel injector circuit has a fault. The injector may be failed or there's a wiring issue. This causes a misfire on that cylinder."
+  },
+
+  "P0263": {
+    "name": "Cylinder 1 Contribution/Balance Fault",
+    "severity": "high",
+    "system": "fuel",
+    "symptoms": ["rough idle", "misfire feel", "reduced power"],
+    "causes": ["dirty or failed injector", "low compression on cyl 1", "valve issue"],
+    "tests": ["injector balance test", "compression test on cyl 1", "cylinder contribution test with scan tool"],
+    "advisor_summary": "Cylinder 1 isn't contributing its fair share of power. This is often a dirty or failing fuel injector. We'll test the injector and cylinder health."
+  },
+
+  "P0300": {
+    "name": "Random/Multiple Cylinder Misfire Detected",
+    "severity": "high",
+    "system": "ignition",
+    "symptoms": ["rough idle", "shaking at idle or acceleration", "check engine light flashing", "poor fuel economy", "stumbling"],
+    "causes": ["worn spark plugs", "failing ignition coils", "dirty fuel injectors", "low fuel pressure", "vacuum leak", "low compression"],
+    "tests": ["check spark plugs condition and gap", "coil-over-plug swap test", "cylinder contribution test", "compression test", "fuel pressure test", "check for vacuum leaks"],
+    "advisor_summary": "Multiple cylinders are misfiring — your engine is not firing consistently in one or more cylinders. This causes the rough running/shaking you may feel. Often it's worn spark plugs, but we'll pinpoint the exact cause."
+  },
+
+  "P0301": {
+    "name": "Cylinder 1 Misfire Detected",
+    "severity": "high",
+    "system": "ignition",
+    "symptoms": ["rough idle", "shaking", "check engine light (may flash)"],
+    "causes": ["worn or fouled spark plug", "failed ignition coil", "faulty fuel injector", "low compression", "vacuum leak at intake"],
+    "tests": ["swap spark plug and coil from cyl 1 to another cylinder — if misfire follows, that component is bad", "compression test cyl 1", "injector balance test"],
+    "advisor_summary": "Cylinder 1 is misfiring — it's not firing as it should. This is usually a worn spark plug or a failed ignition coil, both of which are straightforward repairs."
+  },
+
+  "P0302": {
+    "name": "Cylinder 2 Misfire Detected",
+    "severity": "high",
+    "system": "ignition",
+    "symptoms": ["rough idle", "stumbling", "check engine light"],
+    "causes": ["worn spark plug", "failed ignition coil", "bad injector", "low compression on cyl 2"],
+    "tests": ["swap cyl 2 spark plug and coil", "compression test", "injector test"],
+    "advisor_summary": "Cylinder 2 is misfiring. Usually a spark plug or ignition coil — a quick swap test will confirm the cause."
+  },
+
+  "P0303": {
+    "name": "Cylinder 3 Misfire Detected",
+    "severity": "high",
+    "system": "ignition",
+    "symptoms": ["rough idle", "stumbling", "check engine light"],
+    "causes": ["worn spark plug", "failed coil", "bad injector", "low compression"],
+    "tests": ["swap spark plug and coil from cyl 3", "compression test", "injector balance test"],
+    "advisor_summary": "Cylinder 3 is misfiring. We'll identify whether it's a plug, coil, injector, or compression issue."
+  },
+
+  "P0304": {
+    "name": "Cylinder 4 Misfire Detected",
+    "severity": "high",
+    "system": "ignition",
+    "symptoms": ["rough idle", "stumbling", "reduced power"],
+    "causes": ["worn spark plug", "failed coil", "bad injector", "low compression"],
+    "tests": ["swap plug and coil from cyl 4", "compression test", "injector test"],
+    "advisor_summary": "Cylinder 4 is misfiring. Common causes are a worn spark plug or a failed ignition coil — both quick fixes when caught early."
+  },
+
+  "P0316": {
+    "name": "Misfire Detected on Startup (First 1000 Revolutions)",
+    "severity": "medium",
+    "system": "ignition",
+    "symptoms": ["rough cold start", "shaking on startup that clears up"],
+    "causes": ["worn spark plugs", "injectors not priming properly", "oil on spark plugs", "cold-start enrichment issue"],
+    "tests": ["check spark plugs for oil fouling", "monitor fuel trims at cold start", "check injector prime pulse"],
+    "advisor_summary": "Your engine misfires briefly when first started. This often points to worn spark plugs or an issue with how the engine starts up from cold."
+  },
+
+  "P0340": {
+    "name": "Camshaft Position Sensor Circuit Malfunction Bank 1",
+    "severity": "high",
+    "system": "engine_timing",
+    "symptoms": ["no start or hard start", "stalling", "rough running"],
+    "causes": ["failed camshaft position sensor", "damaged reluctor wheel", "wiring issue", "PCM failure"],
+    "tests": ["check CMP sensor signal with scope", "measure sensor resistance", "inspect tone wheel for damage", "verify wiring continuity"],
+    "advisor_summary": "The sensor that tracks your camshaft position has a circuit fault. This sensor is critical for starting and running — a failed one can cause a no-start condition."
+  },
+
+  "P0351": {
+    "name": "Ignition Coil A Primary/Secondary Circuit Malfunction",
+    "severity": "high",
+    "system": "ignition",
+    "symptoms": ["misfire on cylinder 1", "rough idle", "hard start"],
+    "causes": ["failed ignition coil", "wiring short or open", "faulty spark plug causing coil failure"],
+    "tests": ["swap ignition coil to another cylinder and see if misfire follows", "check coil primary resistance", "inspect coil connector and wiring"],
+    "advisor_summary": "The ignition coil for cylinder 1 has a fault. Ignition coils create the spark to fire each cylinder — a failed coil causes a misfire. Often replaced along with the spark plug."
+  },
+
+  "P0401": {
+    "name": "Exhaust Gas Recirculation Flow Insufficient Detected",
+    "severity": "medium",
+    "system": "emissions",
+    "symptoms": ["check engine light", "rough idle when warm", "pinging on acceleration"],
+    "causes": ["clogged EGR valve", "clogged EGR passages", "failed EGR position sensor", "damaged vacuum line to EGR"],
+    "tests": ["command EGR open with scan tool and observe idle change", "visually inspect EGR valve for carbon buildup", "check EGR valve operation", "smoke test EGR vacuum line"],
+    "advisor_summary": "Your exhaust gas recirculation system isn't flowing enough. The EGR valve is often clogged with carbon buildup over time. A cleaning or replacement usually resolves this."
+  },
+
+  "P0402": {
+    "name": "Exhaust Gas Recirculation Flow Excessive Detected",
+    "severity": "medium",
+    "system": "emissions",
+    "symptoms": ["rough idle", "stalling", "check engine light"],
+    "causes": ["stuck-open EGR valve", "EGR pintle stuck open", "faulty DPFE sensor (Ford)"],
+    "tests": ["command EGR closed and check if idle smooths out", "inspect EGR valve pintle movement", "check DPFE sensor (if applicable)"],
+    "advisor_summary": "Your EGR valve is stuck open or flowing too much exhaust gas. This typically causes rough idle and stalling — the valve usually needs cleaning or replacement."
+  },
+
+  "P0410": {
+    "name": "Secondary Air Injection System Malfunction",
+    "severity": "low",
+    "system": "emissions",
+    "symptoms": ["check engine light", "no drivability symptoms typically"],
+    "causes": ["failed air pump", "clogged air injection ports", "bad check valve", "wiring issue to pump relay"],
+    "tests": ["test air pump operation", "check for pump relay operation", "inspect air injection ports for blockage"],
+    "advisor_summary": "Your secondary air injection system (which helps cold-start emissions) has a fault. This doesn't typically affect drivability but will cause a failed emissions test."
+  },
+
+  "P0420": {
+    "name": "Catalyst System Efficiency Below Threshold Bank 1",
+    "severity": "medium",
+    "system": "emissions",
+    "symptoms": ["check engine light", "possible sulfur smell", "failed emissions test"],
+    "causes": ["worn catalytic converter", "oil burning into exhaust contaminating catalyst", "coolant entering combustion contaminating catalyst", "misfires damaging catalyst", "O2 sensor fault giving false reading"],
+    "tests": ["monitor upstream vs downstream O2 sensor switching with scan tool", "check for misfires or oil/coolant consumption first", "perform catalyst efficiency test", "check exhaust for unusual odor"],
+    "advisor_summary": "Your catalytic converter is not cleaning exhaust gases efficiently enough. A catalytic converter lasts 100,000+ miles normally — if it's failing, we need to check whether a misfire or oil issue has been feeding it harmful exhaust that shortened its life."
+  },
+
+  "P0430": {
+    "name": "Catalyst System Efficiency Below Threshold Bank 2",
+    "severity": "medium",
+    "system": "emissions",
+    "symptoms": ["check engine light", "sulfur smell", "failed emissions test"],
+    "causes": ["worn catalytic converter on Bank 2", "prior misfires", "oil/coolant contamination"],
+    "tests": ["monitor downstream O2 bank 2 switching behavior", "check for active misfires", "rule out oil/coolant intrusion"],
+    "advisor_summary": "The catalytic converter on the right bank of your engine is below efficiency spec. We'll determine whether the converter needs replacement and address any root causes."
+  },
+
+  "P0440": {
+    "name": "Evaporative Emission Control System Malfunction",
+    "severity": "low",
+    "system": "evap",
+    "symptoms": ["check engine light", "fuel smell near vehicle", "no drivability issues"],
+    "causes": ["loose or faulty gas cap", "cracked EVAP hose", "failed purge solenoid", "failed vent solenoid", "saturated charcoal canister"],
+    "tests": ["check gas cap seal and tighten/replace", "EVAP system smoke test", "command purge solenoid open with scan tool", "check vent valve operation"],
+    "advisor_summary": "Your vehicle's evaporative emission system has a fault — this system captures fuel vapors from the gas tank. The most common and easiest fix is a loose or faulty gas cap. We'll check that first before more complex diagnosis."
+  },
+
+  "P0441": {
+    "name": "Evaporative Emission Control System Incorrect Purge Flow",
+    "severity": "low",
+    "system": "evap",
+    "symptoms": ["check engine light", "occasional rough idle"],
+    "causes": ["faulty purge solenoid", "clogged purge line", "vacuum line damage"],
+    "tests": ["test purge solenoid operation", "check purge line for kinks or cracks", "monitor purge flow during active test"],
+    "advisor_summary": "The purge solenoid in your EVAP system is not flowing correctly. It's a component that manages fuel vapors from the gas tank. Usually a solenoid replacement resolves this."
+  },
+
+  "P0442": {
+    "name": "Evaporative Emission Control System Leak Detected (Small Leak)",
+    "severity": "low",
+    "system": "evap",
+    "symptoms": ["check engine light", "faint fuel smell"],
+    "causes": ["loose gas cap", "small crack in EVAP hose", "failed purge or vent valve", "leak at fuel tank seam"],
+    "tests": ["check and replace gas cap first", "smoke test EVAP system to locate leak"],
+    "advisor_summary": "There's a small leak in your fuel vapor system — the most common cause is a loose or damaged gas cap. We'll start there before doing more involved diagnosis."
+  },
+
+  "P0455": {
+    "name": "Evaporative Emission Control System Leak Detected (Large Leak)",
+    "severity": "low",
+    "system": "evap",
+    "symptoms": ["check engine light", "strong fuel odor", "fuel smell in cabin"],
+    "causes": ["missing or cracked gas cap", "large EVAP hose disconnect", "vent valve stuck open", "fuel tank damage"],
+    "tests": ["inspect gas cap", "smoke test full EVAP system", "check vent valve seal"],
+    "advisor_summary": "There's a significant leak in your fuel vapor system. Check that your gas cap is fully tightened first — if that's not it, we'll use a smoke test to find the larger leak quickly."
+  },
+
+  "P0456": {
+    "name": "Evaporative Emission Control System Leak Detected (Very Small Leak)",
+    "severity": "low",
+    "system": "evap",
+    "symptoms": ["check engine light only"],
+    "causes": ["micro-crack in EVAP line", "gas cap seal degradation", "small port leak"],
+    "tests": ["replace gas cap and clear code first", "smoke test if code returns"],
+    "advisor_summary": "There's a very small leak in your fuel vapor system. The first step is replacing the gas cap, which fixes this issue about 30% of the time at minimal cost."
+  },
+
+  "P0480": {
+    "name": "Cooling Fan 1 Control Circuit Malfunction",
+    "severity": "high",
+    "system": "cooling",
+    "symptoms": ["overheating in traffic", "AC not cooling at idle", "check engine light"],
+    "causes": ["failed cooling fan relay", "failed fan motor", "wiring issue", "PCM output failure"],
+    "tests": ["check cooling fan relay operation", "test fan motor directly with 12V", "verify relay and fuse condition", "check PCM fan control output"],
+    "advisor_summary": "Your electric cooling fan has a control circuit fault. The cooling fan is critical — without it, your car can overheat in stop-and-go traffic. This needs prompt attention."
+  },
+
+  "P0500": {
+    "name": "Vehicle Speed Sensor Malfunction",
+    "severity": "medium",
+    "system": "drivetrain",
+    "symptoms": ["speedometer erratic or dead", "harsh transmission shifts", "ABS light possibly on"],
+    "causes": ["failed VSS", "wiring damage", "damaged tone ring on axle"],
+    "tests": ["monitor VSS signal with scan tool while driving", "check sensor resistance", "inspect tone ring"],
+    "advisor_summary": "Your vehicle speed sensor has a fault. This sensor tells the transmission and computer how fast you're going. A failing VSS can cause erratic shifting and a non-functional speedometer."
+  },
+
+  "P0505": {
+    "name": "Idle Air Control System Malfunction",
+    "severity": "medium",
+    "system": "engine_idle",
+    "symptoms": ["erratic idle", "stalling at idle", "high idle", "check engine light"],
+    "causes": ["dirty or stuck IAC valve", "vacuum leak", "carbon buildup in throttle body", "failed IAC motor"],
+    "tests": ["clean throttle body and IAC valve", "test IAC with scan tool (command open/close)", "smoke test for vacuum leaks"],
+    "advisor_summary": "Your idle control system isn't functioning properly. The idle air control valve manages how much air enters the engine at idle — when it's dirty or stuck, you get rough or erratic idle. Often a thorough cleaning is all it needs."
+  },
+
+  "P0507": {
+    "name": "Idle Air Control System RPM High",
+    "severity": "medium",
+    "system": "engine_idle",
+    "symptoms": ["high idle (1500+ RPM)", "revving on its own"],
+    "causes": ["vacuum leak allowing unmetered air", "stuck IAC valve open", "dirty throttle body"],
+    "tests": ["smoke test for vacuum leaks", "clean throttle body", "check IAC position with scan tool"],
+    "advisor_summary": "Your engine idle is running too high. The most common cause is a vacuum leak letting extra air in, which tricks the engine into running faster. We'll find the leak and fix it."
+  },
+
+  "P0562": {
+    "name": "System Voltage Low",
+    "severity": "high",
+    "system": "electrical",
+    "symptoms": ["battery warning light", "dim lights", "slow power accessories", "stalling"],
+    "causes": ["failing alternator", "weak battery", "corroded battery terminals", "poor ground connection"],
+    "tests": ["battery load test", "alternator output test (should be 13.5–14.5V running)", "inspect battery terminals and ground straps"],
+    "advisor_summary": "Your vehicle's charging system voltage is too low. This usually points to a failing alternator or a battery that can no longer hold a charge. Left unchecked, you risk being stranded with a dead vehicle."
+  },
+
+  "P0606": {
+    "name": "PCM/ECM Processor Fault",
+    "severity": "high",
+    "system": "computer",
+    "symptoms": ["multiple unrelated codes", "no start", "various system failures"],
+    "causes": ["internal PCM failure", "voltage spike damage", "water intrusion into ECM", "poor PCM ground or power supply"],
+    "tests": ["verify PCM power and grounds first", "check for software update/reflash before condemning", "test with known-good PCM if available"],
+    "advisor_summary": "Your vehicle's main computer may have an internal fault. Before replacing the PCM (which is expensive), we'll verify power and grounds and check for available software updates."
+  },
+
+  "P0700": {
+    "name": "Transmission Control System Malfunction",
+    "severity": "high",
+    "system": "transmission",
+    "symptoms": ["check engine light", "trans warning light", "harsh or slipping shifts"],
+    "causes": ["low transmission fluid", "faulty shift solenoid", "failed speed sensor", "internal transmission fault", "TCM failure"],
+    "tests": ["check transmission fluid level and condition", "pull transmission-specific codes from TCM", "monitor trans data with scan tool during drive cycle"],
+    "advisor_summary": "Your transmission control system has flagged a fault. This triggers alongside a more specific transmission code — we'll pull the full set of codes to find the exact cause before recommending repair."
+  },
+
+  "P0715": {
+    "name": "Input/Turbine Speed Sensor Circuit Malfunction",
+    "severity": "high",
+    "system": "transmission",
+    "symptoms": ["harsh shifts", "transmission slipping", "gear hunting", "trans warning light"],
+    "causes": ["failed input speed sensor", "wiring damage", "metallic debris on sensor", "damaged tone ring"],
+    "tests": ["check sensor signal with scan tool during driving", "measure sensor resistance", "inspect sensor tip for metal debris"],
+    "advisor_summary": "Your transmission's input speed sensor has a fault. This sensor helps the transmission make smooth, accurate shift decisions. A failed sensor can cause harsh or erratic shifting."
+  },
+
+  "P0720": {
+    "name": "Output Speed Sensor Circuit Malfunction",
+    "severity": "medium",
+    "system": "transmission",
+    "symptoms": ["erratic speedometer", "harsh shifts", "transmission stuck in gear"],
+    "causes": ["failed output speed sensor", "damaged tone ring", "wiring issue"],
+    "tests": ["monitor OSS signal with scan tool while driving", "check sensor resistance", "inspect wiring harness"],
+    "advisor_summary": "Your transmission's output speed sensor has a circuit fault. This can cause erratic speedometer readings and poor shift quality."
+  },
+
+  "P0730": {
+    "name": "Incorrect Gear Ratio",
+    "severity": "high",
+    "system": "transmission",
+    "symptoms": ["slipping transmission", "wrong gear engagement", "trans warning light", "poor fuel economy"],
+    "causes": ["faulty shift solenoid", "worn clutch packs", "low transmission fluid", "valve body fault"],
+    "tests": ["check transmission fluid level and condition", "test shift solenoids", "perform transmission line pressure test", "assess clutch pack condition"],
+    "advisor_summary": "Your transmission is not achieving the correct gear ratio — it's slipping or engaging the wrong gear. This needs to be diagnosed promptly to avoid further internal damage."
+  },
+
+  "P0741": {
+    "name": "Torque Converter Clutch Circuit Performance/Stuck Off",
+    "severity": "high",
+    "system": "transmission",
+    "symptoms": ["poor fuel economy", "RPM doesn't drop on highway", "shuddering at 40–50 mph", "transmission slipping"],
+    "causes": ["worn torque converter clutch", "TCC solenoid failure", "low transmission fluid", "worn clutch material"],
+    "tests": ["monitor TCC operation with scan tool", "check TCC solenoid resistance", "check transmission fluid condition for burnt smell or debris"],
+    "advisor_summary": "Your torque converter clutch isn't locking up properly on the highway. This hurts fuel economy significantly and can eventually damage the transmission. The solenoid may need replacing, or in worse cases, the converter itself."
+  },
+
+  "P0750": {
+    "name": "Shift Solenoid A Malfunction",
+    "severity": "high",
+    "system": "transmission",
+    "symptoms": ["harsh shifts", "delayed engagement", "trans warning light", "stuck in one gear"],
+    "causes": ["failed shift solenoid", "low/dirty transmission fluid", "valve body fault", "wiring issue"],
+    "tests": ["check solenoid resistance (spec: 20–30 ohm typically)", "command solenoid on/off with scan tool", "check transmission fluid condition"],
+    "advisor_summary": "A shift solenoid in your transmission has failed. Shift solenoids control how and when your transmission changes gears. A fluid service sometimes resolves this — otherwise solenoid replacement is needed."
+  },
+
+  "P0840": {
+    "name": "Transmission Fluid Pressure Sensor/Switch A Circuit",
+    "severity": "medium",
+    "system": "transmission",
+    "symptoms": ["trans warning light", "harsh shifts", "check engine light"],
+    "causes": ["faulty pressure sensor/switch", "low transmission fluid", "internal pressure issue"],
+    "tests": ["check transmission fluid level", "test pressure switch continuity", "compare measured line pressure to spec"],
+    "advisor_summary": "Your transmission's fluid pressure sensor has a fault. We'll check the fluid level first — if it's low, that's the likely cause. Otherwise, the sensor may need replacement."
+  },
+
+  "P1000": {
+    "name": "OBD Systems Readiness Test Not Complete",
+    "severity": "low",
+    "system": "monitors",
+    "symptoms": ["check engine light (sometimes)", "failed emissions readiness test"],
+    "causes": ["codes recently cleared", "battery recently disconnected", "drive cycle not completed"],
+    "tests": ["complete OBD drive cycle per manufacturer procedure", "verify all readiness monitors set to 'ready'"],
+    "advisor_summary": "Your vehicle's on-board diagnostic monitors haven't completed their self-tests yet. This happens after a battery disconnect or after codes are cleared. You'll need to drive the vehicle through a specific cycle to set all monitors before an emissions test."
+  },
+
+  "P1101": {
+    "name": "Mass Air Flow Out of Self-Test Range (Ford)",
+    "severity": "medium",
+    "system": "fuel_air",
+    "makes": ["Ford", "Lincoln", "Mercury"],
+    "symptoms": ["rough idle", "poor performance", "check engine light"],
+    "causes": ["dirty MAF sensor", "intake air leak", "MAF wiring issue"],
+    "tests": ["clean MAF sensor", "check intake for leaks", "compare MAF reading to spec at idle"],
+    "advisor_summary": "Your Ford's air flow sensor is reading outside the expected range during self-test. Cleaning the MAF sensor often resolves this."
+  },
+
+  "P1130": {
+    "name": "Lack of HO2S Switch Sensor Indicates Lean (Toyota/Lexus)",
+    "severity": "medium",
+    "system": "fuel_air",
+    "makes": ["Toyota", "Lexus"],
+    "symptoms": ["check engine light", "rough idle", "poor fuel economy"],
+    "causes": ["vacuum leak", "dirty MAF sensor", "aging O2 sensor"],
+    "tests": ["smoke test for vacuum leaks", "check MAF sensor", "evaluate O2 sensor response time"],
+    "advisor_summary": "Your Toyota's front oxygen sensor is indicating the engine is running lean (too much air). Common causes are a small air leak or a sensor that's aging."
+  },
+
+  "P1135": {
+    "name": "Air/Fuel Ratio Sensor Heater Circuit Response (Toyota/Lexus)",
+    "severity": "medium",
+    "system": "emissions",
+    "makes": ["Toyota", "Lexus"],
+    "symptoms": ["check engine light", "poor fuel economy on cold start"],
+    "causes": ["failed A/F sensor heater", "wiring issue", "aging sensor"],
+    "tests": ["check A/F sensor heater circuit resistance", "verify sensor voltage pattern", "inspect connector"],
+    "advisor_summary": "Your Toyota's air-fuel ratio sensor heater has a fault. These sensors help the engine run efficiently — a failed heater affects cold-start performance and fuel economy."
+  },
+
+  "P1345": {
+    "name": "Crankshaft/Camshaft Position Correlation (GM)",
+    "severity": "high",
+    "system": "engine_timing",
+    "makes": ["Chevrolet", "GMC", "Buick", "Cadillac"],
+    "symptoms": ["rough idle", "hard start", "check engine light"],
+    "causes": ["timing chain wear", "distributor out of alignment (older engines)", "cam or crank sensor issue"],
+    "tests": ["check timing chain stretch with scan tool", "verify cam/crank sensor correlation", "inspect timing components"],
+    "advisor_summary": "Your GM's engine timing is out of correlation between the crankshaft and camshaft. This is often an early indicator of timing chain wear, which we want to address before it fails."
+  },
+
+  "P2004": {
+    "name": "Intake Manifold Runner Control Stuck Open",
+    "severity": "medium",
+    "system": "fuel_air",
+    "symptoms": ["rough idle", "check engine light", "loss of low-end torque"],
+    "causes": ["failed IMRC actuator", "carbon buildup locking flap", "wiring issue"],
+    "tests": ["command IMRC closed with scan tool and observe idle", "inspect runner flaps for carbon buildup", "test actuator motor"],
+    "advisor_summary": "The intake manifold runner control flap is stuck open. These flaps optimize airflow at different RPMs — stuck open affects low-RPM performance. Sometimes carbon cleaning resolves it."
+  },
+
+  "P2096": {
+    "name": "Post Catalyst Fuel Trim System Too Lean Bank 1",
+    "severity": "medium",
+    "system": "emissions",
+    "symptoms": ["check engine light", "occasional lean idle"],
+    "causes": ["exhaust leak near downstream O2 sensor", "aging downstream O2 sensor", "catalytic converter issue"],
+    "tests": ["inspect exhaust system for leaks near sensor", "test downstream O2 sensor response", "check for active catalytic codes"],
+    "advisor_summary": "The rear oxygen sensor is detecting a lean exhaust condition. This is often caused by a small exhaust leak near the sensor, which pulls in air and gives a false lean reading."
+  },
+
+  "P2101": {
+    "name": "Throttle Actuator Control Motor Circuit Range/Performance",
+    "severity": "high",
+    "system": "throttle",
+    "symptoms": ["throttle hesitation", "reduced power mode", "check engine light", "limp mode"],
+    "causes": ["failed electronic throttle body", "throttle position sensor fault", "carbon buildup on throttle plate", "PCM fault"],
+    "tests": ["clean throttle body thoroughly", "test TAC motor resistance", "monitor TPS1 and TPS2 correlation with scan tool"],
+    "advisor_summary": "Your electronic throttle control system has a performance fault. This may put your vehicle into reduced power mode as a safety measure. A thorough throttle body cleaning often resolves this."
+  },
+
+  "P2111": {
+    "name": "Throttle Actuator Control System — Stuck Open",
+    "severity": "high",
+    "system": "throttle",
+    "symptoms": ["high idle", "uncontrolled acceleration", "check engine light", "limp mode"],
+    "causes": ["carbon buildup sticking throttle plate", "failed TAC motor", "throttle return spring issue"],
+    "tests": ["clean throttle body", "verify throttle plate moves freely", "check TAC motor operation"],
+    "advisor_summary": "Your electronic throttle plate may be stuck open. This is a safety issue that should be addressed promptly. We'll start with a thorough throttle body cleaning."
+  },
+
+  "P2119": {
+    "name": "Throttle Actuator Control Throttle Body Range/Performance",
+    "severity": "high",
+    "system": "throttle",
+    "symptoms": ["erratic throttle response", "check engine light", "reduced power"],
+    "causes": ["dirty throttle body", "worn TAC motor", "TPS sensor drift"],
+    "tests": ["clean throttle body and relearn idle with scan tool", "monitor TPS1/TPS2 correlation", "check for TSBs on throttle body"],
+    "advisor_summary": "Your throttle body isn't responding within its expected range. Cleaning the throttle body and performing an idle relearn procedure often resolves this."
+  },
+
+  "P2135": {
+    "name": "Throttle/Pedal Position Sensor/Switch A/B Voltage Correlation",
+    "severity": "high",
+    "system": "throttle",
+    "symptoms": ["check engine light", "limp mode", "hesitation"],
+    "causes": ["failed throttle position sensor", "wiring fault between TPS A and B", "dirty throttle body causing false reading"],
+    "tests": ["monitor TPS A and TPS B values with scan tool (should be inverse)", "check TPS connector and wiring", "clean throttle body"],
+    "advisor_summary": "Your two throttle position sensors are giving conflicting readings. The car may go into reduced power mode as a safety measure. This is usually a sensor replacement or wiring repair."
+  },
+
+  "P2195": {
+    "name": "O2 Sensor Signal Biased/Stuck Lean Bank 1 Sensor 1",
+    "severity": "medium",
+    "system": "emissions",
+    "symptoms": ["check engine light", "rough idle", "poor fuel economy"],
+    "causes": ["aging O2 sensor", "exhaust leak upstream of sensor", "vacuum leak"],
+    "tests": ["monitor O2 sensor switching with scan tool", "check response time", "check for exhaust leaks upstream"],
+    "advisor_summary": "Your front oxygen sensor is stuck reading lean. O2 sensors typically last 100,000 miles — if yours is near that mileage, replacement is likely the solution."
+  },
+
+  "P2197": {
+    "name": "O2 Sensor Signal Biased/Stuck Lean Bank 2 Sensor 1",
+    "severity": "medium",
+    "system": "emissions",
+    "symptoms": ["check engine light", "rough idle", "poor fuel economy"],
+    "causes": ["aging O2 sensor Bank 2", "exhaust leak upstream", "vacuum leak"],
+    "tests": ["monitor Bank 2 O2 switching", "check response time", "inspect for exhaust leaks"],
+    "advisor_summary": "The oxygen sensor on the right bank of your engine is stuck reading lean. Likely an aging sensor that needs replacement."
+  },
+
+  "P2270": {
+    "name": "O2 Sensor Signal Biased/Stuck Lean Bank 1 Sensor 2",
+    "severity": "medium",
+    "system": "emissions",
+    "symptoms": ["check engine light", "P0420 may accompany"],
+    "causes": ["aging downstream O2 sensor", "catalytic converter issue affecting sensor reading"],
+    "tests": ["check downstream O2 sensor switching pattern", "compare to upstream sensor"],
+    "advisor_summary": "Your downstream (after catalytic converter) oxygen sensor is giving a lean reading. This can sometimes accompany a catalyst efficiency code — we'll determine if the sensor or the converter is the root cause."
+  },
+
+  "P2279": {
+    "name": "Intake Air System Leak",
+    "severity": "medium",
+    "system": "fuel_air",
+    "symptoms": ["rough idle", "lean condition", "check engine light"],
+    "causes": ["cracked intake boot", "loose clamp on air intake hose", "torn PCV hose", "brake booster hose leak"],
+    "tests": ["smoke test intake system", "visual inspection of all intake hoses and clamps", "check PCV system"],
+    "advisor_summary": "There's an air leak in your intake system — unmetered air is entering the engine, causing it to run lean. We'll use a smoke test to find the exact location quickly."
+  },
+
+  "P2400": {
+    "name": "EVAP Leak Detection Pump Control Circuit Open",
+    "severity": "low",
+    "system": "evap",
+    "symptoms": ["check engine light", "no drivability issues"],
+    "causes": ["failed EVAP pump", "wiring open circuit", "blocked pump filter"],
+    "tests": ["test EVAP pump operation", "check pump fuse and relay", "inspect filter"],
+    "advisor_summary": "Your evaporative emission leak detection pump has a circuit fault. This component checks for fuel vapor leaks automatically. No drivability impact, but needs repair for emissions compliance."
+  },
+
+  "P2404": {
+    "name": "EVAP Emission System Leak Detection Pump Sense Circuit",
+    "severity": "low",
+    "system": "evap",
+    "symptoms": ["check engine light only"],
+    "causes": ["failed EVAP pump sensor", "wiring issue", "blocked pump port"],
+    "tests": ["test EVAP pump output and sensor", "check wiring continuity"],
+    "advisor_summary": "The sensor circuit in your EVAP leak detection pump has a fault. This is an emissions compliance issue with no impact on vehicle performance."
+  },
+
+  "P2610": {
+    "name": "ECM/PCM Internal Engine Off Timer Performance",
+    "severity": "low",
+    "system": "computer",
+    "symptoms": ["check engine light", "possibly affects cold-start"],
+    "causes": ["PCM internal fault", "battery voltage dropout", "PCM wiring issue"],
+    "tests": ["check PCM power and ground connections", "verify battery health", "update PCM software if available"],
+    "advisor_summary": "Your engine computer has a minor internal timer fault. We'll check the battery and PCM connections first, and look for a software update before recommending a PCM replacement."
+  },
+
+  "C0035": {
+    "name": "Right Front Wheel Speed Sensor Circuit",
+    "severity": "high",
+    "system": "abs",
+    "symptoms": ["ABS light on", "traction control light on", "ABS not functioning"],
+    "causes": ["failed wheel speed sensor", "damaged wiring to sensor", "damaged tone ring on hub", "poor connector connection"],
+    "tests": ["monitor wheel speed sensor readings with scan tool", "check sensor resistance", "inspect wiring and tone ring"],
+    "advisor_summary": "Your right front wheel speed sensor has a circuit fault. This disables your ABS and traction control systems — important safety features. We'll diagnose whether it's the sensor, wiring, or tone ring."
+  },
+
+  "C0040": {
+    "name": "Right Rear Wheel Speed Sensor Circuit",
+    "severity": "high",
+    "system": "abs",
+    "symptoms": ["ABS light", "traction control disabled"],
+    "causes": ["failed wheel speed sensor", "wiring damage", "damaged tone ring"],
+    "tests": ["compare all four WSS readings with scan tool", "check sensor resistance", "inspect tone ring"],
+    "advisor_summary": "Your right rear wheel speed sensor has a fault, disabling ABS and traction control. A relatively straightforward sensor or wiring repair."
+  },
+
+  "C0045": {
+    "name": "Left Rear Wheel Speed Sensor Circuit",
+    "severity": "high",
+    "system": "abs",
+    "symptoms": ["ABS light", "traction control disabled"],
+    "causes": ["failed wheel speed sensor", "wiring damage", "damaged tone ring"],
+    "tests": ["scan tool WSS live data", "sensor resistance check", "tone ring inspection"],
+    "advisor_summary": "Your left rear wheel speed sensor has a circuit fault, disabling ABS. We'll test the sensor, wiring, and the tone ring that the sensor reads."
+  },
+
+  "B1000": {
+    "name": "ECU Internal Malfunction (Airbag/SRS)",
+    "severity": "high",
+    "system": "safety",
+    "symptoms": ["airbag/SRS warning light on"],
+    "causes": ["faulty airbag control module", "power or ground issue to module", "impact event stored in module"],
+    "tests": ["pull SRS codes with airbag-capable scanner", "check for prior impact events stored in module", "verify module power and ground"],
+    "advisor_summary": "Your airbag system control module has flagged an internal fault. When the airbag light is on, the system may not deploy in an accident. This is a safety-critical repair that should be addressed promptly."
+  },
+
+  "U0100": {
+    "name": "Lost Communication With ECM/PCM A",
+    "severity": "high",
+    "system": "network",
+    "symptoms": ["multiple warning lights", "various system failures", "no start possible"],
+    "causes": ["PCM not powered or grounded", "CAN bus wiring fault", "damaged PCM", "battery issue causing network dropout"],
+    "tests": ["check PCM power and ground fuses", "verify battery voltage", "check CAN bus wiring continuity", "scan all modules for network codes"],
+    "advisor_summary": "Your vehicle's computer network has lost communication with the main engine computer. This typically points to a power/ground issue with the PCM or a wiring fault on the communication bus. We'll trace the network to find the break."
+  },
+
+  "U0101": {
+    "name": "Lost Communication With TCM",
+    "severity": "high",
+    "system": "network",
+    "symptoms": ["transmission warning light", "harsh shifts", "limp mode"],
+    "causes": ["TCM power/ground fault", "CAN bus wiring issue", "failed TCM"],
+    "tests": ["verify TCM power and ground", "check CAN bus between PCM and TCM", "scan for additional network codes"],
+    "advisor_summary": "The engine computer has lost contact with the transmission computer. This can trigger limp mode as a safety measure. We'll check the wiring between the two modules first."
+  },
+
+  "U0155": {
+    "name": "Lost Communication With Instrument Panel Control Module",
+    "severity": "medium",
+    "system": "network",
+    "symptoms": ["cluster warning lights", "gauge failures", "odometer blank"],
+    "causes": ["failed instrument cluster", "CAN bus fault", "cluster power/ground issue"],
+    "tests": ["check instrument cluster fuse and power", "verify CAN bus connection at cluster", "scan for broader network codes"],
+    "advisor_summary": "Your engine computer has lost contact with the instrument cluster. This can cause gauge failures and warning lights. We'll trace the communication wiring to find the fault."
+  }
+}

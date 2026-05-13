@@ -169,3 +169,7 @@ export async function saveSops(data) {
 export async function getVehicleSpecs(query) {
   return get(`/api/knowledge-base/vehicle-lookup?q=${encodeURIComponent(query)}`)
 }
+
+export async function repairAssistantDiagnose(data) {
+  return post('/api/repair-assistant/diagnose', data)
+}

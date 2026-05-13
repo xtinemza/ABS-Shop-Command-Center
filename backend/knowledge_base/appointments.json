@@ -75,5 +75,50 @@
     "Never send more than 2 messages per appointment window.",
     "Personalize with customer first name and vehicle year/make/model when available.",
     "Include a one-tap link to reschedule or confirm when platform supports it."
-  ]
+  ],
+
+  "example_messages": {
+    "booking_confirmation": {
+      "sms": [
+        "Hi Sarah! Your oil change at Lakewood Auto Care is confirmed for Tue, Dec 5 at 10am. Questions? Call us at (303) 555-1234. See you soon!",
+        "Confirmed, Marcus! Your brake inspection at Peak Auto is set for Thu, Dec 7 at 2pm. We're at 1450 Main St. Reply STOP to opt out.",
+        "You're all set, Dana! Tire rotation appointment confirmed at South Side Auto — Fri, Dec 8 at 9am. Call (720) 555-8800 if you need to reschedule."
+      ],
+      "email": [
+        "Subject: Your appointment is confirmed — Lakewood Auto Care\n\nHi Sarah,\n\nYour oil change is confirmed for Tuesday, December 5 at 10:00 AM. We're located at 1450 Main St, Lakewood. If you need to reschedule, give us a call at (303) 555-1234 — we're happy to find another time that works.\n\nSee you Tuesday!\nThe Team at Lakewood Auto Care",
+        "Subject: Appointment confirmed — Dec 7, 2:00 PM\n\nHi Marcus,\n\nWe've got you down for a brake inspection on Thursday, December 7 at 2:00 PM. Plan for about 90 minutes — we'll keep you posted if anything changes. Our address is 820 Center Ave.\n\nSee you then,\nPeak Auto"
+      ]
+    },
+    "day_before_reminder": {
+      "sms": [
+        "Hi Sarah, just a reminder — your oil change at Lakewood Auto Care is tomorrow, Tue Dec 5 at 10am. 📍 1450 Main St. Need to reschedule? Call (303) 555-1234.",
+        "Reminder, Marcus! Brake inspection tomorrow at 2pm — Peak Auto, 820 Center Ave. Plan for ~90 min. Call us at (720) 555-8800 if anything comes up.",
+        "See you tomorrow, Dana! Tire rotation at 9am at South Side Auto. We'll have you in and out in under an hour."
+      ],
+      "email": [
+        "Subject: Your appointment is tomorrow — Lakewood Auto Care\n\nHi Sarah,\n\nJust a friendly reminder that your oil change is scheduled for tomorrow, Tuesday December 5 at 10:00 AM. We're at 1450 Main St, Lakewood — parking is right out front.\n\nIf you need to reschedule, just call (303) 555-1234 by tonight and we'll take care of it.\n\nSee you tomorrow!\nThe Team at Lakewood Auto Care"
+      ]
+    },
+    "day_after_thank_you": {
+      "sms": [
+        "Hi Sarah! Thanks for bringing your Camry in yesterday. Hope everything's running great. Give us a call at (303) 555-1234 if anything comes up — we've got you covered. 🙏",
+        "Marcus, thanks for trusting us with your brakes! Safe drives ahead. We're always here if you have questions — (720) 555-8800.",
+        "Thanks, Dana! Great seeing you yesterday. Your tires are good to go. Questions anytime — call South Side Auto at (303) 555-9900."
+      ]
+    },
+    "review_request": {
+      "sms": [
+        "Hi Sarah! We hope your oil change went smoothly. If we earned it, a quick Google review means the world to a small shop like ours: [REVIEW_LINK]. Thank you! — Lakewood Auto Care",
+        "Marcus, how are those brakes feeling? If you're happy with your visit, we'd love a Google review — it helps other families find us: [REVIEW_LINK]. Thanks so much! — Peak Auto"
+      ]
+    }
+  },
+
+  "tone_guidelines": {
+    "voice": "Warm and personal — like a message from someone who knows your name, not a corporate reminder system.",
+    "avoid": ["robotic language", "all-caps urgency", "excessive exclamation marks", "generic 'dear customer' openers"],
+    "must_include": ["customer first name", "shop name", "appointment date and time", "shop phone number"],
+    "sms_style": "Conversational, brief. One clear action. End with the shop name or advisor name.",
+    "email_style": "Friendly opener, clear appointment details, easy reschedule path, warm sign-off."
+  }
 }

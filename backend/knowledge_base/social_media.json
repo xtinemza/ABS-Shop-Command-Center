@@ -1,0 +1,200 @@
+{
+  "_description": "Social media tone guide and style references. AI reads these examples to generate fresh, personalized posts — it does NOT copy these verbatim.",
+  "tones": {
+    "professional": {
+      "description": "Formal, trustworthy, expertise-forward. Speaks with authority. No slang. Positions the shop as the credentialed choice.",
+      "vocabulary": ["certified", "precision", "comprehensive", "compliant", "professional-grade", "industry-standard", "OEM-specified", "diagnostic", "transparent"],
+      "avoid": ["awesome", "super", "gonna", "wanna", "guys", "hey", "check it out", "literally"],
+      "structure": "Lead with expertise or safety. State the service clearly. Explain the value. Close with a professional CTA.",
+      "examples": {
+        "instagram": [
+          "Your vehicle deserves precision care. Our certified technicians perform every oil change with OEM-specified fluids and a multi-point inspection — because routine maintenance is the foundation of long-term reliability. Book your appointment today. 🔧 #AutoCare #CertifiedTechnicians #VehicleMaintenance",
+          "Brake performance is not a guessing game. We measure pad depth, inspect rotors for wear, and test hydraulic pressure to give you a complete picture of your stopping power. Trust the professionals. #BrakeService #SafetyFirst #AutoRepair",
+          "Wheel alignment affects tire wear, fuel efficiency, and vehicle handling. Our computerized alignment system ensures your vehicle meets manufacturer specifications — not estimates. Schedule your alignment check today. #Alignment #TireHealth #PrecisionService",
+          "Battery failure is the #1 cause of unexpected breakdowns. Our professional battery diagnostic takes less than 10 minutes and tells you exactly where your battery stands — before it leaves you stranded. #BatteryTest #PreventiveMaintenance #AutoService",
+          "A clean transmission is a long-lasting transmission. Our fluid exchange service removes degraded fluid and replaces it with the correct specification for your vehicle — protecting one of your most expensive components. #TransmissionService #VehicleCare #ProfessionalAuto"
+        ],
+        "facebook": [
+          "At [Shop Name], we believe transparency is the foundation of trust. That's why every service starts with a documented inspection — you'll see exactly what we found, what we recommend, and why. No surprises. No pressure. Just honest, professional auto care. Give us a call at [Phone] to schedule your appointment.",
+          "Not all oil is created equal. Using the wrong viscosity or specification can accelerate engine wear over time. Our technicians always verify your vehicle's OEM oil specification before every service — because doing it right matters more than doing it fast. Schedule your oil change with [Shop Name] today.",
+          "Worn brake pads don't just create noise — they reduce stopping distance and can damage rotors, turning a $150 repair into a $500 one. Our certified brake inspection identifies wear early, so you can make an informed decision before it becomes an emergency. Call [Phone] to schedule.",
+          "Your tires are the only contact between your vehicle and the road. Proper inflation, tread depth, and rotation intervals directly impact safety, handling, and fuel economy. Our tire service team ensures your vehicle is road-ready — every time. Visit [Shop Name] for a complimentary tire check.",
+          "Preventive maintenance costs a fraction of what reactive repairs do. Our 30-point vehicle inspection gives you a complete picture of your vehicle's health — what's in good shape, what needs attention soon, and what's critical. Knowledge is the best maintenance tool. Book your inspection at [Shop Name]."
+        ],
+        "google": [
+          "Professional auto repair in [Location]. Certified technicians, OEM-specified parts, and transparent pricing. Call [Phone] to schedule.",
+          "Comprehensive brake service, oil changes, and diagnostics by certified professionals. We service all makes and models. [Shop Name] — [Phone].",
+          "Trusted auto care with documented inspections and honest recommendations. No upselling, no surprises. Schedule at [Shop Name] today.",
+          "Expert vehicle maintenance and repair. We use manufacturer-specified fluids and parts for every service. [Phone] — [Location].",
+          "Reliable auto repair with certified technicians and written estimates before any work begins. [Shop Name] — Call [Phone]."
+        ]
+      }
+    },
+    "friendly": {
+      "description": "Warm, neighborhood feel, conversational. Talks like a trusted friend who happens to know cars. Approachable and human.",
+      "vocabulary": ["neighbors", "family", "we've got you", "quick", "easy", "stop by", "we take care of", "our team", "you're in good hands"],
+      "avoid": ["leverage", "solutions", "utilize", "synergy", "optimize", "industry-leading"],
+      "structure": "Start with warmth or relatability. Make it personal. Keep it light. End with an easy, low-pressure invite.",
+      "examples": {
+        "instagram": [
+          "Oil change day doesn't have to be a hassle 😊 Drop in, grab a coffee, and we'll have you back on the road before you finish it. Quick, honest, no surprises — that's how we do things here. See you soon! #LocalAutoShop #QuickOilChange #NeighborhoodShop",
+          "Your brakes are talking to you — squealing, grinding, that soft pedal feeling. We speak that language! Come in and let our team take a look. We'll tell you exactly what's going on and what it'll take to fix it. No fluff, just good honest work 🙌 #BrakeRepair #HonestMechanic",
+          "Flat tire? Dead battery? One of those days? We've been there too 😅 Swing by and we'll get you sorted out fast. We treat every car like it belongs to someone we know — because it usually does. #AutoRepair #LocalShop #WeveGotYou",
+          "Your AC shouldn't be blowing hot air in the middle of summer 🥵 Bring it in and we'll get your cool back — usually same day! Life's too short to drive around sweating. #ACRepair #SummerReady #AutoCare",
+          "We love being the shop families trust 💛 From first cars to family haulers, we treat every vehicle like it matters — because to you, it does. Thanks for choosing us, [Location] neighbors! #ThankYou #LocalBusiness #FamilyShop"
+        ],
+        "facebook": [
+          "Hey [Location] neighbors! 👋 Just a reminder that we're here when you need us — no appointment necessary for most routine services. Oil changes, tire rotations, quick checks — come on in. We'll treat you right, every single time. Give us a call at [Phone] or just swing by!",
+          "You know that feeling when you finally fix something you've been putting off? That's exactly how our customers feel after we take care of that squeaky brake or that weird engine noise. Don't let it linger — give us a call at [Phone] and let's get it sorted. You'll feel so much better!",
+          "We're a small shop with big heart. Every car that comes through our door gets our full attention — whether it's a quick oil change or a major repair. We've been serving [Location] families for years, and we're grateful for every single one of you. Thank you for trusting [Shop Name]! 🙏",
+          "Quick tip from your friendly neighborhood mechanics: those little dashboard warning lights? They're trying to tell you something. Don't ignore them! A quick diagnostic can save you from a much bigger (and pricier) problem down the road. Pop in and we'll check it for free. [Phone]",
+          "Kids back in school = back to early mornings and packed schedules. The last thing you need is a car problem slowing you down. Bring your vehicle in for a quick check-up and drive with confidence all season long. We'll work around your schedule — promise. ☕ [Shop Name] — [Phone]"
+        ],
+        "google": [
+          "Friendly, honest auto repair for [Location] families. We treat every car like it's our own. No pressure, no upsells. Call [Phone].",
+          "Your neighborhood auto shop — quick service, fair prices, and a team that actually cares. [Shop Name] — [Phone].",
+          "We make car care easy. Drop in or call ahead — we'll take good care of you. [Shop Name] in [Location], [Phone].",
+          "Warm, welcoming auto shop with honest mechanics and transparent pricing. Come see why [Location] trusts [Shop Name]. [Phone]",
+          "Small shop, big heart. We've been taking care of [Location] vehicles for years. Give us a call — [Phone]."
+        ]
+      }
+    },
+    "educational": {
+      "description": "Tips-focused, builds authority by teaching. Positions the shop as the expert who helps customers make informed decisions. Never condescending.",
+      "vocabulary": ["did you know", "here's why", "most drivers", "the reason", "what this means", "pro tip", "manufacturer recommends", "common misconception"],
+      "avoid": ["you must", "you need to", "don't be stupid", "obviously", "everyone knows"],
+      "structure": "Open with a surprising fact or question. Explain the why. Connect it to a service. End with a soft CTA.",
+      "examples": {
+        "instagram": [
+          "Did you know motor oil doesn't just lubricate — it also cools, cleans, and protects your engine from corrosion? Over time it breaks down and stops doing all four jobs well. That's why interval matters more than mileage alone. 📚 #AutoTips #OilChangeFacts #CarCare101",
+          "Most brake pad wear isn't even visible from outside the wheel. By the time you hear squealing, you may have less than 2mm of pad left — that's under 1/8 inch between you and the rotor. A visual inspection takes 5 minutes and tells you exactly where you stand. 🔍 #BrakeSafety #AutoEducation",
+          "Tire pressure drops about 1 PSI for every 10°F temperature drop. That means your tires can lose 5-6 PSI in a single cold snap — affecting handling, braking, and fuel economy. Pro tip: check pressure in the morning before driving. 🌡️ #TireSafety #TirePressure #CarTips",
+          "Your cabin air filter cleans the air you breathe inside your car. A clogged one reduces AC/heat efficiency AND blows allergens and dust through your vents. Most drivers forget it exists — most manufacturers recommend replacing it every 12-15K miles. 💨 #CabinAirFilter #AirQuality #AutoMaintenance",
+          "Coolant doesn't just prevent freezing — it also raises the boiling point of your cooling system and prevents corrosion inside the engine. Old coolant becomes acidic and actually starts eating your radiator from the inside. Flush intervals vary by vehicle — ask us what yours needs. 🌡️ #CoolantFlush #EngineCare #AutoFacts"
+        ],
+        "facebook": [
+          "Quick auto education: your vehicle's owner manual lists two maintenance schedules — 'normal' and 'severe.' Most drivers qualify as 'severe' (frequent short trips, stop-and-go traffic, extreme temps, dusty roads). That means tighter oil change intervals than the sticker on your windshield suggests. Not sure which schedule you're on? Stop by [Shop Name] and we'll help you figure it out. [Phone]",
+          "Here's something most drivers don't know: wheel alignment and tire balance are two different services. Alignment adjusts the angle of your wheels relative to each other and the road. Balance corrects weight distribution within the tire/wheel assembly. Both affect tire wear and handling — but in different ways. If you're experiencing vibration, it's usually balance. If you're experiencing pulling or uneven wear, it's usually alignment. [Shop Name] — [Phone] — we'll diagnose it properly.",
+          "The check engine light covers over 200 different fault codes — from a loose gas cap to a misfiring cylinder. Ignoring it because the car 'seems fine' is one of the most common (and costly) mistakes we see. Some codes are minor. Some are early warnings of a major failure. The only way to know is a scan — which takes about 10 minutes. [Shop Name] offers free diagnostic scans. Call [Phone] or stop by.",
+          "Why do brake rotors warp? Heat. Every time you brake, friction generates heat. When hot rotors hit cold water (rain, puddles), they can warp slightly — creating that pulsing or vibrating feel when you stop. Avoiding heavy braking right before hitting water helps, but worn pads that create extra heat are the real culprit. If you feel pulsation, have your brakes inspected. [Shop Name] — [Phone].",
+          "Transmission fluid is often called 'lifetime fluid' by manufacturers — but that lifetime can be shorter than you think under real driving conditions. Heat, towing, and stop-and-go traffic degrade it faster. Dark brown or burned-smelling fluid is a red flag. Most independent shops (including us) recommend a service every 40-60K miles for most vehicles. Your transmission will thank you. [Shop Name] — [Phone]."
+        ],
+        "google": [
+          "Auto repair education and honest service in [Location]. We explain what's wrong and why before we fix anything. [Shop Name] — [Phone].",
+          "We believe informed customers make better decisions. Free diagnostics and plain-language explanations at [Shop Name]. Call [Phone].",
+          "Ask us anything about your vehicle — no question is too basic. Trusted auto care with real explanations. [Shop Name], [Phone].",
+          "Expert auto repair with a focus on education. We show you what we find so you can make confident decisions. [Phone].",
+          "Transparent repairs backed by knowledge. We'll explain your vehicle's condition in plain language, every time. [Shop Name] — [Phone]."
+        ]
+      }
+    },
+    "urgent": {
+      "description": "Action-driving, deal-focused, time-sensitive. Creates clear urgency without fear tactics. Benefit + deadline + easy CTA.",
+      "vocabulary": ["limited time", "this week only", "don't wait", "act now", "spots filling up", "expires", "save", "book today", "call now"],
+      "avoid": ["DANGER", "WARNING", "you'll regret it", "last chance forever", "once in a lifetime"],
+      "structure": "Lead with the offer or the stakes. State the deadline or scarcity. Make the action dead simple. One CTA only.",
+      "examples": {
+        "instagram": [
+          "⏰ OIL CHANGE SPECIAL — This week only! Synthetic blend oil change + tire rotation for one low price. Limited appointment slots — book before they're gone. Call [Phone] or DM us now. #OilChangeSpecial #LimitedTime #AutoDeal",
+          "🚨 Brake inspection FREE this weekend. If we find an issue, you'll get our lowest service price of the month. Don't drive on worn brakes — book today. [Phone] #BrakeSpecial #FreeBrakeCheck #AutoSafety",
+          "❄️ WINTERIZATION SPECIAL ends Friday. Battery test + coolant check + tire pressure + wiper blades — everything you need before the cold hits. Slots going fast. Call [Phone] to lock yours in. #WinterCar #LimitedOffer #AutoSpecial",
+          "💥 AC not working? We're booking AC recharge appointments this week at our best price of the summer. Don't wait — summer isn't over yet and slots are filling up. Call [Phone] NOW. #ACRepair #SummerSpecial #StayCool",
+          "📅 APPOINTMENT OPENING: We had a cancellation — this Friday afternoon is open. First to call gets the slot. [Phone]. Oil change, brakes, diagnostics — whatever you need. #LastMinute #AppointmentAvailable #CallNow"
+        ],
+        "facebook": [
+          "⚡ LIMITED TIME — This month only, we're offering a full synthetic oil change + multi-point inspection at a special rate. We only have a set number of these appointments available, so don't wait until the week is over. Call [Phone] or message us right now to lock in your spot. Offer ends [Date].",
+          "🚗 HEADS UP [Location] drivers: we have 6 appointment slots open this week that just became available. If you've been putting off that oil change, brake check, or tire rotation — NOW is the time. First-come, first-served. Call [Phone] right now before they're gone.",
+          "🔥 END OF MONTH SPECIAL: Book any service over $150 this week and receive a complimentary multi-point inspection (a $49 value) at no charge. We do this at the end of every month for a limited number of customers. This week's slots are almost gone. Call [Shop Name] at [Phone] today.",
+          "⏳ Your car's been making that noise for a few weeks now, hasn't it? Every week you wait, the repair gets a little bigger and a little more expensive. We have openings THIS WEEK to diagnose and fix it — at this month's service prices. Don't let it wait any longer. [Phone].",
+          "📣 FLASH SALE: Tomorrow only — tire rotation + balance for one flat rate. We have 10 appointments available starting at 8 AM. Message us NOW or call [Phone] first thing in the morning. These will be gone before noon. [Shop Name]."
+        ],
+        "google": [
+          "Special offers this week — limited appointments available. Call [Phone] to lock in your spot before they're gone. [Shop Name].",
+          "Book this week and save on oil changes, brakes, and more. Offers expire soon — call [Phone] now. [Shop Name] in [Location].",
+          "Same-week appointments available now. Don't wait — call [Phone] and get your vehicle in this week. [Shop Name].",
+          "End-of-month specials at [Shop Name]. Limited slots. Call [Phone] today before they fill up.",
+          "Act now — this week's appointment specials won't last. [Shop Name] — [Phone] — [Location]."
+        ]
+      }
+    }
+  },
+  "service_context": {
+    "oil_change": {
+      "key_benefits": ["engine longevity", "fuel efficiency", "prevents sludge buildup", "removes metal particles", "maintains warranty"],
+      "urgency_triggers": ["overdue by mileage", "dark or gritty oil", "low oil level", "high mileage vehicle", "extreme driving conditions"],
+      "common_intervals": "5,000–10,000 miles depending on oil type and vehicle",
+      "upsell_hooks": ["cabin air filter", "tire rotation", "multi-point inspection"],
+      "seasonal_hooks": { "summer": "heat accelerates oil breakdown", "winter": "cold thickens oil, harder on engine at startup", "spring": "post-winter flush", "fall": "prep before cold season" }
+    },
+    "brakes": {
+      "key_benefits": ["stopping power", "rotor protection", "safety", "prevents costlier damage"],
+      "urgency_triggers": ["squealing or grinding", "soft pedal", "pulling to one side", "vibration when braking", "warning light on"],
+      "common_intervals": "20,000–60,000 miles depending on driving style",
+      "upsell_hooks": ["brake fluid flush", "rotor resurfacing or replacement", "caliper inspection"],
+      "seasonal_hooks": { "summer": "heat from frequent braking", "winter": "salt and moisture cause corrosion", "spring": "post-winter inspection", "fall": "prep for wet roads" }
+    },
+    "tires": {
+      "key_benefits": ["safety", "fuel efficiency", "handling", "tread life"],
+      "urgency_triggers": ["tread below 4/32\"", "uneven wear pattern", "sidewall cracks", "vibration", "pulling"],
+      "common_intervals": "Every 5,000–7,500 miles for rotation; replace when tread hits 2/32\"",
+      "upsell_hooks": ["wheel alignment", "tire balance", "TPMS service"],
+      "seasonal_hooks": { "summer": "heat expands air pressure", "winter": "cold reduces pressure and traction", "spring": "swap winter tires", "fall": "swap to winter tires" }
+    },
+    "alignment": {
+      "key_benefits": ["even tire wear", "fuel efficiency", "straight handling", "protects suspension"],
+      "urgency_triggers": ["vehicle pulls left or right", "uneven tire wear", "steering wheel off-center", "after hitting a pothole", "after new tires"],
+      "common_intervals": "Annually or after impact events",
+      "upsell_hooks": ["tire rotation", "suspension inspection", "tire balance"],
+      "seasonal_hooks": { "spring": "post-pothole season essential", "winter": "ice and curb impacts", "fall": "before winter driving" }
+    },
+    "battery": {
+      "key_benefits": ["reliable starting", "prevents stranding", "protects alternator", "protects electronics"],
+      "urgency_triggers": ["slow cranking", "warning light", "battery over 3 years old", "electrical issues", "failed jumpstart"],
+      "common_intervals": "Test annually after 3 years; replace every 4–5 years",
+      "upsell_hooks": ["charging system test", "terminal cleaning", "alternator inspection"],
+      "seasonal_hooks": { "summer": "heat degrades battery faster", "winter": "cold reduces capacity up to 50%", "fall": "test before cold season" }
+    },
+    "ac": {
+      "key_benefits": ["passenger comfort", "defogging", "air quality"],
+      "urgency_triggers": ["blowing warm air", "weak airflow", "unusual smell", "AC not turning on", "excessive heat"],
+      "common_intervals": "Recharge every 2–3 years or when performance drops",
+      "upsell_hooks": ["cabin air filter", "refrigerant leak check", "compressor inspection"],
+      "seasonal_hooks": { "summer": "peak demand season", "spring": "test before summer hits" }
+    },
+    "inspection": {
+      "key_benefits": ["peace of mind", "catch issues early", "documented vehicle health", "resale value"],
+      "urgency_triggers": ["buying or selling", "pre-road trip", "warning lights", "unusual noises", "annual service"],
+      "common_intervals": "Annually or with major service",
+      "upsell_hooks": ["any identified repair", "fluid services", "filter replacements"],
+      "seasonal_hooks": { "fall": "winterization inspection", "spring": "post-winter inspection", "summer": "pre-road trip" }
+    },
+    "transmission": {
+      "key_benefits": ["smooth shifting", "transmission longevity", "prevents expensive failure"],
+      "urgency_triggers": ["slipping gears", "delayed engagement", "grinding or shaking", "dark or burnt fluid", "warning light"],
+      "common_intervals": "Fluid service every 40,000–60,000 miles",
+      "upsell_hooks": ["filter replacement", "pan inspection", "driveshaft inspection"],
+      "seasonal_hooks": { "summer": "heat accelerates fluid breakdown", "winter": "cold thickens fluid" }
+    },
+    "coolant": {
+      "key_benefits": ["prevents overheating", "prevents corrosion", "prevents freezing", "maintains engine temp"],
+      "urgency_triggers": ["temperature gauge high", "coolant light on", "sweet smell from engine", "white smoke", "low coolant level"],
+      "common_intervals": "Every 2–5 years depending on coolant type",
+      "upsell_hooks": ["radiator inspection", "thermostat check", "hose and cap inspection"],
+      "seasonal_hooks": { "summer": "overheating risk", "winter": "freezing protection", "fall": "prep for cold" }
+    },
+    "seasonal": {
+      "key_benefits": ["safety", "reliability", "peace of mind", "prevent breakdowns"],
+      "urgency_triggers": ["season change approaching", "haven't serviced recently", "planning a road trip"],
+      "common_intervals": "Each season change",
+      "upsell_hooks": ["battery", "tires", "wiper blades", "fluids"],
+      "seasonal_hooks": { "winter": "battery, tires, coolant, wipers", "spring": "tires, brakes, AC", "summer": "AC, cooling system, tires", "fall": "battery, tires, brakes, heater" }
+    },
+    "referral": {
+      "key_benefits": ["reward loyal customers", "build community", "mutual savings"],
+      "urgency_triggers": ["referral reward available", "limited time bonus"],
+      "common_intervals": "Ongoing program",
+      "upsell_hooks": ["any service for referred customer"],
+      "seasonal_hooks": {}
+    }
+  }
+}

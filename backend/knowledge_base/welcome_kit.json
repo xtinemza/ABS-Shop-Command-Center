@@ -57,5 +57,31 @@
     "post_first_visit_days": 3,
     "channel": "sms",
     "message": "Check in, ask if everything is running well, remind them of the referral offer"
+  },
+
+  "example_content": {
+    "welcome_letter_opening": [
+      "Hi Sarah,\n\nWelcome to the Lakewood Auto Care family! We're so glad you chose us for your first visit, and we truly mean it when we say — this is the beginning of a long, reliable relationship.\n\nAt Lakewood Auto Care, we believe you deserve to understand exactly what's happening with your vehicle and why. No pressure, no surprises. Just honest work from a team that cares.",
+      "Dear Marcus,\n\nThank you for giving Peak Auto the chance to earn your trust. Whether you came in for something small or you've got bigger concerns about your vehicle, we're here to help you take care of it — on your timeline and your budget.\n\nOwner-operated since 2009, we treat every car like it belongs to a family member.",
+      "Hi Dana,\n\nWelcome! We're a small shop, and that means a lot to us — every new customer matters. Thank you for choosing South Side Auto for your vehicle care needs.\n\nHere's what you can always expect from us: a straight answer, a fair price, and a call before we do anything you didn't ask for."
+    ],
+    "what_makes_us_different": [
+      "We're not a chain. When you bring your car to us, you'll work with the same advisors and technicians every time. We'll learn your car, and we'll learn your preferences.",
+      "We explain things in plain English — no tech jargon, no pressure tactics. You'll always know what we found, why it matters, and what it'll cost before we touch anything.",
+      "Every service includes a free multi-point inspection. We'll tell you what we see — the good and the not-so-good — and let you decide what to do with that information."
+    ],
+    "discount_coupon_text": [
+      "WELCOME OFFER — 10% Off Your Next Service\nValid on any service $75 or more. Expires 90 days from issue date. Present at check-in. Cannot be combined with other offers.\n[Shop Name] | [Phone] | [Address]",
+      "YOUR FIRST VISIT DISCOUNT — Save Up to $50\nApplicable to any service $75+. Valid for 90 days. Mention this offer when you call or at drop-off.\nThank you for choosing [Shop Name]!"
+    ],
+    "referral_card_text": [
+      "Know someone who needs a good mechanic?\nRefer a friend and you BOTH save $25.\n• Your friend gets $25 off their first visit\n• You get $25 off your next service\nJust have them mention your name when they call. It's that simple.\n[Shop Name] | [Phone]",
+      "Share the Love 🤝\nRefer a neighbor, coworker, or family member to [Shop Name] and we'll thank you both.\n$25 off for them. $25 off for you.\nValid on services of $50+. Good for 6 months."
+    ],
+    "follow_up_sms": [
+      "Hi Sarah! It's been a few days since your visit. How's the car running? If you ever have questions or need anything, we're just a call away at (303) 555-1234. P.S. — don't forget your $25 referral offer! — Lakewood Auto Care",
+      "Hey Marcus! Just checking in — hope everything went smoothly after your visit with us. Give us a call anytime at (720) 555-8800. We're always here. — Peak Auto",
+      "Hi Dana! Your car should be feeling great. Remember — refer a friend and you both get $25 off. We'd love to meet them! — South Side Auto, (303) 555-9900"
+    ]
   }
 }

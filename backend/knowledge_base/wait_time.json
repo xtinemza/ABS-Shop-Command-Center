@@ -75,5 +75,43 @@
     "For 'needs_approval' messages, always include the dollar amount of the additional work."
   ],
 
-  "loaner_and_transport_note": "If shop offers loaner vehicles or has a ride-share arrangement, mention it in parts_delay and extended_delay messages."
+  "loaner_and_transport_note": "If shop offers loaner vehicles or has a ride-share arrangement, mention it in parts_delay and extended_delay messages.",
+
+  "example_messages": {
+    "checked_in": [
+      "Hi Sarah! Your 2019 Camry just checked in at Lakewood Auto Care. We'll have a tech assigned shortly and will keep you updated. Questions? Call (303) 555-1234.",
+      "Got your car, Marcus! Your F-150 is checked in at Peak Auto. We'll update you as soon as the tech gets started — usually within 30 min. — Peak Auto",
+      "Hi Dana! Your vehicle is in good hands at South Side Auto. We'll text you the moment we know more. Sit back and relax! 🔧"
+    ],
+    "in_progress": [
+      "Update, Sarah: our tech just started on your Camry. We're on track — expect about 45 more minutes. We'll text when it's ready. — Lakewood Auto Care",
+      "Hi Marcus, your F-150 is being worked on now. Oil change + tire rotation — looking good for a 2:30pm pickup. We'll confirm when it's done. — Peak Auto",
+      "Good news, Dana — your car is in the bay! Estimated completion: around 3:00pm. We'll send a pickup text when it's ready."
+    ],
+    "needs_approval": [
+      "Hi Sarah, our tech found something while working on your Camry. Your rear brake pads are at 2mm — well below safe. Replacing them now would be $180 for both sides. Reply YES to approve, or call us at (303) 555-1234 to discuss. — Lakewood Auto Care",
+      "Marcus, quick heads-up from Peak Auto: while doing your oil change, we noticed your serpentine belt is cracked. Replacing it now saves you a bigger headache — $95 parts and labor. Call (720) 555-8800 or reply YES to approve.",
+      "Dana — we need your OK before we continue. We found a small coolant leak at the hose clamp. Fix is $65 and takes 20 min. Reply YES to proceed or call South Side Auto at (303) 555-9900."
+    ],
+    "parts_delay": [
+      "Hi Sarah, quick update from Lakewood Auto Care: the part we ordered for your Camry won't arrive until tomorrow morning. We're sorry for the delay! We can have your car ready by noon tomorrow. Call (303) 555-1234 if you'd like to arrange a ride today.",
+      "Marcus, the caliper we ordered for your F-150 is delayed — new ETA is tomorrow at 10am. Your truck will be ready by 1pm tomorrow. We apologize for the inconvenience. Can we help arrange a ride? — Peak Auto"
+    ],
+    "ready_for_pickup": [
+      "Sarah, your 2019 Camry is READY! 🎉 Total: $87.50. We're open until 6pm — 1450 Main St. See you soon! — Lakewood Auto Care, (303) 555-1234",
+      "Hi Marcus, your F-150 is all set! Total due: $142.00. Pickup by 6pm today at Peak Auto. If you can't make it, just call (720) 555-8800. — Peak Auto",
+      "Ready, Dana! 🔑 Your vehicle is done and parked out front. Total: $56.00. South Side Auto closes at 5:30pm. See you soon!"
+    ],
+    "extended_delay": [
+      "Hi Sarah, I have to be upfront — your Camry can't be completed today. The repair is taking longer than expected and we don't want to rush it. New completion: tomorrow by noon. We're so sorry. Call us at (303) 555-1234 and we'll arrange a ride if needed. — Lakewood Auto Care",
+      "Marcus, we owe you an honest update: your F-150 needs more time than we planned. We'll have it done by 10am tomorrow. No extra charge for the delay. Call (720) 555-8800 and we'll take care of you. — Peak Auto"
+    ]
+  },
+
+  "tone_guidelines": {
+    "voice": "Proactive, clear, and reassuring. The customer is trusting you with something they depend on — treat every update like it matters.",
+    "avoid": ["vague ETAs like 'soon' or 'a while'", "passive language", "burying the key info at the end of a long message"],
+    "must_include_in_ready": ["shop name", "total amount due", "closing time", "shop phone number"],
+    "must_include_in_approval": ["specific issue found", "price for the repair", "clear yes/no action"]
+  }
 }

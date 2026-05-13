@@ -10,15 +10,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Frontend** (`frontend/.env` — copy from `frontend/.env.example`):
 ```
-VITE_SUPABASE_URL=your_supabase_project_url
+VITE_API_URL=http://localhost:8000
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 **Backend** (`backend/.env`):
 ```
 ANTHROPIC_API_KEY=your_anthropic_key
-SUPABASE_URL=your_supabase_project_url
+SUPABASE_URL=https://your-project-ref.supabase.co
 SUPABASE_KEY=your_supabase_service_role_key
+ALLOWED_ORIGINS=https://your-custom-domain.com   # optional
 ```
 
 ### Running the App
@@ -33,19 +35,21 @@ python -m uvicorn main:app --port 8000 --app-dir backend --reload
 cd frontend && npm install && npm run dev
 ```
 
-The frontend runs on `http://localhost:3000`. The `preview/` folder contains a static build served via `python -m http.server 3000 --directory preview` (used by `.claude/launch.json`), not the development server.
+Frontend: `http://localhost:3000`. The `preview/` folder is a static build served separately (`python -m http.server 3000 --directory preview`) — not the dev server.
 
-### Frontend Build
-
-```bash
-cd frontend && npm run build   # outputs to frontend/dist/
-cd frontend && npm run preview # preview the production build
-```
-
-### Backend Dependencies
+### Build & Test
 
 ```bash
+# Frontend
+cd frontend && npm run build        # outputs to frontend/dist/
+cd frontend && npm run preview       # preview production build
+
+# Backend
 pip install -r backend/requirements.txt
+
+# Tests (from repo root)
+pytest backend/tests/ -v             # run all tests
+pytest backend/tests/test_knowledge_base.py -v   # single test file
 ```
 
 ---
@@ -56,48 +60,49 @@ pip install -r backend/requirements.txt
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18 + Vite |
-| Backend | FastAPI (Python) |
-| Auth | Supabase Auth |
+| Frontend | React 18 + Vite 5 |
+| Backend | FastAPI + Uvicorn |
+| Auth | Supabase Auth (JWT) |
 | Database | Supabase (PostgreSQL) |
 | AI | Anthropic Claude API |
 | Deployment | Netlify (frontend), Render (backend) |
 
 ### How the App is Structured
 
-This is a **WAT Framework** app: **W**orkflows (Markdown SOPs) + **A**gent (CLAUDE.md instructions) + **T**ools (Python scripts).
+This is a **WAT Framework** app: **W**orkflows (Markdown SOPs in `workflows/`) + **A**gent (this file) + **T**ools (Python scripts in `tools/`).
 
 **Frontend** (`frontend/src/`):
-- `App.jsx` — root: Supabase auth gate → setup gate → module menu. Contains service prices editor and SOP editor inline.
-- `components/forms/` — one form component per module, collected inputs sent to backend.
-- `data/modules.js` — all 17 module definitions (id, title, category, description, form fields).
-- `api/client.js` — all fetch calls to the FastAPI backend.
+- `App.jsx` — root: Supabase auth gate → setup wizard gate → module menu. Inline editors for service prices and SOPs.
+- `data/modules.js` — central registry for all 17 modules: `{ id, title, category, status, formComponent, apiCall }`.
+- `api/client.js` — all fetch calls. Detects prod vs. dev via `VITE_API_URL` or hostname; attaches Supabase JWT to every request.
+- `components/forms/` — one form component per module; submits to the backend and passes response to `OutputPanel`.
 
 **Backend** (`backend/`):
-- `main.py` — mounts all 17 routers under `/api/` with CORS for localhost:3000 and Netlify.
-- `routers/` — one file per module. Each router receives form data, calls the Anthropic API, and returns generated content.
-- `knowledge_base.py` — 113 KB template library; the primary source of shop-specific content templates.
-- `marketing_templates.py` — additional marketing-specific templates.
-- `kb_loader.py` — loads and queries the knowledge base.
-- `models/` — Pydantic request/response models.
-- `knowledge_base/` — JSON files with structured domain knowledge.
+- `main.py` — mounts 22 routers under `/api/`; applies CORS, rate limiting (60 req/min per IP via `slowapi`), request logging, and a global exception handler that never leaks internals.
+- `auth.py` — `get_current_user()` FastAPI dependency; verifies Supabase JWT from the `Authorization` header.
+- `routers/` — one file per module. Pattern: validate request → load shop profile from Supabase → build Claude prompt (injecting `knowledge_base.py` context) → call Anthropic API → return `{ content }`.
+- `knowledge_base.py` — 2,300+ lines; contains specs for 113 vehicles (oil type, torque, service intervals, common issues). Used by routers to ground AI prompts in real data and reduce hallucinations.
+- `marketing_templates.py` — pre-written social/email/CTA copy for ~30 service types; used as fallback or injected context.
+- `kb_loader.py` — lazy-loads per-module JSON from `knowledge_base/` (197 KB of structured domain data across 15 JSON files).
+- `models/` — Pydantic schemas. Key response type: `ModuleResponse { success, output, files[], content: {filename→content}, error }`.
 
 **Persistence**:
-- `data/shop_profile.json` — shop name, hours, services, branding (read by all Python tools).
-- Supabase tables — user accounts, saved outputs, service prices.
+- `data/shop_profile.json` — shop name, hours, services, branding (read by Python tools).
+- Supabase tables — user accounts, saved outputs, service prices, SOPs.
+
+### API Route Pattern
+
+Every module: `POST /api/<module-slug>/generate` → `{ content: string }`.
+Profile: `GET /api/profile`, `PUT /api/profile`.
+Recall uses an external NHTSA API call in addition to the standard pattern.
 
 ### Adding a New Module
 
 1. Create `workflows/<module_name>.md` (the SOP).
 2. Create `tools/<module_name>/` with Python CLI tools.
-3. Create `backend/routers/<module_name>.py` and mount it in `backend/main.py`.
+3. Create `backend/routers/<module_name>.py`, add `get_current_user` dependency, mount it in `backend/main.py`.
 4. Create `frontend/src/components/forms/<ModuleName>Form.jsx`.
-5. Add the module entry to `frontend/src/data/modules.js`.
-
-### API Route Pattern
-
-Every module follows: `POST /api/<module-slug>/generate` → returns `{ content: string }`.
-Profile endpoints: `GET /api/profile` and `PUT /api/profile`.
+5. Add the module entry to `frontend/src/data/modules.js` and the API function to `frontend/src/api/client.js`.
 
 ---
 

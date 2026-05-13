@@ -1,6 +1,6 @@
 """
 Router: AI-Powered Modules (Repair Intel + Marketing)
-Uses Claude API — requires ANTHROPIC_API_KEY env variable.
+Uses Gemini API — requires GEMINI_API_KEY env variable.
 """
 import csv
 import io
@@ -128,13 +128,14 @@ def _load_profile(user_id: str) -> dict:
 
 def _get_client():
     try:
-        import anthropic
-        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        import google.generativeai as genai
+        api_key = os.environ.get("GEMINI_API_KEY", "")
         if not api_key:
             return None, "AI features are not yet enabled for this platform. Please contact support."
-        return anthropic.Anthropic(api_key=api_key), None
+        genai.configure(api_key=api_key)
+        return genai, None
     except ImportError:
-        return None, "The 'anthropic' package is not installed."
+        return None, "The 'google-generativeai' package is not installed."
 
 
 def _shop_ctx(profile: dict) -> str:
@@ -150,7 +151,7 @@ def _shop_ctx(profile: dict) -> str:
     return " | ".join(parts)
 
 
-def _call_claude(client, system: str, user: str, max_tokens: int = 900) -> tuple:
+def _call_gemini(client, system: str, user: str, max_tokens: int = 900, model: str = "gemini-2.5-flash-lite") -> tuple:
     # Truncate user input to cap token spend
     user = user[:MAX_INPUT_CHARS]
 
@@ -161,23 +162,23 @@ def _call_claude(client, system: str, user: str, max_tokens: int = 900) -> tuple
         return cached, None
 
     try:
-        msg = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=max_tokens,
-            system=system,
-            messages=[{"role": "user", "content": user}],
+        gemini_model = client.GenerativeModel(
+            model_name=model,
+            system_instruction=system,
+            generation_config={"max_output_tokens": max_tokens},
         )
-        text = msg.content[0].text
+        response = gemini_model.generate_content(user)
+        text = response.text
         _cache_set(key, text)
         return text, None
     except Exception as e:
         err = str(e)
-        if "credit balance is too low" in err or "insufficient_quota" in err:
-            return None, "AI credits have been exhausted. Please contact support to restore service."
-        if "invalid_api_key" in err or "authentication_error" in err:
+        if "quota" in err.lower() or "resource_exhausted" in err.lower():
+            return None, "AI service quota reached. Please try again in a moment."
+        if "api_key" in err.lower() or "invalid" in err.lower() or "permission" in err.lower():
             return None, "AI service is not configured correctly. Please contact support."
-        if "overloaded" in err:
-            return None, "AI service is temporarily overloaded. Please try again in a moment."
+        if "unavailable" in err.lower() or "503" in err:
+            return None, "AI service is temporarily unavailable. Please try again in a moment."
         return None, "AI service error. Please try again."
 
 
@@ -334,7 +335,7 @@ def repair_auto(body: QueryRequest, user=Depends(get_current_user)):
     kb = f" VEHICLE SPECS FROM KB: {vehicle_context(veh)}." if veh else ""
     prices = f" {_prices_context()}."
     system = f"Auto repair estimator for US-based independent auto repair shops. US vehicles and US market specifications only — do not reference non-US vehicle specs, pricing, or regulations. Shop: {_shop_ctx(profile)}.{kb}{prices} Reply with 4 sections: DIAGNOSIS SUMMARY, RECOMMENDED SERVICES (part, cost, labor hrs at $120/hr), CUSTOMER EXPLANATION (plain language, risk of delay), URGENCY LEVEL (Safety Critical/High/Medium/Low + one reason). Use KB specs when available — do not fabricate part numbers."
-    text, err = _call_claude(client, system, q or "Describe the vehicle (year/make/model/mileage) and complaint.")
+    text, err = _call_gemini(client, system, q or "Describe the vehicle (year/make/model/mileage) and complaint.")
     if err: return _err(err)
     return _ok(text, "repair_auto_estimate")
 
@@ -353,7 +354,7 @@ def componentcare(body: QueryRequest, user=Depends(get_current_user)):
         # Known vehicle — inject exact specs, short focused answer
         kb = f" VERIFIED SPECS: {vehicle_context(veh)}. Use these exact figures."
         system = f"Vehicle technical assistant for US-based auto repair shops. US vehicles and US market specifications only. Shop: {_shop_ctx(profile)}.{kb} Answer concisely with headers and bullets."
-        text, err = _call_claude(client, system, q or "What vehicle and question can I help with?")
+        text, err = _call_gemini(client, system, q or "What vehicle and question can I help with?")
     else:
         # Unknown vehicle — answer AND silently extract specs to grow the KB
         system = (
@@ -366,7 +367,7 @@ def componentcare(body: QueryRequest, user=Depends(get_current_user)):
             "Only include fields you are confident about. "
             "If no specific vehicle is mentioned, omit the JSON block entirely."
         )
-        text, err = _call_claude(client, system, q or "What vehicle and question can I help with?", max_tokens=1100)
+        text, err = _call_gemini(client, system, q or "What vehicle and question can I help with?", max_tokens=1100)
         if not err and text:
             match = re.search(r'<<<SPECS>>>(.*?)<<<END>>>', text, re.DOTALL)
             if match:
@@ -397,7 +398,7 @@ def fleetmaint(body: QueryRequest, user=Depends(get_current_user)):
     kb = f" VEHICLE SPECS: {vehicle_context(veh)}." if veh else ""
     prices = f" {_prices_context()}."
     system = f"Fleet maintenance advisor for US-based auto repair shops. US vehicles and US market specifications only. Shop: {_shop_ctx(profile)}.{kb}{prices} Provide: PREDICTIVE ALERTS, 6-MONTH SCHEDULE (month-by-month), COST FORECAST, PRIORITY ORDER (Safety Critical→Revenue→Reliability→Convenience)."
-    text, err = _call_claude(client, system, q or "Describe the vehicle or fleet (year/make/model/mileage/usage).")
+    text, err = _call_gemini(client, system, q or "Describe the vehicle or fleet (year/make/model/mileage/usage).")
     if err: return _err(err)
     return _ok(text, "fleet_maintenance_plan")
 
@@ -411,7 +412,7 @@ def prev_advisor(body: QueryRequest, user=Depends(get_current_user)):
     veh = _find_vehicle_any(q)
     kb = f" OEM INTERVALS FROM KB: {vehicle_context(veh)}." if veh else ""
     system = f"Preventive maintenance advisor for US-based auto repair shops. US vehicles and US market specifications only. Shop: {_shop_ctx(profile)}.{kb} Output: IMMEDIATE (overdue/urgent), UPCOMING (due within 3k mi/3 months), LONG-TERM (6-12 months), INSPECTION CHECKLIST. Flag severe-duty conditions."
-    text, err = _call_claude(client, system, q or "Describe the vehicle (year/make/model/mileage) and service history.")
+    text, err = _call_gemini(client, system, q or "Describe the vehicle (year/make/model/mileage) and service history.")
     if err: return _err(err)
     return _ok(text, "preventive_maintenance_checklist")
 
@@ -425,7 +426,7 @@ def enviromaint(body: QueryRequest, user=Depends(get_current_user)):
     veh = _find_vehicle_any(q)
     kb = f" VEHICLE SPECS: {vehicle_context(veh)}." if veh else ""
     system = f"Climate-aware maintenance advisor for US-based auto repair shops. US vehicles, US market specifications, and US climate zones only — reference US regions (Northeast, Midwest, South, Southwest, Pacific Northwest, etc.) and do not use non-US standards or specs. Shop: {_shop_ctx(profile)}.{kb} Provide: ENVIRONMENT IMPACT (how climate stresses this vehicle), ADJUSTED INTERVALS (OEM modified for climate), SEASONAL CHECKLIST, COMMON CLIMATE FAILURES."
-    text, err = _call_claude(client, system, q or "Describe the vehicle and environment (city/state, climate, driving conditions).")
+    text, err = _call_gemini(client, system, q or "Describe the vehicle and environment (city/state, climate, driving conditions).")
     if err: return _err(err)
     return _ok(text, "climate_maintenance_plan")
 
@@ -433,37 +434,101 @@ def enviromaint(body: QueryRequest, user=Depends(get_current_user)):
 # ── Marketing endpoints ──────────────────────────────────────────────────────
 
 @router.post("/social-media/generate")
-def social_media(body: SocialMediaRequest, user=Depends(get_current_user)): 
+def social_media(body: SocialMediaRequest, user=Depends(get_current_user)):
     profile = _load_profile(user.id)
-    shop_name = profile.get("shop_name", "our shop")
-    phone     = profile.get("phone", "")
-    tag       = _hashtag(shop_name)
-    promo_line = f"💥 {body.promo}\n\n" if body.promo else ""
-    kw = dict(shop_name=shop_name, phone=phone, hashtag=tag, promo_line=promo_line)
+    shop_name  = profile.get("shop_name", "our shop")
+    phone      = profile.get("phone", "")
+    location   = profile.get("location", "")
+    shop_tone  = profile.get("tone", "professional")
+    tag        = _hashtag(shop_name)
+    promo_line = f"Current offer: {body.promo}" if body.promo else ""
 
-    # ── Try template first ──────────────────────────────────────────────────
-    tmpl = find_social(body.service_type or "") or SOCIAL["general"]
+    # Resolve tone: request tone > shop profile tone > professional
+    tone_key = (body.tone or shop_tone or "professional").lower().split("/")[0].strip()
+    valid_tones = {"professional", "friendly", "educational", "urgent"}
+    if tone_key not in valid_tones:
+        tone_key = "professional"
+
+    # Load KB
+    from kb_loader import kb
+    sm_kb = kb("social_media")
+    tone_data  = sm_kb.get("tones", {}).get(tone_key, {})
+    svc_data   = sm_kb.get("service_context", {}).get(
+        (body.service_type or "").lower().replace(" ", "_"), {}
+    )
+
+    # Build tone guide block
+    tone_guide = f"TONE: {tone_key.upper()}\nDescription: {tone_data.get('description', '')}\n"
+    if tone_data.get("vocabulary"):
+        tone_guide += f"Use words like: {', '.join(tone_data['vocabulary'][:6])}\n"
+    if tone_data.get("avoid"):
+        tone_guide += f"Avoid: {', '.join(tone_data['avoid'][:5])}\n"
+    if tone_data.get("structure"):
+        tone_guide += f"Structure: {tone_data['structure']}\n"
+
+    # Build tone examples block (5 per platform as style references)
+    examples_block = ""
+    examples = tone_data.get("examples", {})
     want = (body.platform or "all").lower()
-    parts = []
-    if want in ("all", "instagram")       and "instagram" in tmpl:
-        parts.append(f"📸 INSTAGRAM\n\n{_fill(tmpl['instagram'], **kw)}")
-    if want in ("all", "facebook")        and "facebook"  in tmpl:
-        parts.append(f"👍 FACEBOOK\n\n{_fill(tmpl['facebook'], **kw)}")
-    if want in ("all", "google", "google business") and "google" in tmpl:
-        parts.append(f"🔍 GOOGLE BUSINESS\n\n{_fill(tmpl['google'], **kw)}")
-    if parts:
-        return _ok("\n\n─────────────────────\n\n".join(parts), "social_media_posts")
+    for plat in ["instagram", "facebook", "google"]:
+        if want not in ("all", plat, "google business"):
+            continue
+        plat_examples = examples.get(plat, [])
+        if plat_examples:
+            examples_block += f"\n{plat.upper()} STYLE EXAMPLES (match this voice):\n"
+            for ex in plat_examples[:3]:
+                examples_block += f"• {ex}\n"
 
-    # ── Fall back to AI for unusual platform or highly custom request ───────
+    # Build service context block
+    svc_block = ""
+    if svc_data:
+        svc_block = f"\nSERVICE CONTEXT — {(body.service_type or '').upper()}:\n"
+        if svc_data.get("key_benefits"):
+            svc_block += f"Key benefits: {', '.join(svc_data['key_benefits'])}\n"
+        if svc_data.get("urgency_triggers"):
+            svc_block += f"Urgency triggers: {', '.join(svc_data['urgency_triggers'][:3])}\n"
+
+    # Determine platform output instructions
+    if want == "all":
+        platform_instructions = (
+            "Write all three:\n"
+            "📸 INSTAGRAM — under 150 words, include relevant emojis and hashtags\n"
+            "👍 FACEBOOK — under 220 words, conversational, include shop name and phone\n"
+            f"🔍 GOOGLE BUSINESS — 1–2 sentences max, include shop name and phone\n"
+            "Label each section clearly."
+        )
+    elif want == "instagram":
+        platform_instructions = "📸 INSTAGRAM — under 150 words, include relevant emojis and 5–8 hashtags"
+    elif want == "facebook":
+        platform_instructions = "👍 FACEBOOK — under 220 words, conversational, include shop name and phone naturally"
+    else:
+        platform_instructions = f"🔍 GOOGLE BUSINESS — 1–2 sentences max, include shop name and phone"
+
     client, err = _get_client()
     if err: return _err(err)
-    platforms = body.platform if body.platform != "all" else "Facebook, Instagram, Google Business"
-    system = (f"Social media copywriter for auto repair shop. Shop: {_shop_ctx(profile)}. "
-              f"Tone: {body.tone}. Local, authentic, never corporate. "
-              f"Include shop name ({shop_name}) and phone ({phone}) naturally. "
-              "Instagram: <150 words + hashtags. Facebook: <200 words. Google Business: 1-2 sentences. Label each platform.")
-    user = f"Platform(s): {platforms}\nService/Topic: {body.service_type or 'general update'}" + (f"\nPromo: {body.promo}" if body.promo else "")
-    text, err = _call_claude(client, system, user)
+
+    system = (
+        f"You are a social media copywriter for an independent auto repair shop.\n"
+        f"Shop: {_shop_ctx(profile)}\n"
+        f"Shop name: {shop_name} | Phone: {phone} | Location: {location} | Hashtag: #{tag}\n\n"
+        f"{tone_guide}\n"
+        f"RULES:\n"
+        f"- Write completely fresh, original copy — do NOT copy the examples\n"
+        f"- Use the examples only to understand the voice and style\n"
+        f"- Always include the real shop name ({shop_name}) and phone ({phone})\n"
+        f"- Never use placeholder text like [Shop Name] or [Phone]\n"
+        f"- Never fabricate statistics, prices, or promotions unless given one\n"
+        f"{examples_block}"
+        f"{svc_block}"
+    )
+
+    prompt = (
+        f"Service/Topic: {body.service_type or 'general auto care update'}\n"
+        f"{promo_line}\n"
+        f"{platform_instructions}"
+    )
+
+    text, err = _call_gemini(client, system, prompt, max_tokens=1000)
     if err: return _err(err)
     return _ok(text, "social_media_posts")
 
@@ -497,7 +562,7 @@ def cta_copy(body: CTACopyRequest, user=Depends(get_current_user)):
     system = (f"Conversion copywriter for auto shop. Shop: {_shop_ctx(profile)}. "
               f"Direct, action-oriented CTAs. Use shop name ({shop_name}) and phone ({phone}). Label each format.")
     user = f"Formats: {formats}\nService: {body.service_type or 'auto repair'}\nGoal: {body.goal}\nUrgency: {body.urgency}"
-    text, err = _call_claude(client, system, user)
+    text, err = _call_gemini(client, system, user)
     if err: return _err(err)
     return _ok(text, "cta_copy")
 
@@ -533,7 +598,7 @@ def promo_builder(body: PromoRequest, user=Depends(get_current_user)):
     system = (f"Promo copywriter for auto shop. Shop: {_shop_ctx(profile)}. "
               f"Urgency without pushiness. Always include: {shop_name}, {phone}, expiry. Label each channel.")
     user = f"Offer: {offer}\nService: {body.service_type or 'general'}\nExpiry: {expiry}\nChannels: {channels_label}"
-    text, err = _call_claude(client, system, user)
+    text, err = _call_gemini(client, system, user)
     if err: return _err(err)
     return _ok(text, "promo_content")
 
@@ -546,6 +611,6 @@ def blog_post(body: BlogRequest, user=Depends(get_current_user)):
     shop_name = profile.get("shop_name", "our shop")
     system = f"SEO blog writer for auto shop ({shop_name}). Shop: {_shop_ctx(profile)}. Audience: {body.audience}. Conversational but authoritative. Structure: meta title, meta description, H1, intro, 3 H2 sections, conclusion with soft CTA. No fabricated stats."
     user = f"Write a ~{body.length}-word post: {body.topic or 'auto maintenance tips'}" + (f"\nKeywords: {body.keywords}" if body.keywords else "")
-    text, err = _call_claude(client, system, user, max_tokens=2200)
+    text, err = _call_gemini(client, system, user, max_tokens=2200)
     if err: return _err(err)
     return _ok(text, "blog_post")

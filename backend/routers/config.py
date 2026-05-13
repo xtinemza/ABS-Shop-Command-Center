@@ -40,32 +40,30 @@ def _save_config(data: dict) -> dict:
 
 
 class ConfigSaveRequest(BaseModel):
-    anthropic_api_key: Optional[str] = None
+    gemini_api_key: Optional[str] = None
 
 
 @router.get("/config")
-def get_config()user=Depends(get_current_user)):
+def get_config(user=Depends(get_current_user)):
     cfg = _load_config()
-    # Mask the key for display — only show last 4 chars
     masked = {}
-    if cfg.get("anthropic_api_key"):
-        key = cfg["anthropic_api_key"]
-        masked["anthropic_api_key"] = "sk-ant-..." + key[-4:] if len(key) > 8 else "****"
-        masked["anthropic_api_key_set"] = True
+    if cfg.get("gemini_api_key"):
+        key = cfg["gemini_api_key"]
+        masked["gemini_api_key"] = "AIza..." + key[-4:] if len(key) > 8 else "****"
+        masked["gemini_api_key_set"] = True
     else:
-        masked["anthropic_api_key"] = ""
-        masked["anthropic_api_key_set"] = False
+        masked["gemini_api_key"] = ""
+        masked["gemini_api_key_set"] = False
     return {"success": True, "config": masked}
 
 
 @router.post("/config/save")
-def save_config(body: ConfigSaveRequest, user=Depends(get_current_user)): 
+def save_config(body: ConfigSaveRequest, user=Depends(get_current_user)):
     try:
         data = {k: v for k, v in body.dict().items() if v}
         _save_config(data)
-        # Also inject into the running process environment immediately
-        if body.anthropic_api_key:
-            os.environ["ANTHROPIC_API_KEY"] = body.anthropic_api_key
+        if body.gemini_api_key:
+            os.environ["GEMINI_API_KEY"] = body.gemini_api_key
         return {"success": True, "message": "Configuration saved."}
     except Exception as exc:
         return {"success": False, "error": str(exc)}

@@ -77,5 +77,51 @@
     "max_discount_pct": 15,
     "offer_expiry_days": 14,
     "combine_with_other_offers": false
+  },
+
+  "example_messages": {
+    "safety_critical": {
+      "touch_1_sms": [
+        "Hi Sarah, this is Lakewood Auto Care following up on your visit. During your inspection, we flagged your rear brake pads at 2mm — that's below the safe minimum. We want to make sure you and your family are safe out there. Can we get that taken care of for you? Call us at (303) 555-1234.",
+        "Marcus, Peak Auto here. We wanted to follow up on the steering component we mentioned at your last visit. Worn tie rods affect how your truck handles — especially in an emergency stop. This isn't something we want you to put off. Call us: (720) 555-8800.",
+        "Hi Dana, South Side Auto here. Your front wheel bearing we noted last week is getting louder — that grinding sound will only get worse and can become dangerous. Please give us a call at (303) 555-9900 so we can take care of you."
+      ],
+      "touch_2_sms": [
+        "Sarah, we're still thinking about those brake pads. Your safety matters more to us than another sale. If budget is a concern, let's talk — we can work something out. Call Lakewood Auto Care: (303) 555-1234.",
+        "Hi Marcus — just checking in again on that tie rod. We know life gets busy. If you need us to fit you in quickly, we'll make it happen. Peak Auto: (720) 555-8800."
+      ]
+    },
+    "high_priority": {
+      "touch_1_sms": [
+        "Hi Sarah! Lakewood Auto Care here. At your last visit we noticed your coolant level is low and there may be a small leak. Left untreated, this can lead to overheating and costly engine damage. Let's get it checked before it becomes a bigger issue — call (303) 555-1234.",
+        "Marcus, your check engine light we flagged could be something minor or something worth addressing soon. Let's find out — 10% off diagnosis this week at Peak Auto. Call (720) 555-8800."
+      ],
+      "touch_2_email": [
+        "Subject: A quick follow-up on your Camry — Lakewood Auto Care\n\nHi Sarah,\n\nWe wanted to follow up on the coolant issue we mentioned at your last visit. We understand life gets busy — but an untreated coolant leak can escalate quickly and turn a small repair into a large one.\n\nAs a thank-you for being a valued customer, we'd like to offer 10% off the repair when you come in this month. No pressure — just an open invitation.\n\nGive us a call at (303) 555-1234 and we'll get you on the schedule.\n\nTake care,\nThe Team at Lakewood Auto Care"
+      ]
+    },
+    "medium_priority": {
+      "touch_1_sms": [
+        "Hi Sarah, Lakewood Auto Care here! At your last visit we noticed your engine air filter is pretty dirty. It's a quick swap that can improve your fuel economy — and it's only $29 when you come in this month. Call (303) 555-1234 to schedule.",
+        "Hey Marcus — your spark plugs are due based on mileage. Fresh plugs = better starts, smoother idle, better mpg. We can knock it out next time you're in. 10% off through the end of the month. Peak Auto: (720) 555-8800."
+      ],
+      "touch_2_sms": [
+        "Still thinking about that air filter, Sarah? We'll do it in under 15 minutes at your next oil change visit. Just mention this text. — Lakewood Auto Care, (303) 555-1234"
+      ]
+    },
+    "low_priority": {
+      "touch_1_sms": [
+        "Hi Sarah! Lakewood Auto Care here. We mentioned your cabin air filter was dusty last visit. No rush — but when you're ready, it's a quick and easy swap. Call us at (303) 555-1234 to schedule. Enjoy the week!",
+        "Hey Dana — just a friendly reminder about the detailing package we mentioned. Whenever you're ready, South Side Auto has you covered. (303) 555-9900."
+      ]
+    }
+  },
+
+  "tone_guidelines": {
+    "voice": "Caring, not pushy. Think of a good neighbor who happens to know cars — they'd tell you the truth without making you feel bad for not acting immediately.",
+    "safety_critical_voice": "Genuinely concerned, not fear-mongering. Never make the customer feel judged for declining. Focus on their safety, not the lost revenue.",
+    "high_priority_voice": "Helpful and informative. Explain the risk of delay in plain language. A discount makes it easier to say yes, but the education is the real value.",
+    "medium_low_voice": "Light and friendly. These are maintenance items, not emergencies. Keep the tone casual — a gentle nudge, not a sales pitch.",
+    "avoid": ["guilt-tripping", "exaggerating risk", "technical jargon", "impersonal openers like 'Dear valued customer'"]
   }
 }
