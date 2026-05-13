@@ -5,7 +5,6 @@ import Login from "./components/Login"
 import { modules, categoryMeta } from "./data/modules"
 import Header from "./components/Header"
 import NavBar from "./components/NavBar"
-import SectionHead from "./components/SectionHead"
 import ModuleCard from "./components/ModuleCard"
 import Drawer from "./components/Drawer"
 import ModulePanel from "./components/ModulePanel"
@@ -72,8 +71,6 @@ export default function App() {
   }
 
   const list = modules.filter(m => cat === "all" || m.category === cat)
-  const core = list.filter(m => m.status === "core")
-  const suggested = list.filter(m => m.status === "suggested")
 
   if (!bootstrapped) {
     return (
@@ -140,50 +137,24 @@ export default function App() {
       <NavBar cat={cat} setCat={setCat} categoryMeta={categoryMeta} />
 
       <main style={{ padding: "28px 32px 48px" }}>
-        {core.length > 0 && <SectionHead title="Core Modules" />}
-
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(310px, 1fr))",
-          gap: 12,
-        }}>
-          {core.map((m, i) => (
-            <ModuleCard
-              key={m.id}
-              mod={m}
-              idx={i}
-              ready={ready}
-              active={selected?.id === m.id}
-              onClick={() => setSelected(selected?.id === m.id ? null : m)}
-            />
-          ))}
-        </div>
-
-        {suggested.length > 0 && (
-          <>
-            <div style={{ marginTop: 36 }}>
-              <SectionHead title="Suggested Additions" badge="RECOMMENDED" />
-            </div>
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(310px, 1fr))",
-              gap: 12,
-            }}>
-              {suggested.map((m, i) => (
-                <ModuleCard
-                  key={m.id}
-                  mod={m}
-                  idx={i + core.length}
-                  ready={ready}
-                  active={selected?.id === m.id}
-                  onClick={() => setSelected(selected?.id === m.id ? null : m)}
-                />
-              ))}
-            </div>
-          </>
-        )}
-
-        {list.length === 0 && (
+        {list.length > 0 ? (
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(310px, 1fr))",
+            gap: 12,
+          }}>
+            {list.map((m, i) => (
+              <ModuleCard
+                key={m.id}
+                mod={m}
+                idx={i}
+                ready={ready}
+                active={selected?.id === m.id}
+                onClick={() => setSelected(selected?.id === m.id ? null : m)}
+              />
+            ))}
+          </div>
+        ) : (
           <div style={{ textAlign: "center", padding: "80px 0" }}>
             <p style={{ fontSize: 40 }}>🔍</p>
             <p style={{ fontSize: 12, color: "#444", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
