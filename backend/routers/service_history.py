@@ -1,88 +1,92 @@
 """
 Router: Module 5 — Vehicle Service History
 POST /api/service-history/generate
+Gemini: generates a branded service history report from customer-provided records
 """
-import argparse
-import os
-import sys
+import os, sys
 from typing import Optional
-
 from fastapi import APIRouter, Depends
 from auth import get_current_user
-from supabase_client import supabase
-
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if _BACKEND_DIR not in sys.path:
     sys.path.insert(0, _BACKEND_DIR)
 
-_TOOLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "tools"))
-if _TOOLS_ROOT not in sys.path:
-    sys.path.insert(0, _TOOLS_ROOT)
-
 from models.responses import ModuleResponse
-from utils import capture_output, read_output_files
+from gemini_client import load_profile, get_gemini, call_gemini, shop_context
 
 router = APIRouter()
 
 
 class ServiceHistoryRequest(BaseModel):
-    customer: Optional[str] = "Customer Name"
-    vehicle: Optional[str] = "Vehicle Year Make Model"
-    mileage: Optional[int] = 50000
-    records: Optional[str] = "[]"
-    vin: Optional[str] = ""
+    customer:  Optional[str] = ""
+    vehicle:   Optional[str] = ""
+    mileage:   Optional[str] = ""
+    records:   Optional[str] = ""   # free-text or JSON list of service records
+    vin:       Optional[str] = ""
 
 
 @router.post("/service-history/generate", response_model=ModuleResponse)
-def generate_service_history(body: ServiceHistoryRequest, user=Depends(get_current_user)): 
+def generate_service_history(body: ServiceHistoryRequest, user=Depends(get_current_user)):
     try:
-        from service_history import generate_report
+        profile  = load_profile(user.id)
+        ctx      = shop_context(profile)
 
-        profile = generate_report.load_profile()
+        shop_name = profile.get("shop_name") or "our shop"
+        phone     = profile.get("phone") or ""
+        customer  = (body.customer or "").strip()
+        vehicle   = (body.vehicle or "").strip()
+        mileage   = (body.mileage or "").strip()
+        records   = (body.records or "").strip()
+        vin       = (body.vin or "").strip()
 
-        output_dir = os.path.abspath(
-            os.path.join(_TOOLS_ROOT, "..", "output", "service_history")
+        if not records:
+            return ModuleResponse(success=False, output="", files=[],
+                                  error="Please provide service records to generate the report.")
+
+        client, err = get_gemini()
+        if err:
+            return ModuleResponse(success=False, output="", files=[], error=err)
+
+        system = (
+            f"You generate branded vehicle service history reports for an independent auto repair shop.\n"
+            f"{ctx}\n\n"
+            f"RULES:\n"
+            f"- Format as a clean, professional report the customer can keep or share when selling the vehicle\n"
+            f"- Group services chronologically\n"
+            f"- Include a Vehicle Health Summary section at the end\n"
+            f"- Include upcoming service recommendations based on the history\n"
+            f"- Use {shop_name} branding throughout — never generic placeholders\n"
+            f"- Phone: {phone}\n"
+            f"- Close with a note about the shop's warranty on parts and labor\n"
         )
-        os.makedirs(output_dir, exist_ok=True)
 
-        # Build a namespace object to mimic argparse args
-        args = argparse.Namespace(
-            customer=body.customer or "Customer Name",
-            vehicle=body.vehicle or "Vehicle",
-            mileage=body.mileage or 0,
-            records=body.records or "[]",
-            vin=body.vin or "",
+        prompt = (
+            f"Generate a complete Vehicle Service History Report.\n\n"
+            + (f"Customer: {customer}\n" if customer else "")
+            + (f"Vehicle: {vehicle}\n" if vehicle else "")
+            + (f"Current Mileage: {mileage}\n" if mileage else "")
+            + (f"VIN: {vin}\n" if vin else "")
+            + f"\nService Records:\n{records}\n\n"
+            + "Structure the report as:\n"
+            + "## VEHICLE SERVICE HISTORY — [VEHICLE]\n"
+            + "## SERVICE TIMELINE (chronological, with dates, mileage, services, cost)\n"
+            + "## VEHICLE HEALTH SUMMARY\n"
+            + "## UPCOMING RECOMMENDATIONS\n"
+            + "## SHOP CONTACT & WARRANTY"
         )
 
-        def run():
-            print(f"\nGenerating vehicle service history report")
-            print(f"   Customer : {args.customer}")
-            print(f"   Vehicle  : {args.vehicle}")
-            print(f"   Mileage  : {args.mileage:,}")
-            print()
+        text, err = call_gemini(client, system, prompt, max_tokens=1600)
+        if err:
+            return ModuleResponse(success=False, output="", files=[], error=err)
 
-            report_text = generate_report.build_report(profile, args)
+        label = f"{customer} — {vehicle}".strip(" —") or "Vehicle"
+        content_map = {"service_history_report.txt": text}
+        output_log  = f"Generated service history report: {label}"
 
-            import re
-            safe_name = re.sub(r"[^a-z0-9_]", "_", args.customer.lower().strip()).strip("_")
-            filename = f"{safe_name}_service_history.txt"
-            filepath = os.path.join(output_dir, filename)
-            with open(filepath, "w", encoding="utf-8") as fh:
-                fh.write(report_text)
-            print(f"  Saved output/service_history/{filename}")
-            print(f"\nDone - report saved to output/service_history/")
+        return ModuleResponse(success=True, output=output_log, files=["service_history_report.txt"],
+                              content=content_map, error=None)
 
-        stdout, error = capture_output(run)
-        file_paths, content_map = read_output_files("service_history")
-
-        return ModuleResponse(
-            success=error is None,
-            output=stdout,
-            files=file_paths,
-            content=content_map,
-            error=error,
-        )
     except Exception as exc:
         return ModuleResponse(success=False, output="", files=[], error=str(exc))

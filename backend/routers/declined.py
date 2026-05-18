@@ -1,101 +1,126 @@
 """
 Router: Module 4 — Declined Services Follow-Up
 POST /api/declined/generate
+KB: declined.json | Gemini: generates multi-touch follow-up campaigns
 """
-import os
-import sys
+import os, sys
 from typing import Optional
-
 from fastapi import APIRouter, Depends
 from auth import get_current_user
-from supabase_client import supabase
-
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if _BACKEND_DIR not in sys.path:
     sys.path.insert(0, _BACKEND_DIR)
 
-_TOOLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "tools"))
-if _TOOLS_ROOT not in sys.path:
-    sys.path.insert(0, _TOOLS_ROOT)
-
 from models.responses import ModuleResponse
-from utils import capture_output, read_output_files
+from kb_loader import kb
+from gemini_client import load_profile, get_gemini, call_gemini, shop_context
 
 router = APIRouter()
 
 
 class DeclinedRequest(BaseModel):
-    service: Optional[str] = "Recommended Service"
-    urgency: Optional[str] = "medium"
-    touches: Optional[str] = "1,2,3,4"
-    offer: Optional[str] = "10% off when you schedule this service"
+    service:  str = ""
+    urgency:  Optional[str] = "medium"
+    touches:  Optional[str] = "1,2,3"
+    customer_name: Optional[str] = ""
+    price:    Optional[str] = ""
+    discount: Optional[str] = ""
 
 
 @router.post("/declined/generate", response_model=ModuleResponse)
-def generate_declined(body: DeclinedRequest, user=Depends(get_current_user)): 
+def generate_declined(body: DeclinedRequest, user=Depends(get_current_user)):
     try:
-        from declined_services import generate_campaign
+        if not body.service.strip():
+            return ModuleResponse(success=False, output="", files=[],
+                                  error="Please enter the declined service name.")
 
-        profile = generate_campaign.load_profile()
-        service = body.service or "Recommended Service"
-        urgency_key = body.urgency or "medium"
-        offer = body.offer or "10% off when you schedule this service"
-        touches_str = body.touches or "1,2,3,4"
+        profile    = load_profile(user.id)
+        ctx        = shop_context(profile)
+        dec_kb     = kb("declined")
 
-        # Parse touch list
+        shop_name  = profile.get("shop_name") or "our shop"
+        phone      = profile.get("phone") or ""
+        service    = body.service.strip()
+        urgency    = (body.urgency or "medium").lower().replace("-", "_").replace(" ", "_")
+        customer   = (body.customer_name or "").strip()
+        price      = (body.price or "").strip()
+        discount   = (body.discount or "").strip()
+
+        # Parse touches
         try:
-            touch_nums = [int(t.strip()) for t in touches_str.split(",") if t.strip()]
-        except ValueError:
-            touch_nums = [1, 2, 3, 4]
+            touch_nums = sorted(set(int(t.strip()) for t in (body.touches or "1,2,3").split(",") if t.strip().isdigit()))
+        except Exception:
+            touch_nums = [1, 2, 3]
+        touch_nums = touch_nums[:4]
 
-        # Validate urgency
-        valid_urgencies = ["low", "medium", "high", "safety-critical"]
-        if urgency_key not in valid_urgencies:
-            urgency_key = "medium"
+        # Pull KB urgency rules
+        urgency_data = {}
+        if dec_kb:
+            urgency_data = dec_kb.get("urgency_levels", {}).get(urgency, {})
+        tone       = urgency_data.get("tone", "Caring and helpful")
+        offer_disc = urgency_data.get("offer_discount", urgency != "safety_critical")
+        cadence    = urgency_data.get("follow_up_cadence_days", [1, 7, 21])
 
-        output_dir = os.path.abspath(
-            os.path.join(_TOOLS_ROOT, "..", "output", "declined_services")
+        msg_rules = ""
+        if dec_kb:
+            rules = dec_kb.get("message_rules", [])
+            msg_rules = "\n".join(f"- {r}" for r in rules)
+
+        # Determine offer text
+        offer_text = ""
+        if offer_disc and urgency != "safety_critical":
+            offer_text = discount or urgency_data.get("default_discount", "10% off")
+
+        client, err = get_gemini()
+        if err:
+            return ModuleResponse(success=False, output="", files=[], error=err)
+
+        system = (
+            f"You write declined service follow-up messages for an independent auto repair shop.\n"
+            f"{ctx}\n\n"
+            f"Tone for {urgency.replace('_', ' ')} urgency: {tone}\n\n"
+            f"Message rules:\n{msg_rules}\n\n"
+            f"RULES:\n"
+            f"- Always name the specific service: {service}\n"
+            f"- Use the real shop name: {shop_name} and phone: {phone}\n"
+            f"- SMS must be under 160 characters\n"
+            f"- Never make customer feel judged for declining\n"
+            f"- Safety critical items: never offer a discount — focus on risk\n"
+            f"- Each touch must be ready to copy-paste\n"
         )
-        os.makedirs(output_dir, exist_ok=True)
 
-        service_slug = generate_campaign.slugify(service)
+        touches_desc = []
+        for i, num in enumerate(touch_nums):
+            day = cadence[i] if i < len(cadence) else cadence[-1] if cadence else (num * 7)
+            touches_desc.append(f"Touch {num} (Day {day}): {'First follow-up — remind and educate' if num == 1 else 'Second — add value or discount' if num == 2 else 'Third — mild urgency, reiterate risk' if num == 3 else 'Final — phone script for liability documentation'}")
 
-        def run():
-            print(f"\nGenerating declined services follow-up campaign")
-            print(f"   Service  : {service}")
-            print(f"   Urgency  : {urgency_key}")
-            print(f"   Touches  : {touch_nums}")
-            print()
-            generated = []
-            for touch_num in touch_nums:
-                channels_dict = generate_campaign.build_touch(
-                    touch_num, profile, service, urgency_key, offer
-                )
-                if channels_dict is None:
-                    print(f"  Unknown touch number: {touch_num}")
-                    continue
-                timing = generate_campaign.TOUCH_TIMING.get(touch_num, f"Touch {touch_num}")
-                print(f"  Touch {touch_num} — {timing}")
-                for channel, content in channels_dict.items():
-                    filename = f"{service_slug}_touch{touch_num}_{channel}.txt"
-                    filepath = os.path.join(output_dir, filename)
-                    with open(filepath, "w", encoding="utf-8") as fh:
-                        fh.write(content)
-                    print(f"    Saved output/declined_services/{filename}")
-                    generated.append(filename)
-            print(f"\nDone - {len(generated)} file(s) saved to output/declined_services/")
+        touches_list = "\n".join(f"  {t}" for t in touches_desc)
 
-        stdout, error = capture_output(run)
-        file_paths, content_map = read_output_files("declined_services")
-
-        return ModuleResponse(
-            success=error is None,
-            output=stdout,
-            files=file_paths,
-            content=content_map,
-            error=error,
+        prompt = (
+            f"Declined service: {service}\n"
+            f"Urgency level: {urgency.replace('_', ' ').title()}\n"
+            + (f"Customer name: {customer}\n" if customer else "")
+            + (f"Original estimate price: {price}\n" if price else "")
+            + (f"Discount offer: {offer_text}\n" if offer_text else "No discount for this urgency level.\n")
+            + f"\nGenerate these follow-up touches:\n{touches_list}\n\n"
+            + "For each touch, write:\n"
+            + "  - SMS (under 160 chars)\n"
+            + "  - Email (with subject line and body)\n"
+            + "  - Phone script (for Touch 3+ only)\n\n"
+            + "Label each section: ## TOUCH 1 — SMS, ## TOUCH 1 — EMAIL, etc."
         )
+
+        text, err = call_gemini(client, system, prompt, max_tokens=1800)
+        if err:
+            return ModuleResponse(success=False, output="", files=[], error=err)
+
+        content_map = {"declined_followup.txt": text}
+        output_log  = f"Generated {len(touch_nums)}-touch follow-up for: {service} ({urgency.replace('_', ' ')} urgency)"
+
+        return ModuleResponse(success=True, output=output_log, files=["declined_followup.txt"],
+                              content=content_map, error=None)
+
     except Exception as exc:
         return ModuleResponse(success=False, output="", files=[], error=str(exc))
