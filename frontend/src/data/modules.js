@@ -49,10 +49,10 @@ export const modules = [
 
 export const categoryMeta = {
   all: { label: "ALL MODULES", count: modules.length },
-  "front-office": { label: "FRONT OFFICE", count: modules.filter(m => m.category === "front-office").length },
-  mechanics: { label: "MECHANICS", count: modules.filter(m => m.category === "mechanics").length },
+  "front-office": { label: "CUSTOMER SERVICE", count: modules.filter(m => m.category === "front-office").length },
+  mechanics: { label: "TECH & REPAIRS", count: modules.filter(m => m.category === "mechanics").length },
   inventory: { label: "INVENTORY", count: modules.filter(m => m.category === "inventory").length },
-  operations: { label: "OPERATIONS", count: modules.filter(m => m.category === "operations").length },
+  operations: { label: "BUSINESS OPS", count: modules.filter(m => m.category === "operations").length },
 }
 
 export const featureData = {
