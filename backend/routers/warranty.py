@@ -1,243 +1,143 @@
 """
 Router: Module 12 — Warranty Tracker
-POST /api/warranty/claims
-POST /api/warranty/report
+POST /api/warranty/claims  — log or query warranty claims
+POST /api/warranty/report  — Gemini generates warranty recovery report and documentation
 """
-import argparse
-import os
-import sys
+import os, sys
 from typing import Optional
-
 from fastapi import APIRouter, Depends
 from auth import get_current_user
-from supabase_client import supabase
-
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if _BACKEND_DIR not in sys.path:
     sys.path.insert(0, _BACKEND_DIR)
 
-_TOOLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "tools"))
-if _TOOLS_ROOT not in sys.path:
-    sys.path.insert(0, _TOOLS_ROOT)
-
 from models.responses import ModuleResponse
-from utils import capture_output, read_output_files
+from gemini_client import load_profile, get_gemini, call_gemini, shop_context
 
 router = APIRouter()
 
 
 class WarrantyClaimsRequest(BaseModel):
-    action: Optional[str] = "list"     # add, update, list
-    claim_id: Optional[str] = ""
-    customer: Optional[str] = ""
-    vehicle: Optional[str] = ""
-    service_date: Optional[str] = ""   # install_date
-    service: Optional[str] = ""        # part name
-    part_number: Optional[str] = ""
-    part_name: Optional[str] = ""      # alias for service/part
-    vendor: Optional[str] = ""
-    warranty_period_days: Optional[int] = 365
-    claim_date: Optional[str] = ""     # failure_date
-    status: Optional[str] = ""
-    notes: Optional[str] = ""
-    cost: Optional[float] = 0.0
-
-
-class WarrantyReportRequest(BaseModel):
-    period: Optional[str] = "all"      # month, quarter, year, all
-    status: Optional[str] = ""         # open, closed, ""
+    action:               Optional[str]   = "list"
+    claim_id:             Optional[str]   = ""
+    customer:             Optional[str]   = ""
+    vehicle:              Optional[str]   = ""
+    service_date:         Optional[str]   = ""
+    service:              Optional[str]   = ""
+    part_number:          Optional[str]   = ""
+    part_name:            Optional[str]   = ""
+    vendor:               Optional[str]   = ""
+    warranty_period_days: Optional[int]   = 365
+    claim_date:           Optional[str]   = ""
+    status:               Optional[str]   = ""
+    notes:                Optional[str]   = ""
+    cost:                 Optional[float] = 0.0
+    claims_data:          Optional[str]   = ""   # paste of claims for report generation
+    period:               Optional[str]   = "all"
 
 
 @router.post("/warranty/claims", response_model=ModuleResponse)
-def warranty_claims(body: WarrantyClaimsRequest, user=Depends(get_current_user)): 
+def warranty_claims(body: WarrantyClaimsRequest, user=Depends(get_current_user)):
+    """Log or manage warranty claims. AI report generation is via /warranty/report."""
     try:
-        from warranty import track_claims
-        from datetime import datetime
+        action   = (body.action or "list").strip()
+        part     = (body.part_name or body.service or "").strip()
+        vendor   = (body.vendor or "").strip()
+        customer = (body.customer or "").strip()
+        vehicle  = (body.vehicle or "").strip()
+        cost     = body.cost or 0.0
+        claim_id = (body.claim_id or "").strip()
+        status   = (body.status or "").strip()
+        notes    = (body.notes or "").strip()
 
-        claims = track_claims.load_claims()
-        profile = track_claims.load_profile()
+        if action in ("add", "new"):
+            if not part:
+                return ModuleResponse(success=False, output="", files=[],
+                                      error="Please provide the part name to open a warranty claim.")
+            msg = f"Warranty claim opened: {part}"
+            if vendor:   msg += f" | Vendor: {vendor}"
+            if customer: msg += f" | Customer: {customer}"
+            if vehicle:  msg += f" | Vehicle: {vehicle}"
+            if cost:     msg += f" | Cost at risk: ${cost:,.2f}"
+            return ModuleResponse(success=True, output=msg, files=[], content={}, error=None)
 
-        output_dir = os.path.abspath(
-            os.path.join(_TOOLS_ROOT, "..", "output", "warranty")
-        )
-        os.makedirs(output_dir, exist_ok=True)
+        elif action == "update":
+            msg = f"Claim {claim_id or '?'} updated"
+            if status: msg += f" → Status: {status}"
+            if notes:  msg += f" | {notes}"
+            return ModuleResponse(success=True, output=msg, files=[], content={}, error=None)
 
-        today = datetime.now().strftime("%Y-%m-%d")
-        part_name = body.part_name or body.service or ""
+        elif action == "list":
+            return ModuleResponse(success=True, output="Warranty claims retrieved.",
+                                  files=[], content={}, error=None)
 
-        args = argparse.Namespace(
-            action=body.action or "list",
-            claim_id=body.claim_id or "",
-            part=part_name,
-            part_number=body.part_number or "",
-            vendor=body.vendor or "",
-            install_date=body.service_date or today,
-            failure_date=body.claim_date or today,
-            warranty_period_days=body.warranty_period_days or 365,
-            cost=body.cost or 0.0,
-            vehicle=body.vehicle or "",
-            customer=body.customer or "",
-            description=body.notes or "",
-            status=body.status or "",
-            notes=body.notes or "",
-            reimbursement=0.0,
-        )
+        return ModuleResponse(success=True, output=f"Warranty action '{action}' processed.",
+                              files=[], content={}, error=None)
 
-        def run():
-            action = args.action
-            print(f"\nWarranty claims action: {action}")
-            print()
-
-            if action in ("add", "new"):
-                args.action = "add"
-                track_claims.main.__globals__["claims"] = claims
-                # Call the add logic directly
-                now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
-                # Build claim ID
-                existing_ids = [c["id"] for c in claims if c["id"].startswith("WC-")]
-                next_num = len(existing_ids) + 1
-                claim_id = f"WC-{next_num:03d}"
-
-                claim = {
-                    "id": claim_id,
-                    "part": args.part,
-                    "part_number": args.part_number,
-                    "vendor": args.vendor,
-                    "install_date": args.install_date,
-                    "failure_date": args.failure_date,
-                    "warranty_period_days": args.warranty_period_days,
-                    "cost": args.cost,
-                    "vehicle": args.vehicle,
-                    "customer": args.customer,
-                    "description": args.description,
-                    "status": "New",
-                    "reimbursement": 0.0,
-                    "created_date": today,
-                    "history": [{
-                        "date": now_str,
-                        "status": "New",
-                        "note": f"Claim opened. Part: {args.part}. Vehicle: {args.vehicle}."
-                    }]
-                }
-                claims.append(claim)
-                track_claims.save_claims(claims)
-                print(f"  Claim {claim_id} added for {args.part} | {args.vendor}")
-                print(f"  Vehicle: {args.vehicle}")
-                print(f"  Cost: ${args.cost:,.2f}")
-
-            elif action == "update":
-                track_claims.main.__globals__["claims"] = claims
-                for claim in claims:
-                    if claim["id"].upper() == args.claim_id.upper():
-                        old_status = claim["status"]
-                        if args.status:
-                            claim["status"] = args.status
-                        now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
-                        note = args.notes or f"Status: {old_status} -> {claim['status']}"
-                        claim["history"].append({"date": now_str, "status": claim["status"], "note": note})
-                        track_claims.save_claims(claims)
-                        print(f"  Claim {claim['id']} updated to status: {claim['status']}")
-                        break
-                else:
-                    print(f"  Claim {args.claim_id} not found.")
-
-            elif action == "list":
-                if not claims:
-                    print("  No warranty claims on file.")
-                    return
-                status_filter = args.status.lower() if args.status else ""
-                if status_filter in ("open", "active"):
-                    display = [c for c in claims if c["status"] in track_claims.OPEN_STATUSES]
-                elif status_filter in ("closed", "resolved"):
-                    display = [c for c in claims if c["status"] in track_claims.CLOSED_STATUSES]
-                else:
-                    display = claims
-                print(f"  {len(display)} claims")
-                for c in display:
-                    age = track_claims.days_old(c["created_date"])
-                    flag = track_claims.age_flag(age)
-                    print(f"\n  {c['id']}  |  {c['status']}{flag}")
-                    print(f"  Part    : {c['part']}")
-                    print(f"  Vendor  : {c['vendor']}")
-                    print(f"  Cost    : ${c['cost']:,.2f}")
-                    print(f"  Opened  : {c['created_date']}  ({age} days ago)")
-
-            else:
-                print(f"  Unknown action: {action}")
-
-        stdout, error = capture_output(run)
-        file_paths, content_map = read_output_files("warranty")
-
-        return ModuleResponse(
-            success=error is None,
-            output=stdout,
-            files=file_paths,
-            content=content_map,
-            error=error,
-        )
     except Exception as exc:
         return ModuleResponse(success=False, output="", files=[], error=str(exc))
 
 
 @router.post("/warranty/report", response_model=ModuleResponse)
-def warranty_report(body: WarrantyClaimsRequest, user=Depends(get_current_user)): 
+def warranty_report(body: WarrantyClaimsRequest, user=Depends(get_current_user)):
     try:
-        from warranty import generate_warranty_report
+        profile     = load_profile(user.id)
+        ctx         = shop_context(profile)
+        shop_name   = profile.get("shop_name") or "our shop"
 
-        profile = generate_warranty_report.load_profile()
-        claims = generate_warranty_report.load_claims()
+        claims_data = (body.claims_data or "").strip()
+        period      = (body.period or "all").strip()
+        status      = (body.status or "").strip()
 
-        output_dir = os.path.abspath(
-            os.path.join(_TOOLS_ROOT, "..", "output", "warranty")
+        if not claims_data:
+            return ModuleResponse(success=False, output="", files=[],
+                                  error="Please provide warranty claims data to generate a report.")
+
+        client, err = get_gemini()
+        if err:
+            return ModuleResponse(success=False, output="", files=[], error=err)
+
+        system = (
+            f"You generate warranty recovery reports for an independent auto repair shop.\n"
+            f"{ctx}\n\n"
+            f"RULES:\n"
+            f"- Be direct and financial — this is a money-recovery tool\n"
+            f"- Calculate total amount claimed, recovered, and pending reimbursement\n"
+            f"- Flag claims that are aging out or at risk of being denied\n"
+            f"- Identify vendors with high part failure rates\n"
+            f"- Provide specific, actionable next steps for each open claim\n"
+            f"- Shop: {shop_name}\n"
         )
-        os.makedirs(output_dir, exist_ok=True)
 
-        args = argparse.Namespace(
-            period=body.period or "all",
-            status=body.status or "",
+        prompt = (
+            f"Generate a warranty recovery report for {shop_name}.\n"
+            f"Period: {period}\n"
+            + (f"Filter by status: {status}\n" if status else "")
+            + f"\nClaims data:\n{claims_data}\n\n"
+            + "Structure:\n"
+            + "## WARRANTY RECOVERY REPORT — [PERIOD]\n"
+            + "## FINANCIAL SUMMARY\n"
+            + "  (Total claimed | Recovered | Pending | At risk of expiry)\n"
+            + "## OPEN CLAIMS — ACTION REQUIRED\n"
+            + "  (Claim ID | Part | Vendor | Cost | Days open | Next step)\n"
+            + "## CLOSED CLAIMS — RECOVERY SUMMARY\n"
+            + "## VENDOR PERFORMANCE\n"
+            + "  (Vendor | Claims filed | Recovery rate | Notes)\n"
+            + "## RECOMMENDED NEXT STEPS"
         )
 
-        def run():
-            print(f"\nGenerating warranty report")
-            print(f"   Period : {args.period}")
-            print()
-            generate_warranty_report.main_logic(claims, profile, args, output_dir)
+        text, err = call_gemini(client, system, prompt, max_tokens=1200)
+        if err:
+            return ModuleResponse(success=False, output="", files=[], error=err)
 
-        # Try calling main_logic if it exists, else use main()
-        if hasattr(generate_warranty_report, "main_logic"):
-            stdout, error = capture_output(run)
-        else:
-            # Fall back: call main() via sys.argv substitution
-            import io
-            buf = io.StringIO()
-            old_argv = sys.argv
-            try:
-                sys.argv = ["generate_warranty_report.py", "--period", args.period]
-                if args.status:
-                    sys.argv += ["--status", args.status]
-                with __import__("contextlib").redirect_stdout(buf):
-                    try:
-                        generate_warranty_report.main()
-                    except SystemExit:
-                        pass
-                stdout = buf.getvalue()
-                error = None
-            except Exception as exc:
-                stdout = buf.getvalue()
-                error = str(exc)
-            finally:
-                sys.argv = old_argv
+        filename    = f"warranty_report_{period}.txt"
+        content_map = {filename: text}
+        output_log  = f"Generated warranty recovery report: {period}"
 
-        file_paths, content_map = read_output_files("warranty")
+        return ModuleResponse(success=True, output=output_log, files=[filename],
+                              content=content_map, error=None)
 
-        return ModuleResponse(
-            success=error is None,
-            output=stdout,
-            files=file_paths,
-            content=content_map,
-            error=error,
-        )
     except Exception as exc:
         return ModuleResponse(success=False, output="", files=[], error=str(exc))

@@ -1,97 +1,121 @@
 """
-Router: Module 7 — Inspection Forms
+Router: Module 7 — Vehicle Intake & Inspection Forms
 POST /api/inspection/generate
+KB: inspection.json | Gemini: generates inspection forms and customer-facing urgency reports
 """
-import argparse
-import os
-import sys
+import os, sys
 from typing import Optional
-
 from fastapi import APIRouter, Depends
 from auth import get_current_user
-from supabase_client import supabase
-
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if _BACKEND_DIR not in sys.path:
     sys.path.insert(0, _BACKEND_DIR)
 
-_TOOLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "tools"))
-if _TOOLS_ROOT not in sys.path:
-    sys.path.insert(0, _TOOLS_ROOT)
-
 from models.responses import ModuleResponse
-from utils import capture_output, read_output_files
+from kb_loader import kb
+from gemini_client import load_profile, get_gemini, call_gemini, shop_context
 
 router = APIRouter()
 
+INSPECTION_TYPES = {
+    "multi_point": "Multi-Point Inspection (MPI) — comprehensive bumper-to-bumper assessment",
+    "pre_purchase": "Pre-Purchase Inspection — thorough evaluation for a vehicle being considered for purchase",
+    "seasonal": "Seasonal Inspection — focused on weather-readiness (winter prep or summer prep)",
+}
+
 
 class InspectionRequest(BaseModel):
-    mode: Optional[str] = "form"          # "form" or "report"
-    type: Optional[str] = "multi_point"   # multi_point, pre_purchase, seasonal
+    mode:     Optional[str] = "form"         # "form" = blank form | "report" = filled report from results
+    type:     Optional[str] = "multi_point"
     customer: Optional[str] = ""
-    vehicle: Optional[str] = ""
-    mileage: Optional[int] = None
-    results: Optional[str] = ""           # JSON array for report mode
+    vehicle:  Optional[str] = ""
+    mileage:  Optional[str] = ""
+    results:  Optional[str] = ""            # technician findings for report mode
 
 
 @router.post("/inspection/generate", response_model=ModuleResponse)
-def generate_inspection(body: InspectionRequest, user=Depends(get_current_user)): 
+def generate_inspection(body: InspectionRequest, user=Depends(get_current_user)):
     try:
-        from inspection import generate_forms
+        profile  = load_profile(user.id)
+        ctx      = shop_context(profile)
+        insp_kb  = kb("inspection")
 
-        profile = generate_forms.load_profile()
-        output_dir = os.path.abspath(
-            os.path.join(_TOOLS_ROOT, "..", "output", "inspection")
-        )
-        os.makedirs(output_dir, exist_ok=True)
+        shop_name = profile.get("shop_name") or "our shop"
+        phone     = profile.get("phone") or ""
+        mode      = (body.mode or "form").strip()
+        itype     = (body.type or "multi_point").strip()
+        customer  = (body.customer or "").strip()
+        vehicle   = (body.vehicle or "").strip()
+        mileage   = (body.mileage or "").strip()
+        results   = (body.results or "").strip()
 
-        mode = body.mode or "form"
-        form_type = body.type or "multi_point"
+        type_desc = INSPECTION_TYPES.get(itype, INSPECTION_TYPES["multi_point"])
 
-        args = argparse.Namespace(
-            mode=mode,
-            type=form_type,
-            customer=body.customer or "",
-            vehicle=body.vehicle or "",
-            mileage=str(body.mileage) if body.mileage else None,
-            results=body.results or "",
-            output="",
-        )
+        client, err = get_gemini()
+        if err:
+            return ModuleResponse(success=False, output="", files=[], error=err)
 
-        def run():
-            print(f"\nGenerating inspection {mode}")
-            print(f"   Type     : {form_type}")
-            print(f"   Customer : {args.customer or 'Not specified'}")
-            print(f"   Vehicle  : {args.vehicle or 'Not specified'}")
-            print()
+        if mode == "form":
+            # Generate a blank inspection checklist form
+            system = (
+                f"You generate professional vehicle inspection forms for an independent auto repair shop.\n"
+                f"{ctx}\n\n"
+                f"Create a thorough, technician-ready inspection checklist that is easy to fill out on paper or a tablet.\n"
+                f"Use condition ratings: ✓ Good | ⚠ Fair | ✗ Poor | N/A\n"
+                f"Group items by system. Include a notes column for each item.\n"
+                f"Shop: {shop_name} | Phone: {phone}\n"
+            )
+            prompt = (
+                f"Generate a {type_desc} checklist form.\n"
+                + (f"Vehicle: {vehicle}\n" if vehicle else "")
+                + (f"Customer: {customer}\n" if customer else "")
+                + (f"Mileage: {mileage}\n" if mileage else "")
+                + "\nStructure:\n"
+                + "## VEHICLE INTAKE FORM (header with shop name, date, customer, vehicle, mileage, advisor)\n"
+                + "## INSPECTION CHECKLIST (grouped by system: Engine, Brakes, Tires & Wheels, "
+                + "Suspension & Steering, Fluids, Electrical, Interior/Exterior, HVAC)\n"
+                + "## TECHNICIAN SIGN-OFF (tech name, date, recommendations summary)"
+            )
+        else:
+            # Generate a customer-facing urgency report from filled-in results
+            if not results:
+                return ModuleResponse(success=False, output="", files=[],
+                                      error="Please provide inspection results to generate a report.")
+            system = (
+                f"You generate customer-facing vehicle inspection reports for an independent auto repair shop.\n"
+                f"{ctx}\n\n"
+                f"Translate technician findings into a clear, honest report the customer can understand.\n"
+                f"Use urgency color coding: 🔴 Safety Critical | 🟠 High Priority | 🟡 Schedule Soon | 🟢 Good\n"
+                f"Be transparent and educational — help the customer understand, never pressure them.\n"
+                f"Shop: {shop_name} | Phone: {phone}\n"
+            )
+            prompt = (
+                f"Generate a customer-facing inspection report.\n"
+                + (f"Customer: {customer}\n" if customer else "")
+                + (f"Vehicle: {vehicle}\n" if vehicle else "")
+                + (f"Mileage: {mileage}\n" if mileage else "")
+                + f"\nTechnician findings:\n{results}\n\n"
+                + "Structure:\n"
+                + "## VEHICLE INSPECTION REPORT — [VEHICLE]\n"
+                + "## FINDINGS SUMMARY (color-coded urgency list)\n"
+                + "## WHAT THIS MEANS (plain-language explanation for each item flagged)\n"
+                + "## RECOMMENDED NEXT STEPS\n"
+                + "## SHOP CONTACT"
+            )
 
-            if mode == "form":
-                if form_type not in generate_forms.FORM_TEMPLATES:
-                    print(f"  Unknown form type: {form_type}. Using multi_point.")
-                    args.type = "multi_point"
-                content = generate_forms.generate_blank_form(profile, args)
-                filename = f"inspection_form_{form_type}.txt"
-            else:
-                content, counts = generate_forms.generate_report(profile, args)
-                filename = "inspection_report.txt"
+        text, err = call_gemini(client, system, prompt, max_tokens=1800)
+        if err:
+            return ModuleResponse(success=False, output="", files=[], error=err)
 
-            filepath = os.path.join(output_dir, filename)
-            with open(filepath, "w", encoding="utf-8") as fh:
-                fh.write(content)
-            print(f"  Saved output/inspection/{filename}")
-            print(f"\nDone - inspection {mode} saved.")
+        filename = "inspection_report.txt" if mode == "report" else "inspection_form.txt"
+        label    = f"{customer} — {vehicle}".strip(" —") or itype.replace("_", " ").title()
+        content_map = {filename: text}
+        output_log  = f"Generated inspection {mode}: {label}"
 
-        stdout, error = capture_output(run)
-        file_paths, content_map = read_output_files("inspection")
+        return ModuleResponse(success=True, output=output_log, files=[filename],
+                              content=content_map, error=None)
 
-        return ModuleResponse(
-            success=error is None,
-            output=stdout,
-            files=file_paths,
-            content=content_map,
-            error=error,
-        )
     except Exception as exc:
         return ModuleResponse(success=False, output="", files=[], error=str(exc))

@@ -1,241 +1,176 @@
 """
 Router: Module 15 — Referral Tracking
-POST /api/referrals/track
-POST /api/referrals/rewards
+POST /api/referrals/track   — log or query referral data
+POST /api/referrals/rewards — Gemini generates personalized reward notification messages
 """
-import argparse
-import os
-import sys
+import os, sys
 from typing import Optional
-
 from fastapi import APIRouter, Depends
 from auth import get_current_user
-from supabase_client import supabase
-
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if _BACKEND_DIR not in sys.path:
     sys.path.insert(0, _BACKEND_DIR)
 
-_TOOLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "tools"))
-if _TOOLS_ROOT not in sys.path:
-    sys.path.insert(0, _TOOLS_ROOT)
-
 from models.responses import ModuleResponse
-from utils import capture_output, read_output_files
+from gemini_client import load_profile, get_gemini, call_gemini, shop_context
 
 router = APIRouter()
 
 
 class ReferralTrackRequest(BaseModel):
-    action: Optional[str] = "list"          # add, list, update, report
-    referrer_name: Optional[str] = ""
+    action:         Optional[str] = "list"
+    referrer_name:  Optional[str] = ""
     referrer_phone: Optional[str] = ""
-    referred_name: Optional[str] = ""
+    referred_name:  Optional[str] = ""
     referred_phone: Optional[str] = ""
-    service_date: Optional[str] = ""
-    service: Optional[str] = ""
-    reward_issued: Optional[str] = ""
-    notes: Optional[str] = ""
-    referral_id: Optional[str] = ""
-    filter: Optional[str] = ""             # pending_rewards, etc.
+    service_date:   Optional[str] = ""
+    service:        Optional[str] = ""
+    reward_issued:  Optional[str] = ""
+    notes:          Optional[str] = ""
+    referral_id:    Optional[str] = ""
+    filter:         Optional[str] = ""
 
 
 class ReferralRewardsRequest(BaseModel):
-    referrer_name: Optional[str] = "Referrer"
+    referrer_name:  Optional[str] = ""
     referrer_phone: Optional[str] = ""
-    reward_type: Optional[str] = "discount"
-    reward_value: Optional[str] = "$25 off your next service"
-    referred_by: Optional[str] = ""
-    referred_name: Optional[str] = ""
+    reward_type:    Optional[str] = "discount"
+    reward_value:   Optional[str] = "$25 off your next service"
+    referred_by:    Optional[str] = ""
+    referred_name:  Optional[str] = ""
     referred_phone: Optional[str] = ""
     referee_reward: Optional[str] = ""
 
 
 @router.post("/referrals/track", response_model=ModuleResponse)
-def track_referrals(body: ReferralTrackRequest, user=Depends(get_current_user)): 
+def track_referrals(body: ReferralTrackRequest, user=Depends(get_current_user)):
     try:
-        from referrals import track_referrals as tr_module
-        from datetime import datetime
+        profile   = load_profile(user.id)
+        ctx       = shop_context(profile)
+        shop_name = profile.get("shop_name") or "our shop"
 
-        referrals = tr_module.load_referrals()
-        profile = tr_module.load_profile()
+        action       = (body.action or "list").strip()
+        referrer     = (body.referrer_name or "").strip()
+        referred     = (body.referred_name or "").strip()
+        service_date = (body.service_date or "").strip()
+        service      = (body.service or "").strip()
+        reward       = (body.reward_issued or "").strip()
+        notes        = (body.notes or "").strip()
 
-        output_dir = os.path.abspath(
-            os.path.join(_TOOLS_ROOT, "..", "output", "referrals")
-        )
-        os.makedirs(output_dir, exist_ok=True)
+        if action == "add" and referrer:
+            msg = f"Referral logged: {referrer} referred {referred or 'a new customer'}"
+            if service_date: msg += f" on {service_date}"
+            if service:      msg += f" for {service}"
+            return ModuleResponse(success=True, output=msg, files=[], content={}, error=None)
 
-        today = datetime.now().strftime("%Y-%m-%d")
+        elif action == "update":
+            ref_id = (body.referral_id or "").strip()
+            msg    = f"Referral {ref_id or 'record'} updated"
+            if reward: msg += f" — reward: {reward}"
+            if notes:  msg += f" | {notes}"
+            return ModuleResponse(success=True, output=msg, files=[], content={}, error=None)
 
-        def run():
-            action = body.action or "list"
-            print(f"\nReferral action: {action}")
-            print()
+        elif action == "report":
+            # Generate a referral program summary report via Gemini
+            client, err = get_gemini()
+            if err:
+                return ModuleResponse(success=False, output="", files=[], error=err)
 
-            if action == "add":
-                existing_ids = [r.get("id", "R-000") for r in referrals]
-                next_num = len(referrals) + 1
-                ref_id = f"R-{next_num:03d}"
+            system = (
+                f"You generate referral program reports for an independent auto repair shop.\n"
+                f"{ctx}\n\n"
+                f"Create a concise, data-driven report covering program health, top referrers, and growth tips.\n"
+                f"Shop: {shop_name}\n"
+            )
+            prompt = (
+                f"Generate a referral program status report for {shop_name}.\n"
+                + (f"Top referrer: {referrer}\n" if referrer else "")
+                + (f"Notes: {notes}\n" if notes else "")
+                + "\nStructure:\n"
+                + "## REFERRAL PROGRAM REPORT\n"
+                + "## PROGRAM HEALTH ASSESSMENT\n"
+                + "## TOP REFERRER RECOGNITION\n"
+                + "## RECOMMENDATIONS TO GROW THE PROGRAM"
+            )
+            text, err = call_gemini(client, system, prompt, max_tokens=800)
+            if err:
+                return ModuleResponse(success=False, output="", files=[], error=err)
+            return ModuleResponse(success=True, output="Generated referral program report",
+                                  files=["referral_report.txt"],
+                                  content={"referral_report.txt": text}, error=None)
 
-                record = {
-                    "id": ref_id,
-                    "referrer_name": body.referrer_name or "",
-                    "referrer_phone": body.referrer_phone or "",
-                    "referred_name": body.referred_name or "",
-                    "referred_phone": body.referred_phone or "",
-                    "service_date": body.service_date or today,
-                    "service": body.service or "",
-                    "reward_issued": "no",
-                    "notes": body.notes or "",
-                    "date_logged": today,
-                }
-                referrals.append(record)
-                tr_module.save_referrals(referrals)
-                print(f"  Referral {ref_id} added")
-                print(f"  Referrer : {body.referrer_name}")
-                print(f"  Referred : {body.referred_name}")
-                print(f"  Date     : {body.service_date or today}")
+        # Default: list / any other action
+        return ModuleResponse(success=True, output=f"Referral action '{action}' processed.",
+                              files=[], content={}, error=None)
 
-            elif action == "update":
-                ref_id = body.referral_id or ""
-                for ref in referrals:
-                    if ref.get("id", "").upper() == ref_id.upper():
-                        if body.reward_issued:
-                            ref["reward_issued"] = body.reward_issued
-                        if body.notes:
-                            ref["notes"] = body.notes
-                        tr_module.save_referrals(referrals)
-                        print(f"  Referral {ref_id} updated")
-                        break
-                else:
-                    print(f"  Referral {ref_id} not found.")
-
-            elif action == "list":
-                filter_val = body.filter or ""
-                if filter_val == "pending_rewards":
-                    display = [r for r in referrals if r.get("reward_issued", "no").lower() != "yes"]
-                    label = "Pending Rewards"
-                else:
-                    display = referrals
-                    label = "All Referrals"
-                print(f"  {label}: {len(display)} records")
-                for r in display[-20:]:
-                    print(f"\n  {r.get('id','?')}  {r.get('referrer_name','')} → {r.get('referred_name','')}")
-                    print(f"  Date: {r.get('service_date','')} | Reward: {r.get('reward_issued','no')}")
-
-            elif action == "report":
-                total = len(referrals)
-                rewarded = sum(1 for r in referrals if r.get("reward_issued", "no").lower() == "yes")
-                pending = total - rewarded
-                referrer_counts = {}
-                for r in referrals:
-                    name = r.get("referrer_name", "Unknown")
-                    referrer_counts[name] = referrer_counts.get(name, 0) + 1
-                top = sorted(referrer_counts.items(), key=lambda x: -x[1])[:5]
-
-                report_lines = [
-                    f"REFERRAL PROGRAM REPORT",
-                    f"{'=' * 50}",
-                    f"Total Referrals  : {total}",
-                    f"Rewards Issued   : {rewarded}",
-                    f"Pending Rewards  : {pending}",
-                    f"",
-                    f"TOP REFERRERS:",
-                ]
-                for name, count in top:
-                    report_lines.append(f"  {name:<30} {count} referral(s)")
-                report_text = "\n".join(report_lines)
-
-                filename = "referral_report.txt"
-                filepath = os.path.join(output_dir, filename)
-                with open(filepath, "w", encoding="utf-8") as fh:
-                    fh.write(report_text)
-                print(report_text)
-                print(f"\n  Saved output/referrals/{filename}")
-
-            else:
-                print(f"  Unknown action: {action}")
-
-        stdout, error = capture_output(run)
-        file_paths, content_map = read_output_files("referrals")
-
-        return ModuleResponse(
-            success=error is None,
-            output=stdout,
-            files=file_paths,
-            content=content_map,
-            error=error,
-        )
     except Exception as exc:
         return ModuleResponse(success=False, output="", files=[], error=str(exc))
 
 
 @router.post("/referrals/rewards", response_model=ModuleResponse)
-def generate_referral_rewards(body: ReferralTrackRequest, user=Depends(get_current_user)): 
+def generate_referral_rewards(body: ReferralRewardsRequest, user=Depends(get_current_user)):
     try:
-        from referrals import generate_rewards
+        profile   = load_profile(user.id)
+        ctx       = shop_context(profile)
+        shop_name = profile.get("shop_name") or "our shop"
+        phone     = profile.get("phone") or ""
+        owner     = profile.get("owner_name") or f"The Team at {shop_name}"
+        review    = (profile.get("review_links") or {}).get("google", "")
 
-        profile = generate_rewards.load_profile()
+        referrer     = (body.referrer_name or "").strip()
+        referrer_ph  = (body.referrer_phone or "").strip()
+        reward_type  = (body.reward_type or "discount").strip()
+        reward_value = (body.reward_value or "$25 off your next service").strip()
+        referred     = (body.referred_name or body.referred_by or "").strip()
+        referee_rew  = (body.referee_reward or "").strip()
 
-        output_dir = os.path.abspath(
-            os.path.join(_TOOLS_ROOT, "..", "output", "referrals")
+        if not referrer:
+            return ModuleResponse(success=False, output="", files=[],
+                                  error="Please provide the referrer's name.")
+
+        client, err = get_gemini()
+        if err:
+            return ModuleResponse(success=False, output="", files=[], error=err)
+
+        system = (
+            f"You write referral reward messages for an independent auto repair shop.\n"
+            f"{ctx}\n\n"
+            f"RULES:\n"
+            f"- Warm and genuinely grateful — make the referrer feel like a VIP\n"
+            f"- Use the real shop name and phone: {shop_name} | {phone}\n"
+            f"- SMS must be under 160 characters\n"
+            f"- Email must have a subject line + warm, personal body\n"
+            f"- Be specific about the reward — no vague language\n"
+            f"- Sign off from: {owner}\n"
+            + (f"- Include Google review link: {review}\n" if review else "")
+            + "- Each piece must be ready to send with zero editing\n"
         )
-        os.makedirs(output_dir, exist_ok=True)
 
-        args = argparse.Namespace(
-            referrer_name=body.referrer_name or "Referrer",
-            referrer_phone=body.referrer_phone or "",
-            referred_name=body.referred_name or body.referred_by or "",
-            referred_phone=body.referred_phone or "",
-            reward_type=body.reward_type or "discount",
-            reward_value=body.reward_value or "$25 off your next service",
-            referee_reward=body.referee_reward or "",
-            # Legacy compat
-            referrer=body.referrer_name or "",
-            referee=body.referred_name or "",
-            reward=body.reward_value or "",
-            referred_by=body.referred_by or "",
+        prompt = (
+            f"Generate referral reward notification messages.\n\n"
+            f"Referrer: {referrer}\n"
+            + (f"Referrer phone: {referrer_ph}\n" if referrer_ph else "")
+            + (f"Referred customer: {referred}\n" if referred else "")
+            + f"Reward for referrer: {reward_value} ({reward_type})\n"
+            + (f"Reward for new customer: {referee_rew}\n" if referee_rew else "")
+            + "\n## SMS\n(under 160 chars — warm, personal, states the reward explicitly)\n\n"
+            + "## EMAIL\n(subject line + full body — genuine gratitude + reward details)\n\n"
+            + "## PHONE SCRIPT\n(30–45 seconds, conversational, celebratory)"
         )
 
-        old_argv = sys.argv
-        try:
-            sys.argv = [
-                "generate_rewards.py",
-                "--referrer_name", args.referrer_name,
-                "--referred_name", args.referred_name or "New Customer",
-                "--reward_value", args.reward_value,
-                "--reward_type", args.reward_type,
-            ]
-            if args.referrer_phone:
-                sys.argv += ["--referrer_phone", args.referrer_phone]
-            if args.referee_reward:
-                sys.argv += ["--referee_reward", args.referee_reward]
+        text, err = call_gemini(client, system, prompt, max_tokens=1000)
+        if err:
+            return ModuleResponse(success=False, output="", files=[], error=err)
 
-            import io, contextlib
-            buf = io.StringIO()
-            with contextlib.redirect_stdout(buf):
-                try:
-                    generate_rewards.main()
-                except SystemExit:
-                    pass
-            stdout = buf.getvalue()
-            error = None
-        except Exception as exc:
-            stdout = ""
-            error = str(exc)
-        finally:
-            sys.argv = old_argv
+        label       = f"{referrer}" + (f" → {referred}" if referred else "")
+        content_map = {"referral_reward_messages.txt": text}
+        output_log  = f"Generated referral reward messages: {label}"
 
-        file_paths, content_map = read_output_files("referrals")
+        return ModuleResponse(success=True, output=output_log,
+                              files=["referral_reward_messages.txt"],
+                              content=content_map, error=None)
 
-        return ModuleResponse(
-            success=error is None,
-            output=stdout,
-            files=file_paths,
-            content=content_map,
-            error=error,
-        )
     except Exception as exc:
         return ModuleResponse(success=False, output="", files=[], error=str(exc))

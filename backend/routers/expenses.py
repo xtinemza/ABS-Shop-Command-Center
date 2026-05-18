@@ -1,213 +1,137 @@
 """
 Router: Module 13 — Expense Reports
-POST /api/expenses/log
-POST /api/expenses/report
+POST /api/expenses/log     — acknowledge an expense log entry
+POST /api/expenses/report  — Gemini generates expense analysis and trend report
 """
-import argparse
-import os
-import sys
+import os, sys
 from typing import Optional
-
 from fastapi import APIRouter, Depends
 from auth import get_current_user
-from supabase_client import supabase
-
 from pydantic import BaseModel
 
 _BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if _BACKEND_DIR not in sys.path:
     sys.path.insert(0, _BACKEND_DIR)
 
-_TOOLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "tools"))
-if _TOOLS_ROOT not in sys.path:
-    sys.path.insert(0, _TOOLS_ROOT)
-
 from models.responses import ModuleResponse
-from utils import capture_output, read_output_files
+from gemini_client import load_profile, get_gemini, call_gemini, shop_context
 
 router = APIRouter()
 
+EXPENSE_CATEGORIES = [
+    "parts", "labor", "rent", "utilities", "insurance", "marketing",
+    "tools", "training", "equipment", "office_supplies", "taxes",
+    "professional_services", "vehicle", "miscellaneous",
+]
+
 
 class ExpenseLogRequest(BaseModel):
-    action: Optional[str] = "add"        # add, list, summary
-    date: Optional[str] = ""
-    amount: Optional[float] = 0.0
-    vendor: Optional[str] = ""
-    description: Optional[str] = ""
-    category: Optional[str] = "miscellaneous"
-    payment_method: Optional[str] = ""
-    receipt_ref: Optional[str] = ""
-    month: Optional[str] = ""            # YYYY-MM filter for list/summary
-
-
-class ExpenseReportRequest(BaseModel):
-    period: Optional[str] = "month"     # month, year
-    month: Optional[int] = None
-    year: Optional[int] = None
-    format: Optional[str] = "summary"  # summary, detailed
+    action:         Optional[str]   = "add"
+    date:           Optional[str]   = ""
+    amount:         Optional[float] = 0.0
+    vendor:         Optional[str]   = ""
+    description:    Optional[str]   = ""
+    category:       Optional[str]   = "miscellaneous"
+    payment_method: Optional[str]   = ""
+    receipt_ref:    Optional[str]   = ""
+    month:          Optional[str]   = ""
+    expense_data:   Optional[str]   = ""   # paste of expense records for report generation
+    period:         Optional[str]   = "month"
+    revenue:        Optional[str]   = ""   # optional revenue figure for ratio analysis
+    year:           Optional[int]   = None
+    format:         Optional[str]   = "summary"
 
 
 @router.post("/expenses/log", response_model=ModuleResponse)
-def log_expense(body: ExpenseLogRequest, user=Depends(get_current_user)): 
+def log_expense(body: ExpenseLogRequest, user=Depends(get_current_user)):
+    """Acknowledge expense entry. Actual persistence is handled by the frontend/Supabase."""
     try:
-        from expenses import categorize_expenses
-        from datetime import datetime
+        action = (body.action or "add").strip()
+        amount = body.amount or 0.0
+        desc   = (body.description or "").strip()
+        cat    = (body.category or "miscellaneous").strip()
+        vendor = (body.vendor or "").strip()
+        date   = (body.date or "").strip()
 
-        expenses = categorize_expenses.load_expenses()
-        today = datetime.now().strftime("%Y-%m-%d")
+        if action == "add":
+            if not desc and not amount:
+                return ModuleResponse(success=False, output="", files=[],
+                                      error="Please provide amount and description.")
+            msg = f"Expense logged: ${amount:,.2f} — {cat}"
+            if vendor: msg += f" | {vendor}"
+            if date:   msg += f" | {date}"
+            if desc:   msg += f"\n{desc}"
+            return ModuleResponse(success=True, output=msg, files=[], content={}, error=None)
 
-        output_dir = os.path.abspath(
-            os.path.join(_TOOLS_ROOT, "..", "output", "expenses")
-        )
-        os.makedirs(output_dir, exist_ok=True)
+        return ModuleResponse(success=True, output=f"Expense action '{action}' processed.",
+                              files=[], content={}, error=None)
 
-        args = argparse.Namespace(
-            action=body.action or "add",
-            date=body.date or today,
-            amount=body.amount or 0.0,
-            vendor=body.vendor or "",
-            description=body.description or "",
-            category=body.category or "miscellaneous",
-            payment_method=body.payment_method or "",
-            receipt_ref=body.receipt_ref or "",
-            month=body.month or "",
-        )
-
-        def run():
-            action = args.action
-            print(f"\nExpense action: {action}")
-            print()
-
-            if action == "add":
-                if not args.amount or not args.description:
-                    print("  ERROR: amount and description are required for add action.")
-                    return
-
-                entry_date = args.date or today
-                entry = {
-                    "date": entry_date,
-                    "amount": round(args.amount, 2),
-                    "vendor": args.vendor,
-                    "description": args.description,
-                    "category": args.category,
-                    "payment_method": args.payment_method,
-                    "receipt_ref": args.receipt_ref,
-                    "logged_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                }
-                expenses.append(entry)
-                categorize_expenses.save_expenses(expenses)
-                month_prefix = entry_date[:7]
-                month_total = sum(e["amount"] for e in expenses if e["date"].startswith(month_prefix))
-                print(f"  Expense logged: ${args.amount:,.2f} — {args.category}")
-                print(f"  Date: {entry_date} | Vendor: {args.vendor or '(not specified)'}")
-                print(f"  Description: {args.description}")
-                print(f"  Month-to-date ({month_prefix}): ${month_total:,.2f}")
-
-            elif action == "list":
-                if not expenses:
-                    print("  No expenses on file.")
-                    return
-                month_filter = args.month or ""
-                if month_filter:
-                    display = [e for e in expenses if e["date"].startswith(month_filter)]
-                    print(f"  {len(display)} expenses for {month_filter}")
-                else:
-                    display = expenses
-                    print(f"  {len(display)} total expenses")
-                for e in sorted(display, key=lambda x: x["date"], reverse=True)[:20]:
-                    print(f"  {e['date']}  ${e['amount']:>8,.2f}  [{e['category']:<20}]  {e['description'][:40]}")
-
-            elif action == "summary":
-                month_filter = args.month or ""
-                if month_filter:
-                    display = [e for e in expenses if e["date"].startswith(month_filter)]
-                    period_label = month_filter
-                else:
-                    display = expenses
-                    period_label = "All time"
-                total = sum(e["amount"] for e in display)
-                from collections import defaultdict
-                by_cat = defaultdict(float)
-                for e in display:
-                    by_cat[e["category"]] += e["amount"]
-                print(f"  Expense Summary — {period_label}")
-                print(f"  {'─' * 40}")
-                for cat, amt in sorted(by_cat.items(), key=lambda x: -x[1]):
-                    pct = (amt / total * 100) if total else 0
-                    print(f"  {cat:<22}  ${amt:>9,.2f}  ({pct:.1f}%)")
-                print(f"  {'─' * 40}")
-                print(f"  {'TOTAL':<22}  ${total:>9,.2f}")
-
-            else:
-                print(f"  Unknown action: {action}")
-
-        stdout, error = capture_output(run)
-        file_paths, content_map = read_output_files("expenses")
-
-        return ModuleResponse(
-            success=error is None,
-            output=stdout,
-            files=file_paths,
-            content=content_map,
-            error=error,
-        )
     except Exception as exc:
         return ModuleResponse(success=False, output="", files=[], error=str(exc))
 
 
 @router.post("/expenses/report", response_model=ModuleResponse)
-def expense_report(body: ExpenseLogRequest, user=Depends(get_current_user)): 
+def expense_report(body: ExpenseLogRequest, user=Depends(get_current_user)):
     try:
-        from expenses import generate_expense_report
-        from datetime import datetime
+        profile   = load_profile(user.id)
+        ctx       = shop_context(profile)
+        shop_name = profile.get("shop_name") or "our shop"
 
-        now = datetime.now()
+        expense_data = (body.expense_data or "").strip()
+        period       = (body.period or "month").strip()
+        revenue      = (body.revenue or "").strip()
+        month        = (body.month or "").strip()
 
-        output_dir = os.path.abspath(
-            os.path.join(_TOOLS_ROOT, "..", "output", "expenses")
+        if not expense_data:
+            return ModuleResponse(success=False, output="", files=[],
+                                  error="Please provide expense data to generate a report.")
+
+        client, err = get_gemini()
+        if err:
+            return ModuleResponse(success=False, output="", files=[], error=err)
+
+        period_label = month or period
+
+        system = (
+            f"You generate expense analysis reports for the owner of an independent auto repair shop.\n"
+            f"{ctx}\n\n"
+            f"RULES:\n"
+            f"- Be analytical and direct — this is an internal financial report\n"
+            f"- Calculate category totals and percentages of total spend\n"
+            f"- Flag any category that looks unusually high vs. industry norms\n"
+            f"- Provide 2–3 specific, actionable cost-reduction suggestions\n"
+            f"- If revenue is provided, calculate key expense-to-revenue ratios\n"
+            f"- Typical benchmarks: parts ~40%, labor overhead ~20%, rent ~8–12%, "
+            f"marketing ~3–5%, insurance ~3–5%\n"
+            f"- Shop: {shop_name}\n"
         )
-        os.makedirs(output_dir, exist_ok=True)
 
-        args = argparse.Namespace(
-            period=body.period or "month",
-            month=body.month or now.month,
-            year=body.year or now.year,
-            format=body.format or "summary",
-            revenue=None,
+        prompt = (
+            f"Generate an expense analysis report for {shop_name}.\n"
+            f"Period: {period_label}\n"
+            + (f"Revenue this period: {revenue}\n" if revenue else "")
+            + f"\nExpense data:\n{expense_data}\n\n"
+            + "Structure:\n"
+            + "## EXPENSE REPORT — [PERIOD]\n"
+            + "## CATEGORY BREAKDOWN (category | amount | % of total)\n"
+            + "## TOP SPENDING AREAS\n"
+            + (f"## EXPENSE-TO-REVENUE RATIOS\n" if revenue else "")
+            + "## FLAGS & ANOMALIES\n"
+            + "## COST REDUCTION OPPORTUNITIES\n"
+            + "## TREND NOTES (if multiple months of data provided)"
         )
 
-        old_argv = sys.argv
-        stdout_buf = ""
-        error = None
-        try:
-            sys.argv = [
-                "generate_expense_report.py",
-                "--period", args.period,
-                "--month", str(args.month),
-                "--year", str(args.year),
-                "--format", args.format,
-            ]
-            import io, contextlib
-            buf = io.StringIO()
-            with contextlib.redirect_stdout(buf):
-                try:
-                    generate_expense_report.main()
-                except SystemExit:
-                    pass
-            stdout_buf = buf.getvalue()
-        except Exception as exc:
-            error = str(exc)
-        finally:
-            sys.argv = old_argv
+        text, err = call_gemini(client, system, prompt, max_tokens=1400)
+        if err:
+            return ModuleResponse(success=False, output="", files=[], error=err)
 
-        file_paths, content_map = read_output_files("expenses")
+        safe_period = period_label.replace(" ", "_").replace("/", "-") or period
+        filename    = f"expense_report_{safe_period}.txt"
+        content_map = {filename: text}
+        output_log  = f"Generated expense report: {period_label}"
 
-        return ModuleResponse(
-            success=error is None,
-            output=stdout_buf,
-            files=file_paths,
-            content=content_map,
-            error=error,
-        )
+        return ModuleResponse(success=True, output=output_log, files=[filename],
+                              content=content_map, error=None)
+
     except Exception as exc:
         return ModuleResponse(success=False, output="", files=[], error=str(exc))
