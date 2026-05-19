@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { generateWaitTime } from "../../api/client"
+import ServiceSelect from "../ServiceSelect"
 
 const gold = "#D4A017"
 const inputStyle = { width: "100%", background: "#111113", border: "1px solid #222", borderRadius: 3, color: "#CCC", padding: "10px 12px", fontSize: 13, fontFamily: "'Barlow', sans-serif", outline: "none" }
@@ -30,7 +31,11 @@ export default function WaitTimeForm({ onSubmit, onSubmitStart, loading }) {
         </select>
       </Field>
       <Field label="Service Type">
-        <input style={inputStyle} value={form.service_type} onChange={set("service_type")} placeholder="e.g. Brake job, Transmission service" />
+        <ServiceSelect
+          value={form.service_type}
+          onChange={(val) => setForm(f => ({ ...f, service_type: val }))}
+          placeholder="Select or add a service..."
+        />
       </Field>
       <button type="submit" disabled={loading} style={{ width: "100%", marginTop: 8, padding: "14px 0", borderRadius: 3, border: `1px solid ${gold}66`, background: loading ? `${gold}88` : `linear-gradient(135deg, ${gold}, ${gold}CC)`, color: "#0B0B0D", fontSize: 13, fontWeight: 800, cursor: loading ? "default" : "pointer", fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase", fontStyle: "italic" }}>
         {loading ? "Generating..." : "Generate →"}

@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { generateDeclined } from "../../api/client"
+import ServiceSelect from "../ServiceSelect"
 
 const gold = "#D4A017"
 const inputStyle = { width: "100%", background: "#111113", border: "1px solid #222", borderRadius: 3, color: "#CCC", padding: "10px 12px", fontSize: 13, fontFamily: "'Barlow', sans-serif", outline: "none" }
@@ -20,7 +21,11 @@ export default function DeclinedForm({ onSubmit, onSubmitStart, loading }) {
   return (
     <form onSubmit={handleSubmit}>
       <Field label="Declined Service">
-        <input style={inputStyle} value={form.service} onChange={set("service")} placeholder="e.g. Rear brake pad replacement" />
+        <ServiceSelect
+          value={form.service}
+          onChange={(val) => setForm(f => ({ ...f, service: val }))}
+          placeholder="Select or add a service..."
+        />
       </Field>
       <Field label="Urgency Level">
         <select style={inputStyle} value={form.urgency} onChange={set("urgency")}>

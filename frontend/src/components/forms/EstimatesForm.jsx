@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { generateEstimate } from "../../api/client"
+import ServiceSelect from "../ServiceSelect"
 
 const gold = "#D4A017"
 const inputStyle = { width: "100%", background: "#111113", border: "1px solid #222", borderRadius: 3, color: "#CCC", padding: "10px 12px", fontSize: 13, fontFamily: "'Barlow', sans-serif", outline: "none", boxSizing: "border-box" }
@@ -11,7 +12,7 @@ function Field({ label, children }) {
 }
 
 export default function EstimatesForm({ onSubmit, onSubmitStart, loading }) {
-  const [form, setForm] = useState({ customer: "", vehicle: "" })
+  const [form, setForm] = useState({ customer: "", vehicle: "", service_type: "" })
   const [items, setItems] = useState([emptyItem()])
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }))
 
@@ -46,6 +47,13 @@ export default function EstimatesForm({ onSubmit, onSubmitStart, loading }) {
 
   return (
     <form onSubmit={handleSubmit}>
+      <Field label="Service Type">
+        <ServiceSelect
+          value={form.service_type}
+          onChange={(val) => setForm(f => ({ ...f, service_type: val }))}
+          placeholder="Select or add a service..."
+        />
+      </Field>
       <Field label="Customer Name">
         <input style={inputStyle} value={form.customer} onChange={set("customer")} placeholder="e.g. James Rivera" />
       </Field>
