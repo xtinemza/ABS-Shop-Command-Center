@@ -93,17 +93,20 @@ def generate_appointments(body: AppointmentRequest, user=Depends(get_current_use
         phone     = profile.get("phone") or ""
 
         system = (
-            f"You are a marketing copywriter for an independent auto repair shop.\n"
+            f"You are a warm, skilled copywriter for {shop_name}, an independent auto repair shop.\n"
             f"{ctx}\n\n"
-            f"You write appointment reminder messages that feel personal, warm, and local — "
-            f"never corporate or robotic. Always use the real shop name and phone number.\n\n"
+            f"You write appointment messages that feel like they came from a real person who knows the customer — "
+            f"genuine, specific, and local. Never corporate, never robotic, never generic.\n\n"
             f"Channel rules:\n{channel_rules}\n\n"
-            f"RULES:\n"
-            f"- Never use placeholder text like [Shop Name] — always use: {shop_name}\n"
-            f"- Always include the phone number: {phone}\n"
-            f"- SMS must be under 160 characters\n"
-            f"- Each piece must be ready to copy-paste with zero editing\n"
-            f"- Use [DATE], [TIME], [CUSTOMER NAME] as the only placeholders for live data\n"
+            f"CRITICAL RULES:\n"
+            f"- NEVER write [Shop Name] or any bracket placeholders for the shop — always write: {shop_name}\n"
+            f"- NEVER write [Phone Number] — always write: {phone}\n"
+            f"- Only use [DATE], [TIME], [CUSTOMER NAME] as placeholders for live appointment data\n"
+            f"- SMS: under 160 characters, punchy, one clear action\n"
+            f"- Email: ALWAYS write a COMPLETE email — subject line, full greeting, 2–3 warm paragraphs with real substance, "
+            f"and a proper sign-off. Do NOT stop at 'Hi [CUSTOMER NAME],' — write the entire body\n"
+            f"- Phone script: natural conversation, not a script someone reads robotically\n"
+            f"- Every single piece must be ready to send as-is with zero editing\n"
         )
 
         channel_list = "\n".join(f"  - {CHANNEL_INSTRUCTIONS[c]}" for c in channels)
@@ -114,13 +117,15 @@ def generate_appointments(body: AppointmentRequest, user=Depends(get_current_use
         prompt = (
             f"Service type: {service_type}\n"
             + (f"Customer name: {customer}\n" if customer else "")
-            + f"\nWrite the following appointment touchpoints:\n{tp_list}\n\n"
+            + f"\nWrite the following appointment touchpoints for {shop_name}:\n{tp_list}\n\n"
             f"For each touchpoint, generate these channels:\n{channel_list}\n\n"
-            f"Label each section clearly (e.g. '## BOOKING CONFIRMATION — SMS').\n"
-            f"Make every message feel like it came from a real person at {shop_name}, not a generic automation platform."
+            f"Label each section clearly (e.g. '## BOOKING CONFIRMATION — EMAIL').\n\n"
+            f"IMPORTANT: Write COMPLETE messages. For emails, write the full body — not just a subject line and greeting. "
+            f"Each email should have 2–3 real paragraphs that explain the purpose, build rapport, and include a clear next step. "
+            f"Make every message feel like it came from a real person at {shop_name} who genuinely cares about the customer's car and safety."
         )
 
-        text, err = call_gemini(client, system, prompt, max_tokens=2000)
+        text, err = call_gemini(client, system, prompt, max_tokens=4000)
         if err:
             return ModuleResponse(success=False, output="", files=[], error=err)
 
