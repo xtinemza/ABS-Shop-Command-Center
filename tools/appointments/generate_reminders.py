@@ -283,8 +283,3 @@ def main():
 
 if __name__ == '__main__':
     main()
- len(channels)} total templates")
-
-
-if __name__ == '__main__':
-    main()
